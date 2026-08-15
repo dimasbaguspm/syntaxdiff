@@ -1,0 +1,232 @@
+:root {
+  --bg: #0d1117;
+  --bg-2: #161b22;
+  --border: #30363d;
+  --fg: #e6edf3;
+  --muted: #8b949e;
+  --accent: #58a6ff;
+  --green: #3fb950;
+  --red: #f85149;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+.tagline {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.lang-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+select,
+button,
+input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+select {
+  background: var(--bg-2);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+button {
+  background: var(--bg-2);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 14px;
+  cursor: pointer;
+  font-size: 13px;
+}
+button:hover {
+  border-color: var(--accent);
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0d1117;
+  font-weight: 600;
+}
+button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.toggles {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.toggles-label {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.inputs {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pane-label {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.pane textarea {
+  flex: 1;
+  min-height: 320px;
+  resize: vertical;
+  background: var(--bg-2);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  tab-size: 2;
+}
+.pane textarea:focus {
+  outline: 1px solid var(--accent);
+}
+.pane-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.error {
+  background: rgba(248, 81, 73, 0.12);
+  border: 1px solid var(--red);
+  color: #ff7b72;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 13px;
+  white-space: pre-wrap;
+}
+
+.diff {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.stats {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+}
+.stat.add {
+  color: var(--green);
+}
+.stat.del {
+  color: var(--red);
+}
+.diff-body {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: auto;
+  max-height: 600px;
+}
+
+/* diff2html overrides for dark theme */
+.diff-body .d2h-wrapper {
+  font-size: 12px;
+}
+.diff-body table.d2h-diff-table {
+  background: transparent;
+}
+.diff-body .d2h-file-header {
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+}
+.diff-body .d2h-info {
+  background: transparent;
+  color: var(--muted);
+}
+.diff-body .d2h-code-line {
+  color: var(--fg);
+}
+.diff-body .d2h-ins {
+  background: rgba(63, 185, 80, 0.18);
+}
+.diff-body .d2h-ins td {
+  background-color: rgba(63, 185, 80, 0.15);
+}
+.diff-body .d2h-del {
+  background: rgba(248, 81, 73, 0.18);
+}
+.diff-body .d2h-del td {
+  background-color: rgba(248, 81, 73, 0.15);
+}
+.diff-body .d2h-cntx {
+  background: transparent;
+}
