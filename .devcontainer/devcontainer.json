@@ -1,0 +1,24 @@
+{
+  "name": "syntaxdiff",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "forwardPorts": [5173],
+  "remoteUser": "node",
+  "postCreateCommand": ".devcontainer/setup.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "oxc.oxc-vscode"
+      ]
+    }
+  },
+  "mounts": [
+    "source=${localWorkspaceFolderBasename}-pnpm-store,target=/pnpm-store,type=volume"
+  ],
+  "containerEnv": {
+    "PNPM_HOME": "/pnpm-store"
+  }
+}

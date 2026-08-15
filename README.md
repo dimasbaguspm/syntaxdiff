@@ -30,6 +30,19 @@ pnpm install
 pnpm dev        # dev server
 ```
 
+### Development container (mandatory workflow)
+
+Development runs inside a **devcontainer** (Node 24 + pnpm toolchain). This repo
+ships `.devcontainer/` (Dockerfile + `devcontainer.json` + `setup.sh`), managed
+by the [`opencode-devcontainers`](https://github.com/athal7/opencode-devcontainers)
+plugin: the plugin clones each branch and spins up an isolated container, with
+the Vite dev port (5173) auto-mapped into the configured port range.
+
+```bash
+# inside a devcontainer, the toolchain is pre-wired:
+pnpm install && pnpm dev
+```
+
 ## Scripts
 
 | Command | What it does |
