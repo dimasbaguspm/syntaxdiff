@@ -1,202 +1,113 @@
+@import "tailwindcss";
+
 :root {
-  --bg: #0d1117;
-  --bg-2: #161b22;
-  --border: #30363d;
-  --fg: #e6edf3;
-  --muted: #8b949e;
-  --accent: #58a6ff;
-  --green: #3fb950;
-  --red: #f85149;
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    sans-serif;
+  color-scheme: dark;
+
+  /* Core palette — dark green base, gold ink (design language shared with uncover64) */
+  --canvas: #131d17;
+  --surface: #24382c;
+  --surface-2: #2d4436;
+  --well: #0f1713;
+  --ink: #c9a75c;
+  --dim: #a08f5a;
+  --faint: #6e6a52;
+  --edge: #2a3a30;
+  --edge-strong: #3e5648;
+  --accent: #c9a75c;
+  --accent-strong: #dfc07c;
+  --accent-ink: #131d17;
+  --warn: #e8b04b;
+  --preview-bg: #0a100d;
+
+  --shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.55);
+
+  /* Semantic tint badges */
+  --tint-neutral-bg: rgba(201, 167, 92, 0.14);
+  --tint-neutral-fg: #d4b76c;
+  --tint-neutral-bd: rgba(201, 167, 92, 0.35);
+  --tint-emerald-bg: rgba(110, 231, 183, 0.14);
+  --tint-emerald-fg: #6ee7b7;
+  --tint-emerald-bd: rgba(110, 231, 183, 0.35);
+  --tint-rose-bg: rgba(253, 164, 175, 0.14);
+  --tint-rose-fg: #fda4af;
+  --tint-rose-bd: rgba(253, 164, 175, 0.35);
+  --tint-sky-bg: rgba(125, 211, 252, 0.14);
+  --tint-sky-fg: #7dd3fc;
+  --tint-sky-bd: rgba(125, 211, 252, 0.35);
+  --tint-amber-bg: rgba(251, 191, 36, 0.14);
+  --tint-amber-fg: #fbbf24;
+  --tint-amber-bd: rgba(251, 191, 36, 0.35);
 }
 
-* {
-  box-sizing: border-box;
+.light {
+  color-scheme: light;
+
+  --canvas: #eceae0;
+  --surface: #f7f6f0;
+  --surface-2: #e4e1d2;
+  --well: #ded9c6;
+  --ink: #1d2a23;
+  --dim: #4a5a51;
+  --faint: #7d8a82;
+  --edge: #cfcbb9;
+  --edge-strong: #b0ab93;
+  --accent: #24382c;
+  --accent-strong: #1c2b22;
+  --accent-ink: #ffffff;
+  --warn: #b45309;
+  --preview-bg: #e9ebe1;
+
+  --shadow: 0 12px 32px -12px rgba(19, 29, 23, 0.18);
+
+  --tint-neutral-bg: rgba(71, 85, 105, 0.1);
+  --tint-neutral-fg: #475569;
+  --tint-neutral-bd: rgba(71, 85, 105, 0.3);
+  --tint-emerald-bg: rgba(5, 150, 105, 0.1);
+  --tint-emerald-fg: #059669;
+  --tint-emerald-bd: rgba(5, 150, 105, 0.3);
+  --tint-rose-bg: rgba(225, 29, 72, 0.1);
+  --tint-rose-fg: #e11d48;
+  --tint-rose-bd: rgba(225, 29, 72, 0.3);
+  --tint-sky-bg: rgba(2, 132, 199, 0.1);
+  --tint-sky-fg: #0284c7;
+  --tint-sky-bd: rgba(2, 132, 199, 0.3);
+  --tint-amber-bg: rgba(180, 83, 9, 0.1);
+  --tint-amber-fg: #b45309;
+  --tint-amber-bd: rgba(180, 83, 9, 0.3);
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-well: var(--well);
+  --color-ink: var(--ink);
+  --color-dim: var(--dim);
+  --color-faint: var(--faint);
+  --color-edge: var(--edge);
+  --color-edge-strong: var(--edge-strong);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-ink: var(--accent-ink);
+  --color-warn: var(--warn);
+}
+
+html,
+body,
+#root {
+  height: 100%;
 }
 
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--fg);
+  @apply bg-canvas text-ink antialiased;
 }
 
-.app {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+::selection {
+  background: color-mix(in srgb, var(--accent) 40%, transparent);
 }
 
-header h1 {
-  margin: 0;
-  font-size: 28px;
-}
-.tagline {
-  margin: 4px 0 0;
-  color: var(--muted);
-}
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.lang-picker {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--muted);
-  font-size: 13px;
-}
-select,
-button,
-input[type="checkbox"] {
-  accent-color: var(--accent);
-}
-select {
-  background: var(--bg-2);
-  color: var(--fg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 6px 8px;
-}
-
-button {
-  background: var(--bg-2);
-  color: var(--fg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 7px 14px;
-  cursor: pointer;
-  font-size: 13px;
-}
-button:hover {
-  border-color: var(--accent);
-}
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-button.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #0d1117;
-  font-weight: 600;
-}
-button.active {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.toggles {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-.toggles-label {
-  color: var(--muted);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.toggle {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 13px;
-  cursor: pointer;
-}
-.muted {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.inputs {
-  display: flex;
-  gap: 8px;
-  align-items: stretch;
-}
-.pane {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.pane-label {
-  font-size: 12px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.pane textarea {
-  flex: 1;
-  min-height: 320px;
-  resize: vertical;
-  background: var(--bg-2);
-  color: var(--fg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 13px;
-  line-height: 1.5;
-  tab-size: 2;
-}
-.pane textarea:focus {
-  outline: 1px solid var(--accent);
-}
-.pane-actions {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 8px;
-}
-
-.error {
-  background: rgba(248, 81, 73, 0.12);
-  border: 1px solid var(--red);
-  color: #ff7b72;
-  border-radius: 8px;
-  padding: 12px;
-  font-size: 13px;
-  white-space: pre-wrap;
-}
-
-.diff {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.stats {
-  display: flex;
-  gap: 16px;
-  font-size: 13px;
-}
-.stat.add {
-  color: var(--green);
-}
-.stat.del {
-  color: var(--red);
-}
-.diff-body {
-  background: var(--bg-2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: auto;
-  max-height: 600px;
-}
-
-/* diff2html overrides for dark theme */
+/* diff2html — dark theme, mapped to the semantic tint tokens */
 .diff-body .d2h-wrapper {
   font-size: 12px;
 }
@@ -204,29 +115,33 @@ button.active {
   background: transparent;
 }
 .diff-body .d2h-file-header {
-  background: var(--bg-2);
-  border-bottom: 1px solid var(--border);
-  color: var(--muted);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--edge);
+  color: var(--dim);
 }
 .diff-body .d2h-info {
   background: transparent;
-  color: var(--muted);
+  color: var(--dim);
 }
 .diff-body .d2h-code-line {
-  color: var(--fg);
+  color: var(--ink);
 }
-.diff-body .d2h-ins {
-  background: rgba(63, 185, 80, 0.18);
-}
+.diff-body .d2h-ins,
 .diff-body .d2h-ins td {
-  background-color: rgba(63, 185, 80, 0.15);
+  background-color: var(--tint-emerald-bg);
+  color: var(--tint-emerald-fg);
 }
-.diff-body .d2h-del {
-  background: rgba(248, 81, 73, 0.18);
-}
+.diff-body .d2h-del,
 .diff-body .d2h-del td {
-  background-color: rgba(248, 81, 73, 0.15);
+  background-color: var(--tint-rose-bg);
+  color: var(--tint-rose-fg);
 }
 .diff-body .d2h-cntx {
   background: transparent;
+}
+.diff-body .d2h-lines-added {
+  color: var(--tint-emerald-fg);
+}
+.diff-body .d2h-lines-deleted {
+  color: var(--tint-rose-fg);
 }

@@ -1,6 +1,8 @@
 import { html } from "diff2html";
 import "diff2html/bundles/css/diff2html.min.css";
+import { FileDiff } from "lucide-react";
 import type { ViewMode } from "../store";
+import { CopyButton } from "./ui";
 
 interface DiffViewProps {
   patch: string;
@@ -16,12 +18,26 @@ export function DiffView({ patch, mode, counts }: DiffViewProps) {
   });
 
   return (
-    <section className="diff">
-      <div className="stats">
-        <span className="stat add">+{counts.added} added</span>
-        <span className="stat del">−{counts.removed} removed</span>
+    <section className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-1.5 text-sm font-medium text-dim">
+            <FileDiff className="size-4" aria-hidden />
+            Diff
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--tint-emerald-bd)] bg-[var(--tint-emerald-bg)] px-2.5 py-0.5 text-xs font-medium text-[var(--tint-emerald-fg)]">
+            +{counts.added} added
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--tint-rose-bd)] bg-[var(--tint-rose-bg)] px-2.5 py-0.5 text-xs font-medium text-[var(--tint-rose-fg)]">
+            −{counts.removed} removed
+          </span>
+        </div>
+        <CopyButton value={patch} label="Copy diff" />
       </div>
-      <div className="diff-body" dangerouslySetInnerHTML={{ __html: rendered }} />
+      <div
+        className="diff-body overflow-x-auto rounded-lg border border-edge bg-well"
+        dangerouslySetInnerHTML={{ __html: rendered }}
+      />
     </section>
   );
 }

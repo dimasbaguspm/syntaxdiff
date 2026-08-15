@@ -16,16 +16,21 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.3.3",
     "bson": "^6.10.3",
+    "clsx": "^2.1.1",
+    "dexie": "^4.4.4",
     "diff": "^8.0.2",
     "diff2html": "^3.4.48",
     "fast-xml-parser": "^5.2.5",
     "js-yaml": "^4.1.0",
+    "lucide-react": "^1.31.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.9.4",
     "smol-toml": "^1.4.0",
     "sql-formatter": "^15.6.2",
+    "tailwindcss": "^4.3.3",
     "zustand": "^5.0.9"
   },
   "pnpm": {
