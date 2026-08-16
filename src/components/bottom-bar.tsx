@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { Bookmark, MessageSquareText, Moon, Sun } from "lucide-react";
+import { Bookmark, MessageSquareText, Moon, MoreVertical, Sun } from "lucide-react";
 import { useTheme } from "../hooks/use-theme";
 import { listDiffs } from "../db";
+import { trackEvent } from "../lib/analytics/track";
+import { DropdownMenu } from "./dropdown-menu";
 
 const SITE_URL = "https://syntaxdiff.dimasbaguspm.dev";
 const FEEDBACK_URL = "https://github.com/dimasbaguspm/syntaxdiff/issues";
@@ -37,9 +39,7 @@ export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
             className="flex items-center gap-1.5 rounded px-1.5 py-1 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
           >
             <Bookmark className="size-4" aria-hidden />
-            <span className="text-xs font-medium tabular-nums">
-              {count} {count === 1 ? "Saved" : "Saved"}
-            </span>
+            <span className="hidden text-xs font-medium tabular-nums sm:inline">{count} Saved</span>
           </button>
         </div>
 
@@ -56,7 +56,10 @@ export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
         <div className="flex items-center justify-end gap-1 sm:gap-3">
           <button
             type="button"
-            onClick={toggle}
+            onClick={() => {
+              trackEvent("theme_toggle", { theme: theme === "dark" ? "light" : "dark" });
+              toggle();
+            }}
             aria-label="Toggle theme"
             title="Toggle theme"
             className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
@@ -67,15 +70,37 @@ export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
               <Moon className="size-4" aria-hidden />
             )}
           </button>
+
           <a
             href={FEEDBACK_URL}
             target="_blank"
             rel="noreferrer"
+            onClick={() => trackEvent("feedback_click")}
             className="hidden items-center gap-1.5 text-xs font-medium text-accent transition-colors hover:text-accent-strong sm:flex"
           >
             <MessageSquareText className="size-4" aria-hidden />
             Feedback
           </a>
+
+          <div className="sm:hidden">
+            <DropdownMenu
+              label="More"
+              trigger={<MoreVertical className="size-4" aria-hidden />}
+              side="top"
+            >
+              <a
+                href={FEEDBACK_URL}
+                target="_blank"
+                rel="noreferrer"
+                role="menuitem"
+                onClick={() => trackEvent("feedback_click")}
+                className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-ink transition-colors hover:bg-surface-2"
+              >
+                <MessageSquareText className="size-4 text-dim" aria-hidden />
+                Feedback
+              </a>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
     </footer>

@@ -204,7 +204,7 @@ export function ComparePage() {
             setLang(v);
             trackEvent("change_language", { lang: v });
           }}
-          className="rounded-lg border border-edge bg-well px-2 py-1.5 text-sm text-ink focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20"
+          className="max-w-[10rem] rounded-lg border border-edge bg-well px-2 py-1.5 text-sm text-ink focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20"
         >
           <option value="auto">Auto — detected: {adapter.label}</option>
           {adapters.map((ad) => (
@@ -234,11 +234,10 @@ export function ComparePage() {
               type="button"
               onClick={onCompare}
               disabled={status === "running" || !a || !b}
+              aria-label="Compare"
               className={btnPrimary}
             >
-              {status === "running" ? <Spinner /> : null}
-              {status === "running" ? "Diffing…" : "Compare"}
-              <ChevronRight className="size-4" aria-hidden />
+              {status === "running" ? <Spinner /> : <ChevronRight className="size-4" aria-hidden />}
             </button>
           </Tooltip>
         </div>

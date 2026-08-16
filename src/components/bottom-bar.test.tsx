@@ -29,6 +29,11 @@ describe("BottomBar", () => {
     expect(document.documentElement.classList.contains("light")).toBe(true);
   });
 
+  it("has a mobile More menu button", () => {
+    render(<BottomBar onOpenHistory={vi.fn()} />);
+    expect(screen.getByRole("button", { name: "More" })).toBeInTheDocument();
+  });
+
   it("links to the Feedback issue tracker", () => {
     render(<BottomBar onOpenHistory={vi.fn()} />);
     const link = screen.getByText("Feedback").closest("a");

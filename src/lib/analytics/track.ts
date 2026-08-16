@@ -1,6 +1,7 @@
 import { ANALYTICS } from "@/constants/analytics";
 import { getSession } from "@/lib/utils/session";
 import { maskUrl } from "@/lib/utils/mask";
+import { getBrowserInfo } from "@/lib/utils/browser";
 import { loadUmami } from "./load-umami";
 import { trackUmami, umamiVersion } from "./umami";
 import { ANALYTICS_PROVIDER } from "./provider";
@@ -18,6 +19,7 @@ export function trackEvent(name: string, attrs?: TrackAttrs): void {
     providerVersion: umamiVersion(),
     appVersion: import.meta.env.VITE_APP_VERSION ?? "",
     environment: import.meta.env.MODE,
+    ...getBrowserInfo(),
     sessionId: session.sessionId,
     referrer: session.referrer,
     ...session.utm,

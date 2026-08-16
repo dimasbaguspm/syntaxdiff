@@ -37,6 +37,9 @@ describe("trackEvent", () => {
     expect(typeof attrs.sessionId).toBe("string");
     expect(attrs.source).toBe("button");
     expect(attrs.page).toBeDefined();
+    expect(typeof attrs.userAgent).toBe("string");
+    expect(typeof attrs.browserName).toBe("string");
+    expect(typeof attrs.browserVersion).toBe("string");
   });
 
   it("merges user attrs over defaults", () => {
