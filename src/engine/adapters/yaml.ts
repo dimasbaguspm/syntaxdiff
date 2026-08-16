@@ -33,6 +33,6 @@ export const yamlAdapter: LanguageAdapter = {
       throw new ParseError(`Invalid YAML: ${(e as Error).message}`);
     }
     const canonical = canonicalize(v, opts.sortKeys === true);
-    return { canonical: dump(canonical) };
+    return { canonical: dump(canonical, { lineWidth: -1 }) };
   },
 };

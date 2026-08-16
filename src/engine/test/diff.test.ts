@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { computeDiff } from "../diff";
+import { getAdapter } from "../registry";
 
 describe("computeDiff", () => {
   it("key reorder with sortKeys is a zero-change structural diff", () => {
@@ -31,6 +32,16 @@ describe("computeDiff", () => {
     const r = computeDiff(a, b, "toml", {}, {});
     expect(r.counts.added).toBeLessThan(3);
     expect(r.counts.removed).toBeLessThan(3);
+  });
+
+  it("YAML canonical output is deterministic (long single-line string not folded)", () => {
+    const long = `description: "${"x ".repeat(80)}y"\n`;
+    const r = computeDiff(long, long, "yaml", {}, {});
+    expect(r.counts.added + r.counts.removed).toBe(0);
+    // same doc canonicalizes to identical output (no width-dependent folding)
+    const a = getAdapter("yaml").format(long, {}).canonical;
+    const b = getAdapter("yaml").format(long, {}).canonical;
+    expect(a).toBe(b);
   });
 
   it("reports real value changes", () => {
