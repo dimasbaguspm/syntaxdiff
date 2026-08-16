@@ -5,7 +5,10 @@ FROM node:24-alpine AS build
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
-RUN corepack enable pnpm && pnpm install --frozen-lockfile
+# Pin pnpm to the version that generated the lockfile (10.x). `corepack enable`
+# alone would pull the latest (11.x), whose supply-chain policy
+# (MINIMUM_RELEASE_AGE) rejects recently-published lockfile entries.
+RUN corepack enable && corepack prepare pnpm@10.34.5 --activate && pnpm install --frozen-lockfile
 
 COPY . .
 
