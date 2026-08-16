@@ -3,7 +3,7 @@ import type { FormatOptions, LanguageId } from "./engine";
 
 /** A saved diff, persisted in IndexedDB so results survive page jumps. */
 export interface DiffRecord {
-  id?: number;
+  id: string;
   createdAt: number;
   lang: LanguageId;
   opts: FormatOptions;
@@ -15,21 +15,31 @@ export interface DiffRecord {
 }
 
 class SyntaxDiffDB extends Dexie {
-  diffs!: Table<DiffRecord, number>;
+  diffs!: Table<DiffRecord, string>;
 
   constructor() {
     super("syntaxdiff");
-    this.version(1).stores({ diffs: "++id, createdAt" });
+    this.version(1).stores({ diffs: "id, createdAt" });
   }
 }
 
 export const db = new SyntaxDiffDB();
 
-export async function saveDiff(rec: Omit<DiffRecord, "id">): Promise<number> {
-  return db.diffs.add(rec);
+function newId(): string {
+  try {
+    return crypto.randomUUID();
+  } catch {
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  }
 }
 
-export async function getDiff(id: number): Promise<DiffRecord | undefined> {
+export async function saveDiff(rec: Omit<DiffRecord, "id">): Promise<string> {
+  const id = newId();
+  await db.diffs.add({ ...rec, id });
+  return id;
+}
+
+export async function getDiff(id: string): Promise<DiffRecord | undefined> {
   return db.diffs.get(id);
 }
 
@@ -37,7 +47,7 @@ export async function listDiffs(): Promise<DiffRecord[]> {
   return db.diffs.orderBy("createdAt").reverse().toArray();
 }
 
-export async function deleteDiff(id: number): Promise<void> {
+export async function deleteDiff(id: string): Promise<void> {
   return db.diffs.delete(id);
 }
 

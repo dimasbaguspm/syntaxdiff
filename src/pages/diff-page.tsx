@@ -1,12 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { clsx } from "clsx";
-import { ArrowLeft, Columns2, FileDiff, Rows3, WrapText } from "lucide-react";
+import { ArrowLeft, Columns2, FileDiff, Rows3 } from "lucide-react";
 import { getAdapter } from "@/engine";
 import { getDiff, type DiffRecord } from "@/db";
 import { useStore } from "@/store";
 import { DiffView } from "@/components/diff-view";
-import { Tooltip } from "@/components/tooltip";
 import { btnActive, Spinner } from "@/components/ui";
 
 const btnSegment =
@@ -18,18 +17,13 @@ export function DiffPage() {
   const mode = useStore((s) => s.mode);
   const setMode = useStore((s) => s.setMode);
   const [rec, setRec] = useState<DiffRecord | null | undefined>(undefined);
-  const [wrap, setWrap] = useState(false);
-  const [height, setHeight] = useState<number | null>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ startY: number; startH: number } | null>(null);
 
   useEffect(() => {
-    const n = Number(id);
-    if (!Number.isFinite(n)) {
+    if (!id) {
       setRec(null);
       return;
     }
-    void getDiff(n).then((r) => setRec(r ?? null));
+    void getDiff(id).then((r) => setRec(r ?? null));
   }, [id]);
 
   if (rec === undefined) {
@@ -58,18 +52,6 @@ export function DiffPage() {
 
   const adapter = getAdapter(rec.lang);
 
-  const onHandleDown = (e: React.PointerEvent) => {
-    drag.current = { startY: e.clientY, startH: scrollRef.current?.clientHeight ?? 0 };
-    e.currentTarget.setPointerCapture(e.pointerId);
-  };
-  const onHandleMove = (e: React.PointerEvent) => {
-    if (!drag.current) return;
-    setHeight(Math.max(120, drag.current.startH + (e.clientY - drag.current.startY)));
-  };
-  const onHandleUp = () => {
-    drag.current = null;
-  };
-
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-edge bg-surface/40 px-4 py-2">
@@ -89,17 +71,6 @@ export function DiffPage() {
         </span>
 
         <div className="ml-auto flex items-center gap-1">
-          <Tooltip label={wrap ? "Unwrap" : "Wrap"}>
-            <button
-              type="button"
-              onClick={() => setWrap((w) => !w)}
-              aria-label="Toggle wrap"
-              className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
-            >
-              <WrapText className="size-4" aria-hidden />
-            </button>
-          </Tooltip>
-
           <div className="flex items-center gap-0.5 rounded-lg border border-edge bg-surface-2/50 p-0.5">
             <button
               type="button"
@@ -123,29 +94,9 @@ export function DiffPage() {
         </div>
       </div>
 
-      <div
-        ref={scrollRef}
-        className="min-h-0 flex-1 overflow-auto p-4"
-        style={height ? { height } : undefined}
-      >
-        <DiffView
-          patch={rec.patch}
-          mode={mode}
-          counts={{ added: rec.added, removed: rec.removed }}
-          wrap={wrap}
-        />
+      <div className="flex min-h-0 flex-1 p-4">
+        <DiffView patch={rec.patch} mode={mode} />
       </div>
-
-      <div
-        role="separator"
-        aria-orientation="horizontal"
-        onPointerDown={onHandleDown}
-        onPointerMove={onHandleMove}
-        onPointerUp={onHandleUp}
-        onPointerCancel={onHandleUp}
-        title="Drag to resize"
-        className="h-1.5 shrink-0 cursor-row-resize touch-none bg-edge-strong transition-colors hover:bg-accent"
-      />
     </div>
   );
 }

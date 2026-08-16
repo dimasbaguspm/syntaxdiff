@@ -24,8 +24,8 @@ describe("db", () => {
     const rec = makeRecord({ a: "hello\n", b: "world\n" });
     const id = await saveDiff(rec);
 
-    expect(typeof id).toBe("number");
-    expect(id).toBeGreaterThan(0);
+    expect(typeof id).toBe("string");
+    expect(id.length).toBeGreaterThan(0);
 
     const read = await getDiff(id);
     expect(read).toBeDefined();
@@ -36,7 +36,7 @@ describe("db", () => {
   });
 
   it("getDiff returns undefined for a missing id", async () => {
-    const read = await getDiff(9999);
+    const read = await getDiff("missing-id");
     expect(read).toBeUndefined();
   });
 

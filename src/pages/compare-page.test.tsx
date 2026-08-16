@@ -64,7 +64,7 @@ describe("ComparePage", () => {
     fireEvent.click(button);
 
     await waitFor(() => {
-      expect(screen.getByTestId("location").textContent).toMatch(/^\/diff\/\d+$/);
+      expect(screen.getByTestId("location").textContent).toMatch(/^\/diff\/[0-9a-f-]+$/);
     });
 
     const saved = await listDiffs();
@@ -83,7 +83,7 @@ describe("ComparePage", () => {
     useStore.setState({ a: '{"x":1}', b: '{"x":2}', lang: "json" });
     renderCompare();
     fireEvent.click(screen.getByRole("button", { name: /Options/i }));
-    expect(screen.getByText("JSON options")).toBeInTheDocument();
+    expect(screen.getByText("Options — JSON")).toBeInTheDocument();
     expect(screen.getAllByRole("switch").length).toBeGreaterThan(0);
   });
 

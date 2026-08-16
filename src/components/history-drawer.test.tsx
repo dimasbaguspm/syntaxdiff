@@ -63,7 +63,7 @@ describe("HistoryDrawer", () => {
     expect(await screen.findByText("JSON")).toBeInTheDocument();
     expect(screen.getByText("+1")).toBeInTheDocument();
     expect(screen.getByText("−1")).toBeInTheDocument();
-    expect(id).toBeGreaterThan(0);
+    expect(id).toBeTruthy();
   });
 
   it("does not render the drawer body when closed", async () => {
@@ -78,7 +78,7 @@ describe("HistoryDrawer", () => {
     const item = await screen.findByText("JSON");
     fireEvent.click(item);
     await waitFor(() => {
-      expect(screen.getByTestId("location").textContent).toMatch(/^\/diff\/\d+$/);
+      expect(screen.getByTestId("location").textContent).toMatch(/^\/diff\/[0-9a-f-]+$/);
     });
   });
 

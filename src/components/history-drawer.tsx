@@ -21,7 +21,7 @@ export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () =>
     return diffs.filter((d) => getAdapter(d.lang).label.toLowerCase().includes(q));
   }, [diffs, query]);
 
-  const handleOpen = (id: number) => {
+  const handleOpen = (id: string) => {
     onClose();
     navigate(`/diff/${id}`);
   };

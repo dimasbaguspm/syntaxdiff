@@ -14,23 +14,20 @@ const PATCH = `--- a/file.txt
 afterEach(() => cleanup());
 
 describe("DiffView", () => {
-  it("renders the added and removed counts", () => {
-    render(<DiffView patch={PATCH} mode="unified" counts={{ added: 2, removed: 3 }} />);
-    expect(screen.getByText("+2 added")).toBeInTheDocument();
-    expect(screen.getByText("−3 removed")).toBeInTheDocument();
-  });
-
   it("renders the diff body container", () => {
-    const { container } = render(
-      <DiffView patch={PATCH} mode="unified" counts={{ added: 1, removed: 1 }} />,
-    );
+    const { container } = render(<DiffView patch={PATCH} mode="unified" />);
     expect(container.querySelector(".diff-body")).not.toBeNull();
   });
 
-  it("applies the wrap class when wrap is enabled", () => {
-    const { container } = render(
-      <DiffView patch={PATCH} mode="unified" counts={{ added: 1, removed: 1 }} wrap />,
-    );
-    expect(container.querySelector(".diff-body")?.classList.contains("diff-wrap")).toBe(true);
+  it("labels the sides Source A / Source B in split view", () => {
+    render(<DiffView patch={PATCH} mode="split" />);
+    expect(screen.getByText("Source A")).toBeInTheDocument();
+    expect(screen.getByText("Source B")).toBeInTheDocument();
+  });
+
+  it("does not show side labels in unified view", () => {
+    render(<DiffView patch={PATCH} mode="unified" />);
+    expect(screen.queryByText("Source A")).not.toBeInTheDocument();
+    expect(screen.queryByText("Source B")).not.toBeInTheDocument();
   });
 });

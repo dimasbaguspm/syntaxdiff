@@ -1,16 +1,13 @@
 import { html } from "diff2html";
 import "diff2html/bundles/css/diff2html.min.css";
-import { FileDiff } from "lucide-react";
 import type { ViewMode } from "../store";
 
 interface DiffViewProps {
   patch: string;
   mode: ViewMode;
-  counts: { added: number; removed: number };
-  wrap?: boolean;
 }
 
-export function DiffView({ patch, mode, counts, wrap = false }: DiffViewProps) {
+export function DiffView({ patch, mode }: DiffViewProps) {
   const rendered = html(patch, {
     drawFileList: false,
     matching: "lines",
@@ -18,23 +15,15 @@ export function DiffView({ patch, mode, counts, wrap = false }: DiffViewProps) {
   });
 
   return (
-    <section className="flex flex-col gap-2">
-      <div className="flex items-center gap-3">
-        <span className="flex items-center gap-1.5 text-sm font-medium text-dim">
-          <FileDiff className="size-4" aria-hidden />
-          Diff
-        </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--tint-emerald-bd)] bg-[var(--tint-emerald-bg)] px-2.5 py-0.5 text-xs font-medium text-[var(--tint-emerald-fg)]">
-          +{counts.added} added
-        </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--tint-rose-bd)] bg-[var(--tint-rose-bg)] px-2.5 py-0.5 text-xs font-medium text-[var(--tint-rose-fg)]">
-          −{counts.removed} removed
-        </span>
-      </div>
+    <section className="flex min-h-0 min-w-0 flex-1 flex-col">
+      {mode === "split" && (
+        <div className="flex shrink-0 items-stretch border-b border-edge bg-surface-2 text-xs font-medium text-dim">
+          <span className="flex-1 px-3 py-1.5">Source A</span>
+          <span className="flex-1 border-l border-edge px-3 py-1.5">Source B</span>
+        </div>
+      )}
       <div
-        className={`diff-body overflow-x-auto rounded-lg border border-edge bg-well ${
-          wrap ? "diff-wrap" : ""
-        }`}
+        className="diff-body min-h-0 flex-1 overflow-auto rounded-lg border border-edge bg-well"
         dangerouslySetInnerHTML={{ __html: rendered }}
       />
     </section>

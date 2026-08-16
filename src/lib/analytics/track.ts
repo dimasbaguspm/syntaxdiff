@@ -22,6 +22,7 @@ export function trackEvent(name: string, attrs?: TrackAttrs): void {
     referrer: session.referrer,
     ...session.utm,
     page: typeof location !== "undefined" ? maskUrl(location.pathname) : "",
+    url: typeof location !== "undefined" ? maskUrl(location.href) : "",
     ...attrs,
   };
 

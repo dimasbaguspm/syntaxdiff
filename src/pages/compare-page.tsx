@@ -7,7 +7,6 @@ import {
   ShieldCheck,
   SlidersHorizontal,
   Wand2,
-  WrapText,
   XCircle,
 } from "lucide-react";
 import { adapters, autoDetect, getAdapter } from "@/engine";
@@ -53,8 +52,6 @@ function Pane({
   value,
   onChange,
   placeholder,
-  wrap,
-  onToggleWrap,
   status,
   children,
 }: {
@@ -62,8 +59,6 @@ function Pane({
   value: string;
   onChange: (v: string) => void;
   placeholder: string;
-  wrap: boolean;
-  onToggleWrap: () => void;
   status: PaneStatus;
   children?: ReactNode;
 }) {
@@ -80,27 +75,10 @@ function Pane({
             <XCircle className="size-3 text-[var(--tint-rose-fg)]" aria-hidden />
           )}
         </span>
-        <div className="ml-auto flex items-center gap-0.5">
-          {children}
-          <Tooltip label={wrap ? "Unwrap" : "Wrap"}>
-            <button
-              type="button"
-              onClick={onToggleWrap}
-              aria-label="Toggle wrap"
-              className={iconBtn}
-            >
-              <WrapText className="size-4" aria-hidden />
-            </button>
-          </Tooltip>
-        </div>
+        <div className="ml-auto flex items-center gap-0.5">{children}</div>
       </div>
       <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-well">
-        <LineNumberedTextarea
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
-          wrap={wrap}
-        />
+        <LineNumberedTextarea value={value} onChange={onChange} placeholder={placeholder} />
       </div>
     </div>
   );
@@ -120,8 +98,6 @@ export function ComparePage() {
   const runSuccess = useStore((s) => s.runSuccess);
   const runError = useStore((s) => s.runError);
   const showSnack = useStore((s) => s.showSnack);
-  const [wrapA, setWrapA] = useState(false);
-  const [wrapB, setWrapB] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
 
   const adapter = useMemo(
@@ -245,8 +221,6 @@ export function ComparePage() {
             value={a}
             onChange={setA}
             placeholder="Paste source A…"
-            wrap={wrapA}
-            onToggleWrap={() => setWrapA((w) => !w)}
             status={statusA}
           >
             {paneButtons(setA, a)}
@@ -258,8 +232,6 @@ export function ComparePage() {
             value={b}
             onChange={setB}
             placeholder="Paste source B…"
-            wrap={wrapB}
-            onToggleWrap={() => setWrapB((w) => !w)}
             status={statusB}
           >
             {paneButtons(setB, b)}

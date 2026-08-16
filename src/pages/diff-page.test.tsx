@@ -40,23 +40,23 @@ beforeEach(async () => {
 afterEach(() => cleanup());
 
 describe("DiffPage", () => {
-  it("renders the language badge and added/removed counts for a seeded diff", async () => {
+  it("renders the language badge and a full-height diff for a seeded diff", async () => {
     const id = await saveDiff(makeRecord());
     renderDiff(`/diff/${id}`);
     expect(await screen.findByText("JSON")).toBeInTheDocument();
-    expect(screen.getByText("+1 added")).toBeInTheDocument();
-    expect(screen.getByText("−1 removed")).toBeInTheDocument();
     expect(document.querySelector(".diff-body")).not.toBeNull();
   });
 
-  it("shows 'Diff not found' for an unknown id", async () => {
-    renderDiff("/diff/9999");
-    expect(await screen.findByText("Diff not found.")).toBeInTheDocument();
-  });
-
-  it("renders a wrap toggle button", async () => {
+  it("renders Source A and Source B labels in split view", async () => {
+    useStore.setState({ mode: "split" });
     const id = await saveDiff(makeRecord());
     renderDiff(`/diff/${id}`);
-    expect(await screen.findByRole("button", { name: "Toggle wrap" })).toBeInTheDocument();
+    expect(await screen.findByText("Source A")).toBeInTheDocument();
+    expect(screen.getByText("Source B")).toBeInTheDocument();
+  });
+
+  it("shows 'Diff not found' for an unknown id", async () => {
+    renderDiff("/diff/00000000-0000-0000-0000-000000000000");
+    expect(await screen.findByText("Diff not found.")).toBeInTheDocument();
   });
 });

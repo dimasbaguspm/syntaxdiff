@@ -4,12 +4,12 @@ export function LineNumberedTextarea({
   value,
   onChange,
   placeholder,
-  wrap,
+  wrap = false,
 }: {
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
-  wrap: boolean;
+  wrap?: boolean;
 }) {
   const taRef = useRef<HTMLTextAreaElement>(null);
   const gutterRef = useRef<HTMLDivElement>(null);

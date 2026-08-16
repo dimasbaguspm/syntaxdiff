@@ -25,6 +25,12 @@ describe("maskUrl", () => {
     expect(masked).not.toContain("/diff/7");
   });
 
+  it("masks any /diff/:id segment, uuid or slug", () => {
+    expect(maskUrl("/diff/42")).toBe("/diff/[id]");
+    expect(maskUrl("/diff/123e4567-e89b-12d3-a456-426614174000")).toBe("/diff/[id]");
+    expect(maskUrl("/diff/arbitrary-slug")).toBe("/diff/[id]");
+  });
+
   it("leaves ordinary urls untouched", () => {
     expect(maskUrl("https://example.com/path/to/page")).toBe("https://example.com/path/to/page");
   });

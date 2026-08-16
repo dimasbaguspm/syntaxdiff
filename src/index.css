@@ -133,13 +133,13 @@ body {
   color: #e6edf3;
   font-weight: 500;
 }
-/* Inserted / deleted text: bold saturated red/green (800-family) */
+/* Inserted / deleted text: bold saturated red/green (700-family) */
 .diff-body .d2h-ins,
 .diff-body .d2h-ins td {
   background-color: rgba(16, 185, 129, 0.22);
 }
 .diff-body .d2h-ins .d2h-code-line-ctn {
-  color: #065f46; /* emerald-800 */
+  color: #047857; /* emerald-700 */
   font-weight: 600;
 }
 .diff-body .d2h-del,
@@ -147,15 +147,8 @@ body {
   background-color: rgba(239, 68, 68, 0.22);
 }
 .diff-body .d2h-del .d2h-code-line-ctn {
-  color: #991b1b; /* red-800 */
+  color: #b91c1c; /* red-700 */
   font-weight: 600;
-}
-/* Wrap toggle for the diff view */
-.diff-body.diff-wrap .d2h-code-line,
-.diff-body.diff-wrap .d2h-code-line-ctn,
-.diff-body.diff-wrap .d2h-code-line-prefix {
-  white-space: pre-wrap;
-  word-break: break-word;
 }
 .diff-body .d2h-cntx {
   background: transparent;
