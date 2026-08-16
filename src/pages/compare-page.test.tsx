@@ -35,16 +35,16 @@ describe("ComparePage", () => {
     renderCompare();
     expect(screen.getByText("Source A")).toBeInTheDocument();
     expect(screen.getByText("Source B")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Paste source A…")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Paste source B…")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Paste source A, or drop a file…")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Paste source B, or drop a file…")).toBeInTheDocument();
   });
 
   it("typing updates the store", () => {
     renderCompare();
-    fireEvent.change(screen.getByPlaceholderText("Paste source A…"), {
+    fireEvent.change(screen.getByPlaceholderText("Paste source A, or drop a file…"), {
       target: { value: "alpha" },
     });
-    fireEvent.change(screen.getByPlaceholderText("Paste source B…"), {
+    fireEvent.change(screen.getByPlaceholderText("Paste source B, or drop a file…"), {
       target: { value: "beta" },
     });
     expect(useStore.getState().a).toBe("alpha");

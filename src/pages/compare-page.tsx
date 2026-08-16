@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  AlignLeft,
   Braces,
   CheckCircle2,
   ChevronRight,
-  ShieldCheck,
+  ScrollText,
   SlidersHorizontal,
-  Wand2,
+  Upload,
   XCircle,
 } from "lucide-react";
 import { adapters, applyOptsDefaults, autoDetect, getAdapter } from "@/engine";
@@ -49,12 +50,35 @@ function usePaneStatus(value: string, adapter: LanguageAdapter, opts: FormatOpti
   return status;
 }
 
+/** Map a file extension to a supported language id, or undefined. */
+function languageFromExtension(name: string): LanguageId | undefined {
+  const ext = name.split(".").pop()?.toLowerCase();
+  switch (ext) {
+    case "json":
+      return "json";
+    case "yaml":
+    case "yml":
+      return "yaml";
+    case "sql":
+      return "sql";
+    case "csv":
+      return "csv";
+    case "toml":
+      return "toml";
+    case "xml":
+      return "xml";
+    default:
+      return undefined;
+  }
+}
+
 function Pane({
   label,
   value,
   onChange,
   placeholder,
   status,
+  onImportFile,
   children,
 }: {
   label: string;
@@ -62,10 +86,33 @@ function Pane({
   onChange: (v: string) => void;
   placeholder: string;
   status: PaneStatus;
+  onImportFile: (file: File, method: "drop" | "button") => void;
   children?: ReactNode;
 }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [dragging, setDragging] = useState(false);
+
+  const read = (file: File | undefined, method: "drop" | "button") => {
+    if (!file) return;
+    onImportFile(file, method);
+  };
+
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-well">
+    <div
+      className={`flex min-h-0 min-w-0 flex-1 flex-col bg-well transition-colors ${
+        dragging ? "outline-2 outline-accent/60" : ""
+      }`}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragging(true);
+      }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDragging(false);
+        read(e.dataTransfer.files?.[0], "drop");
+      }}
+    >
       <div className="flex shrink-0 items-center gap-1 border-b border-edge bg-surface-2 px-2 py-1.5">
         <span className="flex items-center gap-1.5 text-xs font-medium text-dim">
           <Braces className="size-3.5" aria-hidden />
@@ -77,7 +124,29 @@ function Pane({
             <XCircle className="size-3 text-[var(--tint-rose-fg)]" aria-hidden />
           )}
         </span>
-        <div className="ml-auto flex items-center gap-0.5">{children}</div>
+        <div className="ml-auto flex items-center gap-0.5">
+          <Tooltip label="Upload / drop a file">
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              aria-label="Upload a file into this source"
+              className={iconBtn}
+            >
+              <Upload className="size-4" aria-hidden />
+            </button>
+          </Tooltip>
+          {children}
+        </div>
+        <input
+          ref={inputRef}
+          type="file"
+          className="hidden"
+          accept=".csv,.json,.yaml,.yml,.toml,.xml,.sql,.txt,.log,text/plain,text/csv,application/json"
+          onChange={(e) => {
+            read(e.target.files?.[0], "button");
+            e.target.value = "";
+          }}
+        />
       </div>
       <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-well">
         <LineNumberedTextarea value={value} onChange={onChange} placeholder={placeholder} />
@@ -109,6 +178,25 @@ export function ComparePage() {
   const eOpts = useMemo(() => applyOptsDefaults(adapter, opts), [adapter, opts]);
   const statusA = usePaneStatus(a, adapter, eOpts);
   const statusB = usePaneStatus(b, adapter, eOpts);
+
+  const importFile = (set: (v: string) => void, file: File, method: "drop" | "button") => {
+    const ext = languageFromExtension(file.name);
+    void file
+      .text()
+      .then((text) => {
+        set(text);
+        const targetLang = ext ?? adapter.id;
+        if (ext && lang === "auto") setLang(ext);
+        logInfo("import file", { method, ext, lang: targetLang, bytes: file.size });
+        trackEvent("import_file", { method, ext, lang: targetLang, bytes: file.size });
+        showSnack(`Imported ${file.name}`, "success");
+      })
+      .catch((e) => {
+        showSnack(`Failed to read ${file.name}`, "error");
+        logError(e, "import file failed", { name: file.name });
+        trackEvent("import_file_error", { name: file.name });
+      });
+  };
 
   const validate = (value: string) => {
     try {
@@ -159,6 +247,7 @@ export function ComparePage() {
         removed: res.counts.removed,
       });
       trackEvent("compare_done", {
+        lang: res.language,
         added: res.counts.added,
         removed: res.counts.removed,
       });
@@ -179,7 +268,7 @@ export function ComparePage() {
           aria-label="Validate syntax"
           className={iconBtn}
         >
-          <ShieldCheck className="size-4" aria-hidden />
+          <ScrollText className="size-4" aria-hidden />
         </button>
       </Tooltip>
       <Tooltip label="Format">
@@ -189,7 +278,7 @@ export function ComparePage() {
           aria-label="Format"
           className={iconBtn}
         >
-          <Wand2 className="size-4" aria-hidden />
+          <AlignLeft className="size-4" aria-hidden />
         </button>
       </Tooltip>
     </>
@@ -257,8 +346,9 @@ export function ComparePage() {
             label="Source A"
             value={a}
             onChange={setA}
-            placeholder="Paste source A…"
+            placeholder="Paste source A, or drop a file…"
             status={statusA}
+            onImportFile={(file, method) => importFile(setA, file, method)}
           >
             {paneButtons(setA, a)}
           </Pane>
@@ -268,8 +358,9 @@ export function ComparePage() {
             label="Source B"
             value={b}
             onChange={setB}
-            placeholder="Paste source B…"
+            placeholder="Paste source B, or drop a file…"
             status={statusB}
+            onImportFile={(file, method) => importFile(setB, file, method)}
           >
             {paneButtons(setB, b)}
           </Pane>
