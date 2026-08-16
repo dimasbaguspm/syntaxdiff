@@ -1,3 +1,5 @@
+## [1.5.2](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.1...syntaxdiff_v1.5.2) (2026-08-16)
+
 # Changelog
 
 All notable changes to SyntaxDiff are captured in this file, shaped by `semantic-release` version tags.
