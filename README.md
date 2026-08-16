@@ -10,11 +10,22 @@ TOML / XML / plain-text snippets and get a Git-style diff of the
 
 ## Features
 
-- **Compare → result** — two full-screen panes, then a read-only `/diff/:id` page
-- **Schema-aware** — auto-detect language, canonicalize (keys sort, array order preserved)
-- **Fast** — parsing + diffing run in a **Web Worker**
+- **Paste → smart diff** — two full-height panes, then a read-only `/diff/:id` page in **split (side-by-side)** or **unified** view
+- **Structure-aware** — auto-detect the language, then format + recursively sort keys before diffing, so key order and formatting never cause false positives (array order is always preserved)
+- **Fast** — parsing + diffing run in a **Web Worker**, off the main thread
 - **Local history** — past diffs in IndexedDB (search / delete / clear)
-- **Dark & light** themes; zero network by default
+- **Privacy-first** — zero network by default; optional telemetry carries no file contents
+
+## Supported languages
+
+| Language | Pre-processing (on by default) |
+|----------|--------------------------------|
+| JSON     | Prettify, alphabetize keys (recursive) |
+| YAML     | Alphabetize keys (recursive) |
+| SQL      | Format + uppercase keywords; choose a dialect (MySQL, Postgres, …) |
+| TOML     | Alphabetize keys (recursive) |
+| XML      | Prettify (multi-line), alphabetize elements/attrs (recursive) |
+| Plain text | Fallback for anything else |
 
 ## Stack
 

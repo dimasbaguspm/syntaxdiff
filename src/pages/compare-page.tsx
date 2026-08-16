@@ -238,7 +238,14 @@ export function ComparePage() {
               aria-label="Compare"
               className={btnPrimary}
             >
-              {status === "running" ? <Spinner /> : <ChevronRight className="size-4" aria-hidden />}
+              {status === "running" ? (
+                <Spinner />
+              ) : (
+                <>
+                  <span className="hidden sm:inline">Compare</span>
+                  <ChevronRight className="size-4" aria-hidden />
+                </>
+              )}
             </button>
           </Tooltip>
         </div>
