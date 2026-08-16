@@ -7,6 +7,7 @@ import { getDiff, type DiffRecord } from "@/db";
 import { useStore } from "@/store";
 import { DiffView } from "@/components/diff-view";
 import { Tooltip } from "@/components/tooltip";
+import { trackEvent } from "@/lib/analytics/track";
 import { btnActive, Spinner } from "@/components/ui";
 
 const btnSegment =
@@ -59,7 +60,10 @@ export function DiffPage() {
         <Tooltip label="Back">
           <button
             type="button"
-            onClick={() => navigate("/")}
+            onClick={() => {
+              navigate("/");
+              trackEvent("back");
+            }}
             aria-label="Back"
             className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
           >
@@ -77,7 +81,10 @@ export function DiffPage() {
             <Tooltip label="Split (side-by-side)">
               <button
                 type="button"
-                onClick={() => setMode("split")}
+                onClick={() => {
+                  setMode("split");
+                  trackEvent("switch_view", { mode: "split" });
+                }}
                 className={clsx(btnSegment, mode === "split" && btnActive)}
                 aria-label="Split view"
               >
@@ -87,7 +94,10 @@ export function DiffPage() {
             <Tooltip label="Unified (inline)">
               <button
                 type="button"
-                onClick={() => setMode("unified")}
+                onClick={() => {
+                  setMode("unified");
+                  trackEvent("switch_view", { mode: "unified" });
+                }}
                 className={clsx(btnSegment, mode === "unified" && btnActive)}
                 aria-label="Unified view"
               >

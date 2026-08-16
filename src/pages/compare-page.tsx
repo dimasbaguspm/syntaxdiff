@@ -14,6 +14,8 @@ import type { FormatOptions, LanguageAdapter, LanguageId } from "@/engine";
 import { useStore } from "@/store";
 import { saveDiff } from "@/db";
 import { createDiffClient } from "@/worker/client";
+import { trackEvent } from "@/lib/analytics/track";
+import { logError, logInfo } from "@/lib/analytics/otel";
 import { TogglesPanel } from "@/components/toggles-panel";
 import { Modal } from "@/components/modal";
 import { Tooltip } from "@/components/tooltip";
@@ -111,8 +113,12 @@ export function ComparePage() {
     try {
       adapter.format(value, opts);
       showSnack(`Valid ${adapter.label}`, "success");
+      logInfo("validate", { lang: adapter.id, ok: true });
+      trackEvent("validate", { lang: adapter.id, ok: "true" });
     } catch (e) {
       showSnack(`Invalid ${adapter.label}: ${(e as Error).message}`, "error");
+      logError(e, "validate failed", { lang: adapter.id });
+      trackEvent("validate", { lang: adapter.id, ok: "false" });
     }
   };
 
@@ -120,13 +126,18 @@ export function ComparePage() {
     try {
       set(adapter.format(value, opts).canonical);
       showSnack(`Formatted as ${adapter.label}`, "success");
+      logInfo("format", { lang: adapter.id, ok: true });
+      trackEvent("format", { lang: adapter.id, ok: "true" });
     } catch (e) {
       showSnack((e as Error).message, "error");
+      logError(e, "format failed", { lang: adapter.id });
+      trackEvent("format", { lang: adapter.id, ok: "false" });
     }
   };
 
   const onCompare = async () => {
     runStart();
+    trackEvent("compare", { lang: adapter.id });
     try {
       const res = await client.diff({ a, b, lang: adapter.id, opts });
       const id = await saveDiff({
@@ -141,9 +152,20 @@ export function ComparePage() {
         removed: res.counts.removed,
       });
       runSuccess(res);
+      logInfo("compare done", {
+        lang: res.language,
+        added: res.counts.added,
+        removed: res.counts.removed,
+      });
+      trackEvent("compare_done", {
+        added: res.counts.added,
+        removed: res.counts.removed,
+      });
       navigate(`/diff/${id}`);
     } catch (e) {
       runError((e as Error).message);
+      logError(e, "compare failed", { lang: adapter.id });
+      trackEvent("compare_error", { lang: adapter.id });
     }
   };
 
@@ -177,7 +199,11 @@ export function ComparePage() {
       <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-edge bg-surface/40 px-4 py-2">
         <select
           value={lang}
-          onChange={(e) => setLang(e.target.value as typeof lang)}
+          onChange={(e) => {
+            const v = e.target.value as typeof lang;
+            setLang(v);
+            trackEvent("change_language", { lang: v });
+          }}
           className="rounded-lg border border-edge bg-well px-2 py-1.5 text-sm text-ink focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20"
         >
           <option value="auto">Auto — detected: {adapter.label}</option>
@@ -192,7 +218,10 @@ export function ComparePage() {
           <Tooltip label="Options">
             <button
               type="button"
-              onClick={() => setOptionsOpen(true)}
+              onClick={() => {
+                setOptionsOpen(true);
+                trackEvent("open_options");
+              }}
               aria-label="Options"
               className={iconBtn}
             >

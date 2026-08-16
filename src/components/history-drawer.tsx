@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FileDiff, Search, Trash2 } from "lucide-react";
 import { getAdapter } from "../engine";
 import { clearDiffs, deleteDiff, listDiffs, type DiffRecord } from "../db";
+import { trackEvent } from "../lib/analytics/track";
 import { Drawer } from "./drawer";
 
 export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -23,6 +24,7 @@ export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () =>
 
   const handleOpen = (id: string) => {
     onClose();
+    trackEvent("open_diff");
     navigate(`/diff/${id}`);
   };
 
@@ -80,7 +82,13 @@ export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () =>
               </button>
               <button
                 type="button"
-                onClick={() => d.id !== undefined && void deleteDiff(d.id).then(refresh)}
+                onClick={() =>
+                  d.id !== undefined &&
+                  (() => {
+                    void deleteDiff(d.id).then(refresh);
+                    trackEvent("delete_diff");
+                  })()
+                }
                 aria-label="Delete"
                 title="Delete"
                 className="rounded p-1 text-dim transition-colors hover:bg-[var(--tint-rose-bg)] hover:text-[var(--tint-rose-fg)]"

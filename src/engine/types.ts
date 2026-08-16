@@ -5,14 +5,18 @@
 
 export type LanguageId = "json" | "yaml" | "sql" | "toml" | "xml" | "bson" | "plain";
 
-/** A language-specific UI toggle, rendered from the adapter itself. */
+/** A language-specific UI option, rendered from the adapter itself. */
 export interface ToggleDef {
   id: string;
   label: string;
-  default?: boolean;
+  /** "boolean" renders a switch (default); "select" renders a dropdown. */
+  type?: "boolean" | "select";
+  /** Choices for type === "select". */
+  options?: string[];
+  default?: boolean | string;
 }
 
-export type FormatOptions = Record<string, boolean | undefined>;
+export type FormatOptions = Record<string, boolean | string | undefined>;
 
 export interface FormatResult {
   /** Canonical, normalized text used for diffing (and display). */

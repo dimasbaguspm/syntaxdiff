@@ -152,7 +152,7 @@ body {
   font-weight: 600;
 }
 .dv-cell.ctx .dv-line {
-  color: #c9d1d9;
+  color: var(--ink);
 }
 .dv-cell.empty {
   background: var(--well);
@@ -184,5 +184,5 @@ body {
   font-weight: 600;
 }
 .u-row.ctx .dv-line {
-  color: #c9d1d9;
+  color: var(--ink);
 }

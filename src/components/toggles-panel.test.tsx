@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { jsonAdapter } from "../engine/adapters/json";
+import { sqlAdapter } from "../engine/adapters/sql";
 import { useStore } from "../store";
 import { TogglesPanel } from "./toggles-panel";
 
@@ -45,6 +46,15 @@ describe("TogglesPanel", () => {
     expect(prettify).not.toBeChecked();
     fireEvent.click(prettify);
     expect(useStore.getState().opts.prettify).toBe(true);
+  });
+
+  it("renders a dialect dropdown for SQL and updates the store", () => {
+    useStore.setState({ opts: {} });
+    render(<TogglesPanel adapter={sqlAdapter} />);
+    const select = screen.getByLabelText("Dialect");
+    expect(select.tagName).toBe("SELECT");
+    fireEvent.change(select, { target: { value: "postgresql" } });
+    expect(useStore.getState().opts.dialect).toBe("postgresql");
   });
 
   it("shows a no-options message when the adapter has no toggles", () => {

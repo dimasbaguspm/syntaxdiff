@@ -28,7 +28,7 @@ interface AppState {
   setA(v: string): void;
   setB(v: string): void;
   setLang(l: LangChoice): void;
-  setOpt(id: string, val: boolean): void;
+  setOpt(id: string, val: boolean | string): void;
   setMode(m: ViewMode): void;
   runStart(): void;
   runSuccess(r: DiffResult): void;

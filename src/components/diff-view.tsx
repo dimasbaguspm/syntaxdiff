@@ -1,3 +1,4 @@
+import { Braces } from "lucide-react";
 import type { DiffLine } from "../engine";
 import type { ViewMode } from "../store";
 
@@ -39,8 +40,14 @@ function SplitView({ lines }: { lines: DiffLine[] }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex shrink-0 items-stretch border-b border-edge bg-surface-2 text-xs font-medium text-dim">
-        <span className="flex-1 px-3 py-1.5">Source A</span>
-        <span className="flex-1 border-l border-edge px-3 py-1.5">Source B</span>
+        <span className="flex flex-1 items-center gap-1.5 px-3 py-1.5">
+          <Braces className="size-3.5" aria-hidden />
+          Source A
+        </span>
+        <span className="flex flex-1 items-center gap-1.5 border-l border-edge px-3 py-1.5">
+          <Braces className="size-3.5" aria-hidden />
+          Source B
+        </span>
       </div>
       <div className="min-h-0 flex-1 overflow-auto">
         {lines.map((ln, i) => (
@@ -74,7 +81,7 @@ function UnifiedView({ lines }: { lines: DiffLine[] }) {
 
 export function DiffView({ lines, mode }: DiffViewProps) {
   return (
-    <div className="diff-view flex min-h-0 min-w-0 flex-1 flex-col">
+    <div className="diff-view flex min-h-0 min-w-0 flex-1 flex-col bg-well">
       {mode === "split" ? <SplitView lines={lines} /> : <UnifiedView lines={lines} />}
     </div>
   );
