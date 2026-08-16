@@ -108,6 +108,13 @@ body {
 }
 
 /* Custom diff renderer — split + unified share identical line styling */
+/* Skip painting off-screen rows for smooth scrolling on large diffs. */
+.dv-row,
+.u-row,
+.gutter-line {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1.4em;
+}
 .dv-row,
 .u-row {
   font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);

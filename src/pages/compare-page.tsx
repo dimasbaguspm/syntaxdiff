@@ -205,9 +205,9 @@ export function ComparePage() {
             setLang(v);
             trackEvent("change_language", { lang: v });
           }}
-          className="max-w-[10rem] rounded-lg border border-edge bg-well px-2 py-1.5 text-sm text-ink focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20"
+          className="max-w-[10rem] rounded-lg border border-edge bg-well px-2 py-1.5 text-sm text-ink focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20 sm:max-w-[16rem]"
         >
-          <option value="auto">Auto — detected: {adapter.label}</option>
+          <option value="auto">Auto ({adapter.label})</option>
           {adapters.map((ad) => (
             <option key={ad.id} value={ad.id}>
               {ad.label}

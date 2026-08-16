@@ -30,7 +30,9 @@ export function LineNumberedTextarea({
           className="select-none overflow-hidden border-r border-edge bg-surface/40 py-4 pr-2 pl-2 text-right font-mono text-xs leading-[1.5] text-faint"
         >
           {Array.from({ length: lineCount }, (_, i) => i + 1).map((n) => (
-            <div key={n}>{n}</div>
+            <div key={n} className="gutter-line">
+              {n}
+            </div>
           ))}
         </div>
       )}
