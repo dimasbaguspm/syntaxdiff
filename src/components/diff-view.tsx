@@ -1,63 +1,90 @@
+import { useRef } from "react";
 import { Braces } from "lucide-react";
 import type { DiffLine } from "../engine";
 import type { ViewMode } from "../store";
+import { SplitPanes } from "./split-panes";
 
 interface DiffViewProps {
   lines: DiffLine[];
   mode: ViewMode;
 }
 
-/** Describe one side of a row for the split (side-by-side) view. */
-function side(line: DiffLine, s: "a" | "b") {
-  const isA = s === "a";
-  const text = isA ? line.a : line.b;
-  const num = isA ? line.aNum : line.bNum;
-  const kind =
-    text === null
-      ? "empty"
-      : line.kind === "del"
-        ? isA
-          ? "del"
-          : "ctx"
-        : line.kind === "add"
-          ? isA
-            ? "ctx"
-            : "add"
-          : "ctx";
-  return { text: text ?? "", num, kind };
-}
-
-function Cell({ text, num, kind }: { text: string; num: number | null; kind: string }) {
+/** One full-height scrollable diff pane (Source A or Source B). */
+function DiffPane({
+  label,
+  lines,
+  side,
+  scrollRef,
+  onScroll,
+}: {
+  label: string;
+  lines: DiffLine[];
+  side: "a" | "b";
+  scrollRef: React.RefObject<HTMLDivElement | null>;
+  onScroll: () => void;
+}) {
   return (
-    <div className={`dv-cell ${kind}`}>
-      <span className="dv-gutter">{num ?? ""}</span>
-      <span className="dv-line">{text}</span>
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <div className="flex shrink-0 items-center gap-1.5 border-b border-edge bg-surface-2 px-3 py-1.5 text-xs font-medium text-dim">
+        <Braces className="size-3.5" aria-hidden />
+        {label}
+      </div>
+      <div ref={scrollRef} onScroll={onScroll} className="min-h-0 flex-1 overflow-auto">
+        {lines.map((ln, i) => {
+          const isA = side === "a";
+          const text = isA ? ln.a : ln.b;
+          const num = isA ? ln.aNum : ln.bNum;
+          const kind =
+            text === null
+              ? "empty"
+              : isA
+                ? ln.kind === "del"
+                  ? "del"
+                  : "ctx"
+                : ln.kind === "add"
+                  ? "add"
+                  : "ctx";
+          return (
+            <div key={i} className={`dv-row ${kind}`}>
+              <span className="dv-gutter">{num ?? ""}</span>
+              <span className="dv-line">{text ?? ""}</span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
 function SplitView({ lines }: { lines: DiffLine[] }) {
+  const aRef = useRef<HTMLDivElement>(null);
+  const bRef = useRef<HTMLDivElement>(null);
+  const syncFrom = (from: "a" | "b") => {
+    const src = from === "a" ? aRef.current : bRef.current;
+    const dst = from === "a" ? bRef.current : aRef.current;
+    if (src && dst) dst.scrollTop = src.scrollTop;
+  };
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex shrink-0 items-stretch border-b border-edge bg-surface-2 text-xs font-medium text-dim">
-        <span className="flex flex-1 items-center gap-1.5 px-3 py-1.5">
-          <Braces className="size-3.5" aria-hidden />
-          Source A
-        </span>
-        <span className="flex flex-1 items-center gap-1.5 border-l border-edge px-3 py-1.5">
-          <Braces className="size-3.5" aria-hidden />
-          Source B
-        </span>
-      </div>
-      <div className="min-h-0 flex-1 overflow-auto">
-        {lines.map((ln, i) => (
-          <div key={i} className="dv-row grid grid-cols-2">
-            <Cell {...side(ln, "a")} />
-            <Cell {...side(ln, "b")} />
-          </div>
-        ))}
-      </div>
-    </div>
+    <SplitPanes
+      left={
+        <DiffPane
+          label="Source A"
+          lines={lines}
+          side="a"
+          scrollRef={aRef}
+          onScroll={() => syncFrom("a")}
+        />
+      }
+      right={
+        <DiffPane
+          label="Source B"
+          lines={lines}
+          side="b"
+          scrollRef={bRef}
+          onScroll={() => syncFrom("b")}
+        />
+      }
+    />
   );
 }
 
@@ -68,7 +95,7 @@ function UnifiedView({ lines }: { lines: DiffLine[] }) {
         const marker = ln.kind === "add" ? "+" : ln.kind === "del" ? "−" : " ";
         const num = ln.kind === "add" ? ln.bNum : ln.aNum;
         return (
-          <div key={i} className={`dv-row u-row ${ln.kind}`}>
+          <div key={i} className={`u-row ${ln.kind}`}>
             <span className="dv-marker">{marker}</span>
             <span className="dv-gutter">{num ?? ""}</span>
             <span className="dv-line">{ln.a ?? ln.b ?? ""}</span>

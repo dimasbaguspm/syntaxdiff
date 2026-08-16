@@ -108,56 +108,62 @@ body {
 }
 
 /* Custom diff renderer — split + unified share identical line styling */
-.dv-row {
+.dv-row,
+.u-row {
   font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 12.5px;
   line-height: 1.5;
 }
+.dv-row {
+  display: flex;
+  min-width: 0;
+}
+/* Line-number gutter — matches the entry editor (surface/40 + right border) */
 .dv-gutter {
   flex: none;
+  position: sticky;
+  left: 0;
   min-width: 2.5rem;
   padding: 0 0.75rem 0 0.5rem;
   text-align: right;
   color: var(--faint);
+  background: color-mix(in srgb, var(--surface) 40%, transparent);
+  border-right: 1px solid var(--edge);
   user-select: none;
 }
 .dv-line {
   flex: 1;
   min-width: 0;
   padding: 0 0.75rem;
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow-wrap: anywhere;
+  white-space: pre;
 }
-/* Split view: side-by-side cells */
-.dv-cell {
-  display: flex;
-  min-width: 0;
-}
-.dv-cell + .dv-cell {
-  border-left: 1px solid var(--edge);
-}
-.dv-cell.del {
+/* Changed / inserted / deleted rows */
+.dv-row.del,
+.u-row.del {
   background: rgba(239, 68, 68, 0.2);
 }
-.dv-cell.del .dv-line {
+.dv-row.del .dv-line,
+.u-row.del .dv-line {
   color: #b91c1c; /* red-700 */
   font-weight: 600;
 }
-.dv-cell.add {
+.dv-row.add,
+.u-row.add {
   background: rgba(16, 185, 129, 0.2);
 }
-.dv-cell.add .dv-line {
+.dv-row.add .dv-line,
+.u-row.add .dv-line {
   color: #047857; /* emerald-700 */
   font-weight: 600;
 }
-.dv-cell.ctx .dv-line {
+.dv-row.ctx .dv-line,
+.u-row.ctx .dv-line {
   color: var(--ink);
 }
-.dv-cell.empty {
+.dv-row.empty {
   background: var(--well);
 }
-/* Unified view: single column with marker + gutter */
+/* Unified view: single column with marker */
 .u-row {
   display: flex;
   min-width: 0;
@@ -168,21 +174,4 @@ body {
   text-align: center;
   color: var(--faint);
   user-select: none;
-}
-.u-row.del {
-  background: rgba(239, 68, 68, 0.2);
-}
-.u-row.del .dv-line {
-  color: #b91c1c; /* red-700 */
-  font-weight: 600;
-}
-.u-row.add {
-  background: rgba(16, 185, 129, 0.2);
-}
-.u-row.add .dv-line {
-  color: #047857; /* emerald-700 */
-  font-weight: 600;
-}
-.u-row.ctx .dv-line {
-  color: var(--ink);
 }

@@ -13,18 +13,21 @@ const LINES: DiffLine[] = [
 afterEach(() => cleanup());
 
 describe("DiffView", () => {
-  it("labels Source A / Source B in split view", () => {
-    render(<DiffView lines={LINES} mode="split" />);
+  it("renders two full-height Source panes with a draggable split in split view", () => {
+    const { container } = render(<DiffView lines={LINES} mode="split" />);
     expect(screen.getByText("Source A")).toBeInTheDocument();
     expect(screen.getByText("Source B")).toBeInTheDocument();
+    // A + B panes each render every diff row
+    expect(container.querySelectorAll(".dv-row").length).toBe(LINES.length * 2);
+    // draggable split divider from SplitPanes
+    expect(container.querySelector('[role="separator"]')).not.toBeNull();
   });
 
-  it("renders both sides with line numbers in split view", () => {
-    const { container } = render(<DiffView lines={LINES} mode="split" />);
-    expect(screen.getAllByText("line1").length).toBe(2);
-    expect(screen.getByText("old line")).toBeInTheDocument();
-    expect(screen.getByText("new line")).toBeInTheDocument();
-    expect(container.querySelectorAll(".dv-row").length).toBe(LINES.length);
+  it("renders the correct content on each side in split view", () => {
+    render(<DiffView lines={LINES} mode="split" />);
+    expect(screen.getAllByText("line1").length).toBe(2); // context on both sides
+    expect(screen.getByText("old line")).toBeInTheDocument(); // A side only
+    expect(screen.getByText("new line")).toBeInTheDocument(); // B side only
   });
 
   it("renders a unified interleaved view with markers and no side labels", () => {
