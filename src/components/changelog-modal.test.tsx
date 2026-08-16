@@ -24,4 +24,24 @@ describe("ChangelogModal", () => {
     expect(container.querySelector("mark")).not.toBeNull();
     expect(screen.getByText(/match(es)?/)).toBeInTheDocument();
   });
+
+  it("filters by version via the dropdown", () => {
+    const { container } = render(<ChangelogModal open onClose={() => {}} />);
+    const select = screen.getByLabelText("Filter by version");
+    const version = [...select.querySelectorAll("option")].map((o) => o.value).find(Boolean)!;
+    fireEvent.change(select, { target: { value: version } });
+    const headings = container.querySelectorAll(".changelog-version");
+    expect(headings.length).toBe(1);
+    expect(headings[0].textContent).toBe(`v${version}`);
+  });
+
+  it("filters by source via the dropdown", () => {
+    const { container } = render(<ChangelogModal open onClose={() => {}} />);
+    const select = screen.getByLabelText("Filter by source");
+    const source = [...select.querySelectorAll("option")].map((o) => o.value).find(Boolean)!;
+    fireEvent.change(select, { target: { value: source } });
+    const headings = container.querySelectorAll(".md-body h4");
+    expect(headings.length).toBeGreaterThan(0);
+    for (const h of headings) expect(h.textContent).toBe(source);
+  });
 });
