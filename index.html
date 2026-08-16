@@ -1,12 +1,62 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="SyntaxDiff — privacy-first, client-side syntax-aware diff. Diff structure, not bytes." />
+    <meta charset="utf-8" />
+    <title>SyntaxDiff — privacy-first, client-side syntax-aware diff</title>
+    <meta
+      name="description"
+      content="Paste two JSON, YAML, SQL, TOML, or XML snippets and get a Git-style diff of the structure — not the bytes. Privacy-first: everything runs in your browser; nothing leaves your machine."
+    />
+    <meta name="robots" content="index, follow" />
     <meta name="theme-color" content="#131d17" />
-    <title>SyntaxDiff</title>
+    <link rel="canonical" href="https://syntaxdiff.dimasbaguspm.dev/" />
+
     <link rel="icon" type="image/svg+xml" href="/syntaxdiff.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="SyntaxDiff" />
+    <meta property="og:title" content="SyntaxDiff — diff structure, not bytes" />
+    <meta
+      property="og:description"
+      content="Privacy-first, client-side syntax-aware diff for JSON, YAML, SQL, TOML, and XML. Auto-detects the language, formats and sorts keys, then diffs the structure. Nothing leaves your machine."
+    />
+    <meta property="og:url" content="https://syntaxdiff.dimasbaguspm.dev/" />
+    <meta property="og:image" content="https://syntaxdiff.dimasbaguspm.dev/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="SyntaxDiff — privacy-first, client-side syntax-aware diff" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="SyntaxDiff — diff structure, not bytes" />
+    <meta
+      name="twitter:description"
+      content="Privacy-first, client-side syntax-aware diff for JSON, YAML, SQL, TOML, and XML."
+    />
+    <meta name="twitter:image" content="https://syntaxdiff.dimasbaguspm.dev/og-image.png" />
+
+    <!-- Structured data (Google Rich Results + AI agents) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "SyntaxDiff",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "url": "https://syntaxdiff.dimasbaguspm.dev/",
+        "image": "https://syntaxdiff.dimasbaguspm.dev/og-image.png",
+        "slogan": "Diff structure, not bytes.",
+        "description": "Privacy-first, client-side syntax-aware diff for JSON, YAML, SQL, TOML, and XML. Auto-detects the language, formats and recursively sorts keys, then diffs the structure entirely in the browser. No data leaves your machine.",
+        "featureList": "Side-by-side and unified diffs; schema-aware normalization; Web Worker performance; local history; dark and light themes; privacy-first (no cloud)",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
+
     <script defer src="https://analytics.dimasbaguspm.dev/script.js" data-website-id="9e7aa418-ae25-409b-8cf0-994a99593f02"></script>
   </head>
   <body>
