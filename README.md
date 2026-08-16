@@ -1,5 +1,9 @@
 # SyntaxDiff
 
+<p align="center">
+  <img src="public/syntaxdiff.svg" alt="SyntaxDiff logo" width="128" />
+</p>
+
 Privacy-first, client-side **syntax-aware diff**. Paste two JSON / YAML / SQL /
 TOML / XML / BSON / plain-text snippets and get a Git-style diff of the
 **structure** — ignoring formatting and key order. Nothing leaves your machine.
@@ -14,7 +18,7 @@ TOML / XML / BSON / plain-text snippets and get a Git-style diff of the
 
 ## Stack
 
-React + TypeScript · Vite · Tailwind v4 · Zustand · Dexie · diff2html ·
+React + TypeScript · Vite · Tailwind v4 · Zustand · Dexie · jsdiff (custom diff renderer) ·
 OpenTelemetry (OTLP logs + traces) · Umami
 Tooling: pnpm · Node 24 · oxlint · oxfmt · vitest
 
