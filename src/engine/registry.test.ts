@@ -4,7 +4,7 @@ import { adapters, autoDetect, getAdapter } from "./registry";
 describe("adapters", () => {
   it("registers all language adapters", () => {
     const ids = adapters.map((a) => a.id);
-    expect(ids).toEqual(["json", "yaml", "sql", "toml", "xml", "plain"]);
+    expect(ids).toEqual(["json", "yaml", "sql", "csv", "toml", "xml", "plain"]);
   });
 });
 

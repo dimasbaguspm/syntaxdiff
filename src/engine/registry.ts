@@ -1,4 +1,5 @@
 import type { LanguageAdapter, LanguageId } from "./types";
+import { csvAdapter } from "./adapters/csv";
 import { jsonAdapter } from "./adapters/json";
 import { plainAdapter } from "./adapters/plain";
 import { sqlAdapter } from "./adapters/sql";
@@ -10,6 +11,7 @@ export const adapters: LanguageAdapter[] = [
   jsonAdapter,
   yamlAdapter,
   sqlAdapter,
+  csvAdapter,
   tomlAdapter,
   xmlAdapter,
   plainAdapter,
