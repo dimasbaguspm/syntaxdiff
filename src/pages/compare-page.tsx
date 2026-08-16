@@ -99,7 +99,7 @@ function Pane({
 
   return (
     <div
-      className={`flex min-h-0 min-w-0 flex-1 flex-col bg-well transition-colors ${
+      className={`relative flex min-h-0 min-w-0 flex-1 flex-col bg-well transition-colors ${
         dragging ? "outline-2 outline-accent/60" : ""
       }`}
       onDragOver={(e) => {
@@ -113,6 +113,12 @@ function Pane({
         read(e.dataTransfer.files?.[0], "drop");
       }}
     >
+      {dragging && (
+        <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 border-2 border-dashed border-accent/70 bg-accent/10 text-ink">
+          <Upload className="size-8 text-accent" aria-hidden />
+          <span className="text-sm font-medium">Drop to import into {label}</span>
+        </div>
+      )}
       <div className="flex shrink-0 items-center gap-1 border-b border-edge bg-surface-2 px-2 py-1.5">
         <span className="flex items-center gap-1.5 text-xs font-medium text-dim">
           <Braces className="size-3.5" aria-hidden />
@@ -184,11 +190,11 @@ export function ComparePage() {
     void file
       .text()
       .then((text) => {
+        // Feed the same callback as paste/type so content-based auto-detection
+        // runs exactly like manual input (no language forcing).
         set(text);
-        const targetLang = ext ?? adapter.id;
-        if (ext && lang === "auto") setLang(ext);
-        logInfo("import file", { method, ext, lang: targetLang, bytes: file.size });
-        trackEvent("import_file", { method, ext, lang: targetLang, bytes: file.size });
+        logInfo("import file", { method, ext, lang: adapter.id, bytes: file.size });
+        trackEvent("import_file", { method, ext, lang: adapter.id, bytes: file.size });
         showSnack(`Imported ${file.name}`, "success");
       })
       .catch((e) => {
