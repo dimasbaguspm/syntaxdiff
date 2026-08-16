@@ -6,7 +6,7 @@ import type { LanguageId } from "../engine";
 import { useStore } from "../store";
 import { saveDiff } from "../db";
 import { createDiffClient } from "../worker/client";
-import { TogglesPanel } from "../components/TogglesPanel";
+import { TogglesPanel } from "../components/toggles-panel";
 import { btnPrimary, ErrorBanner, Spinner } from "../components/ui";
 
 const client = createDiffClient();

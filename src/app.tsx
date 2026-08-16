@@ -1,12 +1,23 @@
 import { useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { BottomBar } from "./components/BottomBar";
-import { HistoryDrawer } from "./components/HistoryDrawer";
-import { ComparePage } from "./pages/ComparePage";
-import { DiffPage } from "./pages/DiffPage";
+import { BottomBar } from "@/components/bottom-bar";
+import { HistoryDrawer } from "@/components/history-drawer";
+import { ComparePage } from "@/pages/compare-page";
+import { DiffPage } from "@/pages/diff-page";
+import { Spinner } from "@/components/ui";
+import { useAppBoot } from "@/hooks/use-app-boot";
 
 export default function App() {
+  const ready = useAppBoot();
   const [historyOpen, setHistoryOpen] = useState(false);
+
+  if (!ready) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-canvas">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>

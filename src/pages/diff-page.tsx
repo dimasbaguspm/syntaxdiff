@@ -5,7 +5,7 @@ import { ArrowLeft, Columns2, FileDiff, Rows3 } from "lucide-react";
 import { getAdapter } from "../engine";
 import { getDiff, type DiffRecord } from "../db";
 import { useStore } from "../store";
-import { DiffView } from "../components/DiffView";
+import { DiffView } from "../components/diff-view";
 import { btnActive, Spinner } from "../components/ui";
 
 const btnSegment =

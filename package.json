@@ -16,6 +16,15 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@opentelemetry/api": "^1.9.1",
+    "@opentelemetry/context-zone": "^2.10.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.221.0",
+    "@opentelemetry/instrumentation": "^0.221.0",
+    "@opentelemetry/instrumentation-fetch": "^0.221.0",
+    "@opentelemetry/instrumentation-user-interaction": "^0.65.0",
+    "@opentelemetry/instrumentation-xml-http-request": "^0.221.0",
+    "@opentelemetry/resources": "^2.10.0",
+    "@opentelemetry/sdk-trace-web": "^2.10.0",
     "@tailwindcss/vite": "^4.3.3",
     "bson": "^6.10.3",
     "clsx": "^2.1.1",
@@ -37,11 +46,15 @@
     "onlyBuiltDependencies": ["esbuild"]
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.2",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
+    "fake-indexeddb": "^6.2.5",
+    "jsdom": "^30.0.1",
     "oxfmt": "^0.63.0",
     "oxlint": "^1.75.0",
     "typescript": "~6.0.2",

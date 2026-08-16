@@ -1,72 +1,64 @@
 # SyntaxDiff
 
-Privacy-first, fully client-side **syntax-aware diff** tool.
-
-Diff **structure, not bytes**: paste two JSON / YAML / SQL / TOML / XML / BSON
-(and plain text) snippets and get a Git-style diff that ignores formatting and
-key order, showing only real changes. Everything runs in your browser — nothing
-ever leaves your machine.
+Privacy-first, client-side **syntax-aware diff**. Paste two JSON / YAML / SQL /
+TOML / XML / BSON / plain-text snippets and get a Git-style diff of the
+**structure** — ignoring formatting and key order. Nothing leaves your machine.
 
 ## Features
 
-- Auto-detects the pasted language (with manual override)
-- Language-specific canonicalization (e.g. recursive key sorting)
-- Web Worker engine — no UI freezes on large payloads
-- Split (side-by-side) and Unified (inline) views
-- Added/removed line counts
-- Zero network requests (all dependencies bundled; strict CSP)
+- **Compare → result** — two full-screen panes, then a read-only `/diff/:id` page
+- **Schema-aware** — auto-detect language, canonicalize (keys sort, array order preserved)
+- **Fast** — parsing + diffing run in a **Web Worker**
+- **Local history** — past diffs in IndexedDB (search / delete / clear)
+- **Dark & light** themes; zero network by default
 
 ## Stack
 
-React + TypeScript · Vite · Zustand · `diff` (jsdiff) · `diff2html` ·
-`sql-formatter` · `js-yaml` · `smol-toml` · `fast-xml-parser` · `bson`
-
+React + TypeScript · Vite · Tailwind v4 · Zustand · Dexie · diff2html ·
+OpenTelemetry (OTLP logs + traces) · Umami
 Tooling: pnpm · Node 24 · oxlint · oxfmt · vitest
 
-## Getting started
+## Develop
 
 ```bash
 pnpm install
-pnpm dev        # dev server
-```
-
-### Development container (mandatory workflow)
-
-Development runs inside a **devcontainer** (Node 24 + pnpm toolchain). This repo
-ships `.devcontainer/` (Dockerfile + `devcontainer.json` + `setup.sh`), managed
-by the [`opencode-devcontainers`](https://github.com/athal7/opencode-devcontainers)
-plugin: the plugin clones each branch and spins up an isolated container, with
-the Vite dev port (5173) auto-mapped into the configured port range.
-
-```bash
-# inside a devcontainer, the toolchain is pre-wired:
-pnpm install && pnpm dev
+pnpm dev      # http://localhost:5173
 ```
 
 ## Scripts
 
-| Command | What it does |
-|---------|--------------|
-| `pnpm dev` | Start the Vite dev server |
-| `pnpm build` | Type-check + production build to `dist/` |
-| `pnpm typecheck` | `tsc -b --noEmit` |
-| `pnpm test` | Run vitest unit tests |
-| `pnpm lint` | oxlint |
-| `pnpm fmt` / `pnpm fmt:check` | oxfmt / verify formatting |
+| Script           | What |
+|------------------|------|
+| `pnpm dev`       | dev server |
+| `pnpm build`     | typecheck + production build |
+| `pnpm preview`   | serve the production build |
+| `pnpm test`      | unit tests (vitest) |
+| `pnpm lint`      | oxlint |
+| `pnpm fmt`       | oxfmt |
+| `pnpm fmt:check` | verify formatting |
+| `pnpm typecheck` | `tsc --noEmit` |
 
-## Project layout
+## Config (optional build-time env)
+
+| Env                          | Purpose                          |
+|------------------------------|----------------------------------|
+| `VITE_OTEL_COLLECTOR_URL`    | OTLP endpoint for logs + traces  |
+| `VITE_UMAMI_WEBSITE_ID`      | Umami site id (tracker lazy-loaded) |
+| `VITE_APP_VERSION`           | version tag in telemetry / footer |
+
+## Layout
 
 ```
-src/
-  engine/        # pure, framework-free core (runs in worker + tests)
-    adapters/    # one file per language (JSON, YAML, SQL, TOML, XML, BSON, Plain)
-    canonical.ts # recursive canonicalization — the "structure not bytes" rule
-    diff.ts      # format → line-diff pipeline
-    registry.ts  # detection waterfall + adapter lookup
-  worker/        # Web Worker + promise client
-  components/    # UI (InputPane, TogglesPanel, DiffView)
-  store.ts       # Zustand state
+src/engine/       pure diff engine (language adapters → canonicalize → line-diff)
+src/worker/       web worker + promise client
+src/lib/analytics OTEL logging/tracing + Umami trackEvent
+src/components/   UI primitives + bottom bar + history drawer
+src/pages/        compare + diff pages
+src/db.ts         IndexedDB (Dexie) history
 ```
 
-Adding a language = implement `LanguageAdapter` in `src/engine/adapters/` and
-register it in `registry.ts`. See `docs/PRD.md` for the full design.
+## Deploy
+
+Pushing to `main` runs GitHub Actions: builds a
+`ghcr.io/dimasbaguspm/syntaxdiff` image (`<sha>` + `latest`) and fires the
+`DEPLOY_WEBHOOK_URL` webhook when set.

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FileDiff, Search, Trash2 } from "lucide-react";
 import { getAdapter } from "../engine";
 import { clearDiffs, deleteDiff, listDiffs, type DiffRecord } from "../db";
-import { Drawer } from "./Drawer";
+import { Drawer } from "./drawer";
 
 export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const navigate = useNavigate();
