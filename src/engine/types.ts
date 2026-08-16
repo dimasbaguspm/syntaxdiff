@@ -52,6 +52,16 @@ export interface DiffLine {
   aNum: number | null;
   b: string | null;
   bNum: number | null;
+  /** Inline (word-level) highlight for a `del` line paired with its add. */
+  aSeg?: InlineSegment[];
+  /** Inline (word-level) highlight for an `add` line paired with its del. */
+  bSeg?: InlineSegment[];
+}
+
+/** One highlighted run inside a diff line (word-level inline diff). */
+export interface InlineSegment {
+  text: string;
+  kind: "ctx" | "add" | "del";
 }
 
 export interface DiffResult {

@@ -74,6 +74,29 @@ export function serializeCsv(rows: string[][]): string {
   return rows.map((row) => row.map(quote).join(",")).join("\n") + "\n";
 }
 
+/**
+ * Pretty-table serialization: pad every column to its widest cell and join
+ * with ` | ` so the table lines up vertically. Keeps row order so unchanged
+ * rows match row-to-row in the diff, and pairs with inline word-highlighting
+ * to keep changed cells surgical instead of whole-line red/green.
+ */
+export function serializeAlignedCsv(rows: string[][]): string {
+  const colCount = rows.reduce((max, r) => Math.max(max, r.length), 0);
+  const widths: number[] = [];
+  for (let c = 0; c < colCount; c++) {
+    let w = 2; // minimum breathing room
+    for (const row of rows) {
+      if (row[c] !== undefined) w = Math.max(w, row[c].length);
+    }
+    widths[c] = w;
+  }
+  return (
+    rows
+      .map((row) => row.map((cell, c) => (cell ?? "").padEnd(widths[c] ?? 0)).join(" | "))
+      .join("\n") + "\n"
+  );
+}
+
 export const csvAdapter: LanguageAdapter = {
   id: "csv",
   label: "CSV",
@@ -92,6 +115,7 @@ export const csvAdapter: LanguageAdapter = {
   toggles: [
     { id: "sortRows", label: "Sort rows (keep header)", default: false },
     { id: "trimCells", label: "Trim cell whitespace", default: true },
+    { id: "alignColumns", label: "Align columns", default: true },
   ],
   format(input: string, opts: FormatOptions) {
     const rows = parseCsv(input);
@@ -103,6 +127,8 @@ export const csvAdapter: LanguageAdapter = {
       data.sort((a, b) => a.join(",").localeCompare(b.join(",")));
       normalized = [header, ...data];
     }
-    return { canonical: serializeCsv(normalized) };
+    const canonical =
+      opts.alignColumns === false ? serializeCsv(normalized) : serializeAlignedCsv(normalized);
+    return { canonical };
   },
 };

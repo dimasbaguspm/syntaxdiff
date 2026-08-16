@@ -1,10 +1,11 @@
-import { createTwoFilesPatch, diffLines, type Change } from "diff";
+import { createTwoFilesPatch, diffLines, diffWordsWithSpace, type Change } from "diff";
 import { getAdapter } from "./registry";
 import type {
   DiffCounts,
   DiffLine,
   DiffResult,
   FormatOptions,
+  InlineSegment,
   LanguageAdapter,
   LanguageId,
 } from "./types";
@@ -58,20 +59,41 @@ function buildLines(parts: Change[]): DiffLine[] {
   const lines: DiffLine[] = [];
   let aNum = 0;
   let bNum = 0;
+  let delBuf: DiffLine[] = [];
+  let addBuf: DiffLine[] = [];
+
+  const flush = (): void => {
+    const pairs = Math.max(delBuf.length, addBuf.length);
+    for (let i = 0; i < pairs; i++) {
+      const del = delBuf[i];
+      const add = addBuf[i];
+      if (del && add) {
+        const [aSeg, bSeg] = inlineSegments(del.a!, add.b!);
+        del.aSeg = aSeg;
+        add.bSeg = bSeg;
+      }
+      if (del) lines.push(del);
+      if (add) lines.push(add);
+    }
+    delBuf = [];
+    addBuf = [];
+  };
+
   for (const part of parts) {
     const arr = part.value.split("\n");
     if (arr[arr.length - 1] === "") arr.pop();
     if (part.removed) {
       for (const text of arr) {
         aNum++;
-        lines.push({ kind: "del", a: text, aNum, b: null, bNum: null });
+        delBuf.push({ kind: "del", a: text, aNum, b: null, bNum: null });
       }
     } else if (part.added) {
       for (const text of arr) {
         bNum++;
-        lines.push({ kind: "add", a: null, aNum: null, b: text, bNum });
+        addBuf.push({ kind: "add", a: null, aNum: null, b: text, bNum });
       }
     } else {
+      flush();
       for (const text of arr) {
         aNum++;
         bNum++;
@@ -79,7 +101,30 @@ function buildLines(parts: Change[]): DiffLine[] {
       }
     }
   }
+  flush();
   return lines;
+}
+
+/**
+ * Word-level inline diff between a deleted and an added line. Returns the
+ * segment lists for each side; shared words render as `ctx`, the changed
+ * words as `del` (old side) / `add` (new side).
+ */
+function inlineSegments(aText: string, bText: string): [InlineSegment[], InlineSegment[]] {
+  const parts = diffWordsWithSpace(aText, bText);
+  const aSeg: InlineSegment[] = [];
+  const bSeg: InlineSegment[] = [];
+  for (const part of parts) {
+    if (part.removed) {
+      aSeg.push({ text: part.value, kind: "del" });
+    } else if (part.added) {
+      bSeg.push({ text: part.value, kind: "add" });
+    } else {
+      aSeg.push({ text: part.value, kind: "ctx" });
+      bSeg.push({ text: part.value, kind: "ctx" });
+    }
+  }
+  return [aSeg, bSeg];
 }
 
 function countLines(patch: string): DiffCounts {

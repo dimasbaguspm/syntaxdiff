@@ -72,10 +72,21 @@ function Pane({
                   : ln.kind === "add"
                     ? "add"
                     : "ctx";
+            const segs = (isA ? ln.aSeg : ln.bSeg) ?? null;
             return (
               <div key={start + i} className={`dv-row ${kind}`}>
                 <span className="dv-gutter">{num ?? ""}</span>
-                <span className="dv-line">{text ?? ""}</span>
+                <span className="dv-line">
+                  {segs && segs.length > 0 ? (
+                    segs.map((s, j) => (
+                      <span key={j} className={`inl-${s.kind}`}>
+                        {s.text}
+                      </span>
+                    ))
+                  ) : (
+                    (text ?? "")
+                  )}
+                </span>
               </div>
             );
           })}
@@ -150,11 +161,22 @@ function UnifiedView({ lines }: { lines: DiffLine[] }) {
         {slice.map((ln, i) => {
           const marker = ln.kind === "add" ? "+" : ln.kind === "del" ? "−" : " ";
           const num = ln.kind === "add" ? ln.bNum : ln.aNum;
+          const segs = ln.kind === "add" ? ln.bSeg : ln.kind === "del" ? ln.aSeg : null;
           return (
             <div key={start + i} className={`u-row ${ln.kind}`}>
               <span className="dv-marker">{marker}</span>
               <span className="dv-gutter">{num ?? ""}</span>
-              <span className="dv-line">{ln.a ?? ln.b ?? ""}</span>
+              <span className="dv-line">
+                {segs && segs.length > 0 ? (
+                  segs.map((s, j) => (
+                    <span key={j} className={`inl-${s.kind}`}>
+                      {s.text}
+                    </span>
+                  ))
+                ) : (
+                  (ln.a ?? ln.b ?? "")
+                )}
+              </span>
             </div>
           );
         })}

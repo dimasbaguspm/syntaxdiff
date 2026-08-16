@@ -169,6 +169,25 @@ body {
   color: var(--ink);
 }
 
+/* Inline (word-level) diff segments inside changed lines. Shared words stay
+   normal ink; only the changed words light up with their tint. */
+.dv-line .inl-ctx {
+  color: var(--ink);
+  font-weight: 400;
+}
+.dv-line .inl-del {
+  background: rgba(239, 68, 68, 0.28);
+  color: #b91c1c;
+  font-weight: 600;
+  border-radius: 2px;
+}
+.dv-line .inl-add {
+  background: rgba(16, 185, 129, 0.28);
+  color: #047857;
+  font-weight: 600;
+  border-radius: 2px;
+}
+
 /* Rendered changelog / markdown body */
 .md-body {
   font-size: 13.5px;
