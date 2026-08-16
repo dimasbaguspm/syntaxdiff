@@ -2,6 +2,22 @@
 
 All notable changes to SyntaxDiff are captured in this file, shaped by `semantic-release` version tags.
 
+## 1.2.0 - 2026-08-16
+
+### Features
+- Bottombar: version badge beside the GitHub stars; mobile GitHub shows star + count only
+- Mobile history shows icon + count
+- Bottombar entrypoints use the shared Tooltip component
+
+## 1.1.0 - 2026-08-16
+
+### Features
+- App version badge (`VITE_APP_VERSION`, fallback `Nightly`) wired into track/log/trace
+- Searchable changelog modal rendering `CHANGELOG.md`
+- Split-pane grab handle; mobile orientation-aware drag
+- Windowed diff rendering for smooth scrolling
+- Semantic-release versioned releases (`syntaxdiff_v<ver>` tags)
+
 ## 1.0.0 - 2026-08-16
 
 ### Features

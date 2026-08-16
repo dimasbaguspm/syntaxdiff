@@ -10,6 +10,13 @@ describe("ChangelogModal", () => {
     expect(screen.getAllByText("Changelog").length).toBeGreaterThan(0);
   });
 
+  it("shows content when opened from a closed state", () => {
+    const { rerender } = render(<ChangelogModal open={false} onClose={() => {}} />);
+    expect(screen.queryByText(/Structure-aware diffing/)).toBeNull();
+    rerender(<ChangelogModal open onClose={() => {}} />);
+    expect(screen.getByText(/Structure-aware diffing/)).toBeInTheDocument();
+  });
+
   it("searches the markdown and highlights matches", () => {
     const { container } = render(<ChangelogModal open onClose={() => {}} />);
     const input = screen.getByLabelText("Search changelog");

@@ -53,7 +53,7 @@ export function ChangelogModal({ open, onClose }: { open: boolean; onClose: () =
     if (!el) return;
     el.innerHTML = html;
     highlightInDom(el, query);
-  }, [html, query]);
+  }, [html, query, open]);
 
   return (
     <Modal open={open} title="Changelog" onClose={onClose}>
