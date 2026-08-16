@@ -2,6 +2,7 @@ import { useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { BottomBar } from "@/components/bottom-bar";
 import { HistoryDrawer } from "@/components/history-drawer";
+import { PwaUpdateBanner } from "@/components/pwa-update-banner";
 import { Snack } from "@/components/snack";
 import { ComparePage } from "@/pages/compare-page";
 import { DiffPage } from "@/pages/diff-page";
@@ -33,6 +34,7 @@ export default function App() {
       </div>
       <HistoryDrawer open={historyOpen} onClose={() => setHistoryOpen(false)} />
       <Snack />
+      <PwaUpdateBanner />
     </BrowserRouter>
   );
 }
