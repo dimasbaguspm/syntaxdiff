@@ -11,9 +11,11 @@ Privacy-first, client-side **syntax-aware diff** for JSON, YAML, SQL, TOML, and 
 ## Features
 
 - **Smart diff** — auto-detect the language, format, and recursively sort keys before diffing, so key order and formatting never cause false positives. Array order is always preserved.
+- **Import files** — drag a file onto either pane or use the upload button; the language auto-selects from the extension.
 - **Split or unified** — view the result side-by-side or inline; drag the divider to resize.
 - **Fast** — parsing and diffing run in a **Web Worker**, off the main thread.
 - **Local history** — past diffs saved in IndexedDB (search, delete, clear).
+- **Installable PWA** — offline-ready, and prompts you when a new version is available.
 - **Privacy-first** — no backend; optional telemetry never carries file contents.
 
 ## Languages
@@ -23,13 +25,14 @@ Privacy-first, client-side **syntax-aware diff** for JSON, YAML, SQL, TOML, and 
 | JSON | Prettify, alphabetize keys (recursive) |
 | YAML | Alphabetize keys (recursive) |
 | SQL | Format + uppercase keywords; pick a dialect |
+| CSV | Normalize quotes + trim cells; optional sort (header kept) |
 | TOML | Alphabetize keys (recursive) |
 | XML | Prettify (multi-line), alphabetize elements/attrs |
 | Plain text | Fallback for anything else |
 
 ## Stack
 
-React + TypeScript · Vite · Tailwind v4 · Zustand · Dexie · jsdiff (custom renderer) · OpenTelemetry · Umami
+React + TypeScript · Vite · Tailwind v4 · Zustand · Dexie · jsdiff (custom renderer) · OpenTelemetry · Umami · PWA (vite-plugin-pwa)
 Tooling: pnpm · Node 24 · oxlint · oxfmt · vitest
 
 ## Develop
