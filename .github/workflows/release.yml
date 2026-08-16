@@ -1,8 +1,10 @@
 name: Release
 
 # semantic-release: creates a versioned GitHub Release (tag syntaxdiff_v<ver>),
-# CHANGELOG, and package version bump on every push to main. Version type is
-# derived from Conventional Commits: fix = patch, feat = minor, BREAKING = major.
+# CHANGELOG + package version bump committed back to the repo on every push to
+# main. Version type is derived from Conventional Commits: fix = patch,
+# feat = patch (minor features are collapsed to patch to keep version creep low),
+# BREAKING = major.
 on:
   push:
     branches: [main]
@@ -40,6 +42,14 @@ jobs:
 
       - name: Install
         run: pnpm install --frozen-lockfile
+
+      - name: Configure git for release commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Semantic release
         run: pnpm exec semantic-release
