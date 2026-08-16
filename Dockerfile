@@ -9,10 +9,10 @@ RUN corepack enable pnpm && pnpm install --frozen-lockfile
 
 COPY . .
 
-# Injected at build time by CI (defaults for local builds).
+# Injected at build time by CI (hardcoded defaults for local builds).
 ARG VITE_APP_VERSION=dev
-ARG VITE_OTEL_COLLECTOR_URL=
-ARG VITE_UMAMI_WEBSITE_ID=
+ARG VITE_OTEL_COLLECTOR_URL=https://otel.dimasbaguspm.dev
+ARG VITE_UMAMI_WEBSITE_ID=9e7aa418-ae25-409b-8cf0-994a99593f02
 ENV VITE_APP_VERSION=$VITE_APP_VERSION
 ENV VITE_OTEL_COLLECTOR_URL=$VITE_OTEL_COLLECTOR_URL
 ENV VITE_UMAMI_WEBSITE_ID=$VITE_UMAMI_WEBSITE_ID

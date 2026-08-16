@@ -30,4 +30,11 @@ describe("computeDiff", () => {
     const r = computeDiff("a\nb\n", "a\nc\n", "plain", {}, {});
     expect(r.patch).toContain("@@");
   });
+
+  it("uses identical file names so diff2html does not report a rename", () => {
+    const r = computeDiff("a\nb\n", "a\nc\n", "plain", {}, {});
+    expect(r.patch).toContain("--- diff");
+    expect(r.patch).toContain("+++ diff");
+    expect(r.patch).not.toMatch(/similarity index|rename from|rename to/);
+  });
 });

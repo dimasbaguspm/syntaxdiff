@@ -41,8 +41,8 @@ afterEach(() => cleanup());
 
 describe("DiffPage", () => {
   it("renders the language badge and added/removed counts for a seeded diff", async () => {
-    await saveDiff(makeRecord());
-    renderDiff("/diff/1");
+    const id = await saveDiff(makeRecord());
+    renderDiff(`/diff/${id}`);
     expect(await screen.findByText("JSON")).toBeInTheDocument();
     expect(screen.getByText("+1")).toBeInTheDocument();
     expect(screen.getByText("−1")).toBeInTheDocument();
@@ -52,5 +52,16 @@ describe("DiffPage", () => {
   it("shows 'Diff not found' for an unknown id", async () => {
     renderDiff("/diff/9999");
     expect(await screen.findByText("Diff not found.")).toBeInTheDocument();
+  });
+
+  it("renders the metric tiles (lengths and size delta)", async () => {
+    const id = await saveDiff(makeRecord({ a: "111", b: "222222" })); // a=3, b=6, delta=+3
+    renderDiff(`/diff/${id}`);
+    expect(await screen.findByText("Length A")).toBeInTheDocument();
+    expect(screen.getByText("Length B")).toBeInTheDocument();
+    expect(screen.getByText("Added")).toBeInTheDocument();
+    expect(screen.getByText("Removed")).toBeInTheDocument();
+    expect(screen.getByText("Δ Size")).toBeInTheDocument();
+    expect(screen.getByText("+3")).toBeInTheDocument();
   });
 });

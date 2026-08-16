@@ -24,22 +24,19 @@ describe("store", () => {
     expect(s.mode).toBe("split");
     expect(s.status).toBe("idle");
     expect(s.result).toBeNull();
-    expect(s.error).toBeNull();
+    expect(s.snack).toBeNull();
   });
 
-  it("setA updates a and resets status/result/error", () => {
+  it("setA updates a and resets status/result", () => {
     useStore.getState().runSuccess(sampleResult);
-    expect(useStore.getState().status).toBe("done");
-
     useStore.getState().setA("hello");
     const s = useStore.getState();
     expect(s.a).toBe("hello");
     expect(s.status).toBe("idle");
     expect(s.result).toBeNull();
-    expect(s.error).toBeNull();
   });
 
-  it("setB updates b and resets status/result/error", () => {
+  it("setB updates b and resets status/result", () => {
     useStore.getState().runSuccess(sampleResult);
     useStore.getState().setB("world");
     const s = useStore.getState();
@@ -81,23 +78,43 @@ describe("store", () => {
     useStore.getState().runStart();
     const s = useStore.getState();
     expect(s.status).toBe("running");
-    expect(s.error).toBeNull();
+    expect(s.snack).toBeNull();
   });
 
-  it("runSuccess stores the result and clears error", () => {
+  it("runSuccess stores the result and clears the snack", () => {
     useStore.getState().runError("boom");
     useStore.getState().runSuccess(sampleResult);
     const s = useStore.getState();
     expect(s.status).toBe("done");
     expect(s.result).toEqual(sampleResult);
-    expect(s.error).toBeNull();
+    expect(s.snack).toBeNull();
   });
 
-  it("runError sets error", () => {
+  it("runError sets status error and an error snack", () => {
     useStore.getState().runStart();
     useStore.getState().runError("boom");
     const s = useStore.getState();
     expect(s.status).toBe("error");
-    expect(s.error).toBe("boom");
+    expect(s.snack?.type).toBe("error");
+    expect(s.snack?.message).toBe("boom");
+  });
+
+  it("showSnack sets a snack of the given type", () => {
+    useStore.getState().showSnack("done!", "success");
+    const s = useStore.getState();
+    expect(s.snack?.message).toBe("done!");
+    expect(s.snack?.type).toBe("success");
+  });
+
+  it("dismissSnack clears the snack", () => {
+    useStore.getState().showSnack("hi");
+    useStore.getState().dismissSnack();
+    expect(useStore.getState().snack).toBeNull();
+  });
+
+  it("input changes do not clear an open snack (persisted)", () => {
+    useStore.getState().showSnack("persist", "error");
+    useStore.getState().setA("x");
+    expect(useStore.getState().snack).not.toBeNull();
   });
 });

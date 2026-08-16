@@ -4,6 +4,17 @@ import type { DiffResult, FormatOptions, LanguageId } from "./engine";
 export type DiffStatus = "idle" | "running" | "done" | "error";
 export type ViewMode = "split" | "unified";
 export type LangChoice = LanguageId | "auto";
+export type SnackType = "info" | "success" | "error";
+
+export interface Snack {
+  id: number;
+  message: string;
+  type: SnackType;
+}
+
+let snackSeq = 0;
+
+const RESET = { status: "idle" as const, result: null };
 
 interface AppState {
   a: string;
@@ -13,7 +24,7 @@ interface AppState {
   mode: ViewMode;
   status: DiffStatus;
   result: DiffResult | null;
-  error: string | null;
+  snack: Snack | null;
   setA(v: string): void;
   setB(v: string): void;
   setLang(l: LangChoice): void;
@@ -22,6 +33,8 @@ interface AppState {
   runStart(): void;
   runSuccess(r: DiffResult): void;
   runError(message: string): void;
+  showSnack(message: string, type?: SnackType): void;
+  dismissSnack(): void;
 }
 
 export const useStore = create<AppState>((set) => ({
@@ -32,14 +45,16 @@ export const useStore = create<AppState>((set) => ({
   mode: "split",
   status: "idle",
   result: null,
-  error: null,
-  setA: (v) => set({ a: v, status: "idle", result: null, error: null }),
-  setB: (v) => set({ b: v, status: "idle", result: null, error: null }),
-  setLang: (l) => set({ lang: l, status: "idle", result: null, error: null }),
-  setOpt: (id, val) =>
-    set((s) => ({ opts: { ...s.opts, [id]: val }, status: "idle", result: null, error: null })),
+  snack: null,
+  setA: (v) => set({ a: v, ...RESET }),
+  setB: (v) => set({ b: v, ...RESET }),
+  setLang: (l) => set({ lang: l, ...RESET }),
+  setOpt: (id, val) => set((s) => ({ opts: { ...s.opts, [id]: val }, ...RESET })),
   setMode: (m) => set({ mode: m }),
-  runStart: () => set({ status: "running", error: null }),
-  runSuccess: (r) => set({ status: "done", result: r, error: null }),
-  runError: (message) => set({ status: "error", error: message }),
+  runStart: () => set({ status: "running", snack: null }),
+  runSuccess: (r) => set({ status: "done", result: r, snack: null }),
+  runError: (message) =>
+    set({ status: "error", snack: { id: ++snackSeq, message, type: "error" } }),
+  showSnack: (message, type = "info") => set({ snack: { id: ++snackSeq, message, type } }),
+  dismissSnack: () => set({ snack: null }),
 }));

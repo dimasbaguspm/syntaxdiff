@@ -2,14 +2,27 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { clsx } from "clsx";
 import { ArrowLeft, Columns2, FileDiff, Rows3 } from "lucide-react";
-import { getAdapter } from "../engine";
-import { getDiff, type DiffRecord } from "../db";
-import { useStore } from "../store";
-import { DiffView } from "../components/diff-view";
-import { btnActive, Spinner } from "../components/ui";
+import { getAdapter } from "@/engine";
+import { getDiff, type DiffRecord } from "@/db";
+import { useStore } from "@/store";
+import { DiffView } from "@/components/diff-view";
+import { btnActive, Spinner } from "@/components/ui";
 
 const btnSegment =
   "inline-flex items-center justify-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-dim transition-colors hover:text-ink focus:outline-none focus:ring-2 focus:ring-accent/40";
+
+function fmt(n: number): string {
+  return n.toLocaleString();
+}
+
+function Tile({ label, value, accent }: { label: string; value: string; accent?: string }) {
+  return (
+    <div className="rounded-lg border border-edge bg-surface px-3 py-2">
+      <div className="text-[10px] font-medium uppercase tracking-wide text-faint">{label}</div>
+      <div className={`font-mono text-sm tabular-nums ${accent ?? "text-ink"}`}>{value}</div>
+    </div>
+  );
+}
 
 export function DiffPage() {
   const { id } = useParams();
@@ -52,6 +65,7 @@ export function DiffPage() {
   }
 
   const adapter = getAdapter(rec.lang);
+  const delta = rec.b.length - rec.a.length;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -69,12 +83,6 @@ export function DiffPage() {
         <span className="inline-flex items-center gap-1.5 rounded-full border border-edge bg-surface-2 px-2.5 py-0.5 text-xs font-medium text-dim">
           <FileDiff className="size-3.5" aria-hidden />
           {adapter.label}
-        </span>
-
-        <span className="text-xs text-faint">
-          <span className="text-[var(--tint-emerald-fg)]">+{rec.added}</span>
-          {" · "}
-          <span className="text-[var(--tint-rose-fg)]">−{rec.removed}</span>
         </span>
 
         <div className="ml-auto flex items-center gap-0.5 rounded-lg border border-edge bg-surface-2/50 p-0.5">
@@ -97,6 +105,18 @@ export function DiffPage() {
             <Rows3 className="size-4" aria-hidden />
           </button>
         </div>
+      </div>
+
+      <div className="grid shrink-0 grid-cols-2 gap-2 px-4 py-3 sm:grid-cols-5">
+        <Tile label="Length A" value={fmt(rec.a.length)} />
+        <Tile label="Length B" value={fmt(rec.b.length)} />
+        <Tile label="Added" value={`+${rec.added}`} accent="text-[var(--tint-emerald-fg)]" />
+        <Tile label="Removed" value={`−${rec.removed}`} accent="text-[var(--tint-rose-fg)]" />
+        <Tile
+          label="Δ Size"
+          value={`${delta >= 0 ? "+" : ""}${fmt(delta)}`}
+          accent={delta >= 0 ? "text-[var(--tint-emerald-fg)]" : "text-[var(--tint-rose-fg)]"}
+        />
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto p-4">

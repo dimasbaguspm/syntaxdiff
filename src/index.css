@@ -109,7 +109,7 @@ body {
 
 /* diff2html — dark theme, mapped to the semantic tint tokens */
 .diff-body .d2h-wrapper {
-  font-size: 12px;
+  font-size: 12.5px;
 }
 .diff-body table.d2h-diff-table {
   background: transparent;
@@ -126,22 +126,42 @@ body {
 .diff-body .d2h-code-line {
   color: var(--ink);
 }
+/* Inserted / deleted text: bright, high-contrast on the tinted bg */
 .diff-body .d2h-ins,
 .diff-body .d2h-ins td {
   background-color: var(--tint-emerald-bg);
-  color: var(--tint-emerald-fg);
+}
+.diff-body .d2h-ins .d2h-code-line-ctn {
+  color: #a7f3d0;
+  font-weight: 500;
 }
 .diff-body .d2h-del,
 .diff-body .d2h-del td {
   background-color: var(--tint-rose-bg);
-  color: var(--tint-rose-fg);
+}
+.diff-body .d2h-del .d2h-code-line-ctn {
+  color: #fecdd3;
+  font-weight: 500;
 }
 .diff-body .d2h-cntx {
   background: transparent;
+  color: var(--dim);
 }
 .diff-body .d2h-lines-added {
   color: var(--tint-emerald-fg);
 }
 .diff-body .d2h-lines-deleted {
   color: var(--tint-rose-fg);
+}
+/* Context gap (elided lines): base-coloured box, subtle border + blur */
+.diff-body .d2h-emptyplaceholder,
+.diff-body .d2h-code-side-emptyplaceholder {
+  background: var(--well);
+  border-top: 1px solid var(--edge);
+  border-bottom: 1px solid var(--edge);
+  color: var(--faint);
+  backdrop-filter: blur(2px);
+}
+.diff-body .d2h-emptyplaceholder td {
+  background: var(--well);
 }

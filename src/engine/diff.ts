@@ -17,7 +17,9 @@ export function computeDiff(
   const adapter = getAdapter(lang);
   const canonicalA = adapter.format(a, optsA).canonical;
   const canonicalB = adapter.format(b, optsB).canonical;
-  const patch = createTwoFilesPatch("A", "B", canonicalA, canonicalB, "", "", {
+  // Use the SAME file name for both sides so diff2html doesn't report the two
+  // inputs as a "rename".
+  const patch = createTwoFilesPatch("diff", "diff", canonicalA, canonicalB, "", "", {
     context: 3,
   });
   return {
