@@ -120,6 +120,7 @@ body {
   font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 12.5px;
   line-height: 1.5;
+  height: 18.75px; /* fixed height so the windowed renderer can position rows */
 }
 .dv-row {
   display: flex;

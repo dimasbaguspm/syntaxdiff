@@ -11,15 +11,19 @@ export function SplitPanes({ left, right }: { left: ReactNode; right: ReactNode 
 
   const onPointerDown = (e: React.PointerEvent) => {
     dragging.current = true;
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    e.currentTarget.setPointerCapture(e.pointerId);
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
     if (!dragging.current) return;
     const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect || rect.width === 0) return;
-    const pct = (e.clientX - rect.left) / rect.width;
-    setRatio(Math.min(0.8, Math.max(0.2, pct)));
+    if (!rect) return;
+    // On mobile the layout is flex-col (stacks A over B), so drag is vertical.
+    const vertical = typeof window !== "undefined" && window.innerWidth < 768;
+    const size = vertical ? rect.height : rect.width;
+    if (size === 0) return;
+    const pos = vertical ? e.clientY - rect.top : e.clientX - rect.left;
+    setRatio(Math.min(0.8, Math.max(0.2, pos / size)));
   };
 
   const stopDrag = () => {

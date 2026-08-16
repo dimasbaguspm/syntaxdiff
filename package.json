@@ -1,10 +1,18 @@
 {
   "name": "syntaxdiff",
-  "private": true,
+  "private": false,
   "version": "0.1.0",
   "packageManager": "pnpm@10.34.5",
   "type": "module",
   "description": "Privacy-first, client-side syntax-aware diff tool (JSON, YAML, SQL, TOML, XML). Diffs structure, not bytes.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dimasbaguspm/syntaxdiff.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dimasbaguspm/syntaxdiff/issues"
+  },
+  "homepage": "https://syntaxdiff.dimasbaguspm.dev",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -14,7 +22,8 @@
     "fmt": "oxfmt src vite.config.ts vitest.config.ts",
     "fmt:check": "oxfmt --check src vite.config.ts vitest.config.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "release": "semantic-release"
   },
   "dependencies": {
     "@opentelemetry/api": "^1.9.1",
@@ -48,6 +57,9 @@
     ]
   },
   "devDependencies": {
+    "@semantic-release/changelog": "^7.0.0",
+    "@semantic-release/github": "^12.0.9",
+    "@semantic-release/npm": "^13.1.5",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.2",
     "@types/js-yaml": "^4.0.9",
@@ -55,10 +67,12 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
+    "conventional-changelog-conventionalcommits": "^10.3.0",
     "fake-indexeddb": "^6.2.5",
     "jsdom": "^30.0.1",
     "oxfmt": "^0.63.0",
     "oxlint": "^1.75.0",
+    "semantic-release": "^25.0.9",
     "typescript": "~6.0.2",
     "vite": "^8.2.0",
     "vitest": "^3.2.4"

@@ -71,4 +71,7 @@ src/db.ts         IndexedDB (Dexie) history
 
 ## Deploy
 
-Pushing to `main` runs GitHub Actions: builds a `ghcr.io/dimasbaguspm/syntaxdiff` image (`<sha>` + `latest`) and fires the `DEPLOY_WEBHOOK_URL` webhook when set.
+Two GitHub Actions workflows on push to `main`:
+
+- **CI** — builds a `ghcr.io/dimasbaguspm/syntaxdiff` image (`<sha>` + `latest`) and fires the `DEPLOY_WEBHOOK_URL` webhook when set.
+- **Release** — `semantic-release` creates a versioned GitHub Release tagged `syntaxdiff_v<semver>` (e.g. `syntaxdiff_v1.0.0`) with auto-generated notes from Conventional Commits. Version bumps: `fix` = patch, `feat` = minor, `BREAKING` = major. Run locally with `pnpm release`.
