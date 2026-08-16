@@ -11,6 +11,13 @@ describe("computeDiff", () => {
     expect(r.counts.removed).toBe(0);
   });
 
+  it("applies adapter defaults so key reorder is a zero-change diff by default", () => {
+    const a = '{"name":"M","age":30}';
+    const b = '{"age":30,"name":"M"}'; // reordered keys, same structure
+    const r = computeDiff(a, b, "json", {}, {});
+    expect(r.counts.added + r.counts.removed).toBe(0);
+  });
+
   it("reports real value changes", () => {
     const a = '{"name":"M","age":30}';
     const b = '{"name":"M","age":31}';

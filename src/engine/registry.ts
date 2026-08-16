@@ -1,5 +1,4 @@
 import type { LanguageAdapter, LanguageId } from "./types";
-import { bsonAdapter } from "./adapters/bson";
 import { jsonAdapter } from "./adapters/json";
 import { plainAdapter } from "./adapters/plain";
 import { sqlAdapter } from "./adapters/sql";
@@ -13,7 +12,6 @@ export const adapters: LanguageAdapter[] = [
   sqlAdapter,
   tomlAdapter,
   xmlAdapter,
-  bsonAdapter,
   plainAdapter,
 ];
 

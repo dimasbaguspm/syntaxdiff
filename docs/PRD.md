@@ -27,7 +27,6 @@ language-specific canonicalization, and diffs the **structure**, not the bytes.
 | SQL | `sql-formatter` | Uppercase keywords |
 | TOML | `smol-toml` parse → stringify | Alphabetize keys (recursive) |
 | XML | `fast-xml-parser` parse → build | Alphabetize elements/attrs (recursive) |
-| BSON | `bson` deserialize → JSON | Alphabetize keys (recursive) |
 | Plain Text | identity | Ignore case, Ignore whitespace |
 
 **Decision — no WASM.** All Phase 1 languages have mature, smaller, more
@@ -93,7 +92,7 @@ interface LanguageAdapter {
 ## 5. MVP Scope (shipped in scaffold)
 
 - [x] Engine: adapter interface + JSON adapter wired end-to-end
-- [x] Stub adapters: YAML, SQL, TOML, XML, BSON, Plain
+- [x] Stub adapters: YAML, SQL, TOML, XML, Plain
 - [x] Web Worker engine offload + promise client
 - [x] UI: two textareas, auto-detect + language override, dynamic toggles,
       Split/Unified view, added/removed counts

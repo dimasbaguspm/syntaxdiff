@@ -1,6 +1,26 @@
 import { createTwoFilesPatch, diffLines, type Change } from "diff";
 import { getAdapter } from "./registry";
-import type { DiffCounts, DiffLine, DiffResult, FormatOptions, LanguageId } from "./types";
+import type {
+  DiffCounts,
+  DiffLine,
+  DiffResult,
+  FormatOptions,
+  LanguageAdapter,
+  LanguageId,
+} from "./types";
+
+/**
+ * Fill in each adapter toggle's declared default (e.g. sortKeys: true) when the
+ * caller hasn't set it, so the "smart" pre-processing (format + key sort) runs
+ * by default — not only when the user manually toggles an option.
+ */
+export function applyOptsDefaults(adapter: LanguageAdapter, opts: FormatOptions): FormatOptions {
+  const merged: FormatOptions = { ...opts };
+  for (const t of adapter.toggles) {
+    if (t.default !== undefined && merged[t.id] === undefined) merged[t.id] = t.default;
+  }
+  return merged;
+}
 
 /**
  * Format both inputs to canonical form, then diff them. The pipeline is kept
@@ -18,8 +38,10 @@ export function computeDiff(
   optsB: FormatOptions,
 ): DiffResult {
   const adapter = getAdapter(lang);
-  const canonicalA = adapter.format(a, optsA).canonical;
-  const canonicalB = adapter.format(b, optsB).canonical;
+  const oA = applyOptsDefaults(adapter, optsA);
+  const oB = applyOptsDefaults(adapter, optsB);
+  const canonicalA = adapter.format(a, oA).canonical;
+  const canonicalB = adapter.format(b, oB).canonical;
   // Use the SAME file name for both sides so the patch has no rename.
   const patch = createTwoFilesPatch("diff", "diff", canonicalA, canonicalB, "", "", {
     context: 3,

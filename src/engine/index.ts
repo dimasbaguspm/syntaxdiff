@@ -1,5 +1,5 @@
 export { autoDetect, getAdapter, adapters } from "./registry";
-export { computeDiff } from "./diff";
+export { applyOptsDefaults, computeDiff } from "./diff";
 export { canonicalize } from "./canonical";
 export type {
   DiffCounts,

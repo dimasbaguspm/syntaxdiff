@@ -28,8 +28,8 @@ describe("TogglesPanel", () => {
     render(<TogglesPanel adapter={jsonAdapter} />);
     expect(screen.getByLabelText("Prettify")).not.toBeChecked();
     expect(screen.getByLabelText("Minify")).toBeChecked();
-    // not in opts -> falls back to default (prettify default true is overridden)
-    expect(screen.getByLabelText("Alphabetize keys (recursive)")).not.toBeChecked();
+    // not in opts -> falls back to default (sortKeys now defaults true)
+    expect(screen.getByLabelText("Alphabetize keys (recursive)")).toBeChecked();
   });
 
   it("falls back to the toggle default when opts has no entry", () => {

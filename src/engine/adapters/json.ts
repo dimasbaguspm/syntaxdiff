@@ -28,7 +28,7 @@ export const jsonAdapter: LanguageAdapter = {
   },
   toggles: [
     { id: "prettify", label: "Prettify", default: true },
-    { id: "sortKeys", label: "Alphabetize keys (recursive)" },
+    { id: "sortKeys", label: "Alphabetize keys (recursive)", default: true },
     { id: "minify", label: "Minify" },
   ],
   format(input: string, opts: FormatOptions) {

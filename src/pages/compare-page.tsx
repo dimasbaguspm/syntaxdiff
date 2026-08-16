@@ -9,7 +9,7 @@ import {
   Wand2,
   XCircle,
 } from "lucide-react";
-import { adapters, autoDetect, getAdapter } from "@/engine";
+import { adapters, applyOptsDefaults, autoDetect, getAdapter } from "@/engine";
 import type { FormatOptions, LanguageAdapter, LanguageId } from "@/engine";
 import { useStore } from "@/store";
 import { saveDiff } from "@/db";
@@ -106,12 +106,13 @@ export function ComparePage() {
     () => (lang === "auto" ? autoDetect(a || b) : getAdapter(lang as LanguageId)),
     [lang, a, b],
   );
-  const statusA = usePaneStatus(a, adapter, opts);
-  const statusB = usePaneStatus(b, adapter, opts);
+  const eOpts = useMemo(() => applyOptsDefaults(adapter, opts), [adapter, opts]);
+  const statusA = usePaneStatus(a, adapter, eOpts);
+  const statusB = usePaneStatus(b, adapter, eOpts);
 
   const validate = (value: string) => {
     try {
-      adapter.format(value, opts);
+      adapter.format(value, eOpts);
       showSnack(`Valid ${adapter.label}`, "success");
       logInfo("validate", { lang: adapter.id, ok: true });
       trackEvent("validate", { lang: adapter.id, ok: "true" });
@@ -124,7 +125,7 @@ export function ComparePage() {
 
   const formatPane = (set: (v: string) => void, value: string) => {
     try {
-      set(adapter.format(value, opts).canonical);
+      set(adapter.format(value, eOpts).canonical);
       showSnack(`Formatted as ${adapter.label}`, "success");
       logInfo("format", { lang: adapter.id, ok: true });
       trackEvent("format", { lang: adapter.id, ok: "true" });

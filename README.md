@@ -5,7 +5,7 @@
 </p>
 
 Privacy-first, client-side **syntax-aware diff**. Paste two JSON / YAML / SQL /
-TOML / XML / BSON / plain-text snippets and get a Git-style diff of the
+TOML / XML / plain-text snippets and get a Git-style diff of the
 **structure** — ignoring formatting and key order. Nothing leaves your machine.
 
 ## Features

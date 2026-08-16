@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { serialize } from "bson";
 import { autoDetect } from "../registry";
-import { bsonAdapter } from "../adapters/bson";
 import { sqlAdapter } from "../adapters/sql";
 
 describe("autoDetect", () => {
@@ -26,15 +24,5 @@ describe("sqlAdapter", () => {
   });
   it("detects SQL", () => {
     expect(sqlAdapter.detect("create table x (id int)")).toBe(1);
-  });
-});
-
-describe("bsonAdapter", () => {
-  it("decodes base64 BSON and sorts keys", () => {
-    const base64 = Buffer.from(serialize({ b: 1, a: 2 })).toString("base64");
-    expect(bsonAdapter.detect(base64)).toBe(0.5);
-    const { canonical } = bsonAdapter.format(base64, { sortKeys: true });
-    const obj = JSON.parse(canonical) as Record<string, number>;
-    expect(Object.keys(obj)).toEqual(["a", "b"]);
   });
 });
