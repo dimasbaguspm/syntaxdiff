@@ -13,7 +13,7 @@ RUN corepack enable && corepack prepare pnpm@10.34.5 --activate && pnpm install 
 COPY . .
 
 # Injected at build time by CI (hardcoded defaults for local builds).
-ARG VITE_APP_VERSION=dev
+ARG VITE_APP_VERSION=Nightly
 ARG VITE_OTEL_COLLECTOR_URL=https://otel.dimasbaguspm.dev
 ARG VITE_UMAMI_WEBSITE_ID=9e7aa418-ae25-409b-8cf0-994a99593f02
 ENV VITE_APP_VERSION=$VITE_APP_VERSION

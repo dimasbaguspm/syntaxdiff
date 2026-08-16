@@ -1,5 +1,6 @@
 import { trace } from "@opentelemetry/api";
 import { ANALYTICS } from "@/constants/analytics";
+import { APP_VERSION } from "@/constants/version";
 import { maskUrl } from "@/lib/utils/mask";
 import { getSession } from "@/lib/utils/session";
 import { getBrowserInfo } from "@/lib/utils/browser";
@@ -49,7 +50,7 @@ function context(props?: Record<string, unknown>): Record<string, unknown> {
     referrer: session.referrer,
     ...session.utm,
     ...getBrowserInfo(),
-    version: import.meta.env.VITE_APP_VERSION ?? "",
+    version: APP_VERSION,
     environment: import.meta.env.MODE,
     page: typeof location !== "undefined" ? maskUrl(location.pathname) : "",
     url: typeof location !== "undefined" ? maskUrl(location.href) : "",

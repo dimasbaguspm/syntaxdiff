@@ -5,15 +5,19 @@ import {
   MessageSquareText,
   Moon,
   MoreVertical,
+  ScrollText,
   Star,
   Sun,
+  Tag,
 } from "lucide-react";
 import { GithubIcon } from "./icons/github-icon";
 import { HelpModal } from "./help-modal";
+import { ChangelogModal } from "./changelog-modal";
 import { useTheme } from "../hooks/use-theme";
 import { useGithubStars } from "../hooks/use-github-stars";
 import { listDiffs } from "../db";
 import { trackEvent } from "../lib/analytics/track";
+import { APP_VERSION } from "../constants/version";
 import { DropdownMenu } from "./dropdown-menu";
 
 const SITE_URL = "https://syntaxdiff.dimasbaguspm.dev";
@@ -25,6 +29,7 @@ export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
   const stars = useGithubStars();
   const [count, setCount] = useState(0);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [changelogOpen, setChangelogOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -48,6 +53,19 @@ export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
           <button
             type="button"
             onClick={() => {
+              trackEvent("changelog_open");
+              setChangelogOpen(true);
+            }}
+            aria-label="Changelog"
+            title="Changelog"
+            className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
+          >
+            <ScrollText className="size-4" aria-hidden />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
               trackEvent("help_open");
               setHelpOpen(true);
             }}
@@ -68,6 +86,10 @@ export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
             <Bookmark className="size-4" aria-hidden />
             <span className="hidden text-xs font-medium tabular-nums sm:inline">{count} Saved</span>
           </button>
+
+          <span className="ml-1 hidden items-center gap-1 rounded-full border border-edge px-2 py-0.5 text-[11px] font-medium text-faint sm:flex">
+            <Tag className="size-3" aria-hidden />v{APP_VERSION}
+          </span>
         </div>
 
         <a
@@ -144,11 +166,19 @@ export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
                 <MessageSquareText className="size-4 text-dim" aria-hidden />
                 Feedback
               </a>
+              <div
+                role="menuitem"
+                aria-disabled
+                className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-dim"
+              >
+                <Tag className="size-4" aria-hidden />v{APP_VERSION}
+              </div>
             </DropdownMenu>
           </div>
         </div>
       </div>
       <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
+      <ChangelogModal open={changelogOpen} onClose={() => setChangelogOpen(false)} />
     </footer>
   );
 }

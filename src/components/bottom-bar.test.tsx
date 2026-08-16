@@ -60,6 +60,17 @@ describe("BottomBar", () => {
     expect(screen.getByText("Paste Source A and Source B into the two panes.")).toBeInTheDocument();
   });
 
+  it("opens the Changelog modal from the bottom bar", () => {
+    render(<BottomBar onOpenHistory={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Changelog" }));
+    expect(screen.getAllByText("Changelog").length).toBeGreaterThan(0);
+  });
+
+  it("shows the app version badge", () => {
+    render(<BottomBar onOpenHistory={vi.fn()} />);
+    expect(screen.getByText(/v(Nightly|0\.1\.0)/)).toBeInTheDocument();
+  });
+
   it("links to the Feedback issue tracker", () => {
     render(<BottomBar onOpenHistory={vi.fn()} />);
     const link = screen.getByText("Feedback").closest("a");
