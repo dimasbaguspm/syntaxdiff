@@ -48,3 +48,60 @@ describe("csv inline diff (QA fixture)", () => {
     expect(add101.b).toContain("John");
   });
 });
+
+// Comma-trap fixture: commas inside quoted fields, messy spacing/quotes,
+// a changed cell and a brand-new row.
+const A_COMMA = `id, product_name,  category, price, tags, stock_status
+101, "MacBook Pro, 14-inch", Electronics, 1999.99, "laptop, apple, m3", In Stock
+102, Magic Mouse 2 ,  Electronics ,  79.00  , "mouse, wireless", "Out of Stock"
+103,"Desk Chair, Ergonomic (Black)",Furniture, 250.50, "office, chair, ergonomic",In Stock`;
+
+const B_COMMA = `id,product_name,category,price,tags,stock_status
+101,"MacBook Pro, 14-inch",Electronics,1999.99,"laptop, apple, m3",In Stock
+102,"Magic Mouse 2",Electronics,79.00,"mouse, wireless",In Stock
+103,"Desk Chair, Ergonomic (Black)",Furniture,299.00,"office, chair, ergonomic",In Stock
+104,"Keychron K3, Low Profile",Electronics,99.00,"keyboard, mechanical",In Stock`;
+
+describe("csv comma-trap fixture (QA)", () => {
+  it("keeps commas inside quotes as one field and normalizes spacing", () => {
+    const res = computeDiff(A_COMMA, B_COMMA, "csv", {}, {});
+
+    // Header + row 101 are unchanged once spacing is normalized -> context.
+    const ctxMacbook = res.lines.find(
+      (l) => l.kind === "ctx" && l.a?.includes("MacBook Pro, 14-inch"),
+    );
+    expect(ctxMacbook).toBeDefined();
+    // The comma stays inside the product field (a single cell, not a split).
+    expect(ctxMacbook!.a).toContain("MacBook Pro, 14-inch");
+  });
+
+  it("highlights only the stock cell change on row 102", () => {
+    const res = computeDiff(A_COMMA, B_COMMA, "csv", {}, {});
+    const del102 = res.lines.find((l) => l.kind === "del" && l.a?.includes("102"))!;
+    const add102 = res.lines.find((l) => l.kind === "add" && l.b?.includes("102"))!;
+    expect(del102.a).toContain("Out of Stock");
+    expect(del102.aSeg?.some((s) => s.kind === "del")).toBe(true);
+    expect(add102.b).toContain("In Stock");
+    expect(add102.bSeg?.some((s) => s.kind === "add")).toBe(true);
+    // Shared cells are context, not highlighted -> surgical, not whole-line.
+    expect(add102.bSeg?.some((s) => s.kind === "ctx" && s.text.includes("Magic"))).toBe(true);
+  });
+
+  it("highlights only the price change on row 103", () => {
+    const res = computeDiff(A_COMMA, B_COMMA, "csv", {}, {});
+    const del103 = res.lines.find((l) => l.kind === "del" && l.a?.includes("250.50"))!;
+    const add103 = res.lines.find((l) => l.kind === "add" && l.b?.includes("299.00"))!;
+    expect(del103.a).toContain("250.50");
+    expect(del103.aSeg?.some((s) => s.kind === "del")).toBe(true);
+    expect(add103.b).toContain("299.00");
+    expect(add103.bSeg?.some((s) => s.kind === "add")).toBe(true);
+    expect(add103.bSeg?.some((s) => s.kind === "ctx" && s.text.includes("Desk"))).toBe(true);
+  });
+
+  it("renders the new row 104 as a full addition with no inline split", () => {
+    const res = computeDiff(A_COMMA, B_COMMA, "csv", {}, {});
+    const add104 = res.lines.find((l) => l.kind === "add" && l.b?.includes("Keychron"))!;
+    expect(add104).toBeDefined();
+    expect(add104.bSeg).toBeUndefined(); // unpaired -> whole line green
+  });
+});

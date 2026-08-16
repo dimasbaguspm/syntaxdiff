@@ -40,9 +40,9 @@ describe("serializeAlignedCsv", () => {
     ];
     const out = serializeAlignedCsv(rows).trim().split("\n").map((l) => l.trimEnd());
     expect(out).toEqual([
-      "id  | first_name | email",
-      "101 | John       | john.doe@example.com",
-      "102 | Jane       | jane@example.com",
+      "id   | first_name | email",
+      "101  | John       | john.doe@example.com",
+      "102  | Jane       | jane@example.com",
     ]);
   });
 });
@@ -62,8 +62,10 @@ describe("csvAdapter", () => {
     const lines = out.canonical.trim().split("\n");
     expect(lines[0]).toContain("id");
     expect(lines[0]).toContain("first_name");
-    expect(lines[1]).toContain("101 | John");
-    expect(lines[2]).toContain("102 | Jane");
+    expect(lines[1]).toContain("101");
+    expect(lines[1]).toContain("John");
+    expect(lines[2]).toContain("102");
+    expect(lines[2]).toContain("Jane");
     // aligned: every non-empty line has the same pipe count (5 columns here)
     expect(lines.every((l) => l.split("|").length === 5)).toBe(true);
   });

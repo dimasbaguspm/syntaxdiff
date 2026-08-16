@@ -75,20 +75,21 @@ export function serializeCsv(rows: string[][]): string {
 }
 
 /**
- * Pretty-table serialization: pad every column to its widest cell and join
- * with ` | ` so the table lines up vertically. Keeps row order so unchanged
- * rows match row-to-row in the diff, and pairs with inline word-highlighting
- * to keep changed cells surgical instead of whole-line red/green.
+ * Pretty-table serialization: pad every column to a width derived from its
+ * HEADER (plus a small minimum) and join with ` | ` so the table lines up
+ * vertically. Widths come from the header, not the data rows — that keeps
+ * padding identical across the two panes even when one side has longer
+ * cells (e.g. "Out of Stock" vs "In Stock"), so unchanged rows match
+ * row-to-row and only genuinely changed cells are highlighted. Cells wider
+ * than their column simply extend (they are not truncated).
  */
 export function serializeAlignedCsv(rows: string[][]): string {
-  const colCount = rows.reduce((max, r) => Math.max(max, r.length), 0);
+  const header = rows[0] ?? [];
+  const colCount = rows.reduce((max, r) => Math.max(max, r.length), header.length);
+  const MIN_WIDTH = 4;
   const widths: number[] = [];
   for (let c = 0; c < colCount; c++) {
-    let w = 2; // minimum breathing room
-    for (const row of rows) {
-      if (row[c] !== undefined) w = Math.max(w, row[c].length);
-    }
-    widths[c] = w;
+    widths[c] = Math.max(header[c]?.length ?? 0, MIN_WIDTH);
   }
   return (
     rows
