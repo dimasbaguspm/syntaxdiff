@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
-import { Bookmark, MessageSquareText, Moon, MoreVertical, Sun } from "lucide-react";
+import { Bookmark, MessageSquareText, Moon, MoreVertical, Star, Sun } from "lucide-react";
+import { GithubIcon } from "./icons/github-icon";
 import { useTheme } from "../hooks/use-theme";
+import { useGithubStars } from "../hooks/use-github-stars";
 import { listDiffs } from "../db";
 import { trackEvent } from "../lib/analytics/track";
 import { DropdownMenu } from "./dropdown-menu";
 
 const SITE_URL = "https://syntaxdiff.dimasbaguspm.dev";
+const GITHUB_URL = "https://github.com/dimasbaguspm/syntaxdiff";
 const FEEDBACK_URL = "https://github.com/dimasbaguspm/syntaxdiff/issues";
 
 export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
   const { theme, toggle } = useTheme();
+  const stars = useGithubStars();
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -54,6 +58,24 @@ export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
         </a>
 
         <div className="flex items-center justify-end gap-1 sm:gap-3">
+          <a
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="GitHub"
+            title="GitHub"
+            onClick={() => trackEvent("nav_github")}
+            className="flex items-center gap-1.5 rounded-full border border-edge bg-surface-2/50 px-2 py-1 text-dim transition-colors hover:border-edge-strong hover:bg-surface-2 hover:text-ink"
+          >
+            <GithubIcon size={14} />
+            {stars !== null && (
+              <span className="flex items-center gap-1 text-xs font-medium tabular-nums">
+                <Star className="size-3 text-[#C8A65B]" fill="currentColor" aria-hidden />
+                {stars >= 1000 ? `${(stars / 1000).toFixed(1)}k` : stars}
+              </span>
+            )}
+          </a>
+
           <button
             type="button"
             onClick={() => {

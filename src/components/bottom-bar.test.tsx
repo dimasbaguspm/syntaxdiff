@@ -1,8 +1,19 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { BottomBar } from "./bottom-bar";
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+});
+
+beforeEach(() => {
+  localStorage.clear();
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue({ ok: true, json: async () => ({ stargazers_count: 12 }) }),
+  );
+});
 
 describe("BottomBar", () => {
   it("calls onOpenHistory when the history button is clicked", () => {
@@ -32,6 +43,14 @@ describe("BottomBar", () => {
   it("has a mobile More menu button", () => {
     render(<BottomBar onOpenHistory={vi.fn()} />);
     expect(screen.getByRole("button", { name: "More" })).toBeInTheDocument();
+  });
+
+  it("links to the GitHub repo with the star count", async () => {
+    render(<BottomBar onOpenHistory={vi.fn()} />);
+    const link = screen.getByLabelText("GitHub");
+    expect(link).toHaveAttribute("href", "https://github.com/dimasbaguspm/syntaxdiff");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(await screen.findByText("12")).toBeInTheDocument();
   });
 
   it("links to the Feedback issue tracker", () => {
