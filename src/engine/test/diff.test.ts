@@ -18,6 +18,21 @@ describe("computeDiff", () => {
     expect(r.counts.added + r.counts.removed).toBe(0);
   });
 
+  it("applies defaults so TOML key reorder is a zero-change diff by default", () => {
+    const a = `[database]\nserver = "192.168.1.1"\nports = [8000, 8001, 8002]\nconnection_max = 5000\n`;
+    const b = `[database]\nconnection_max = 5000\nports = [8000, 8001, 8002]\nserver = "192.168.1.1"\n`;
+    const r = computeDiff(a, b, "toml", {}, {});
+    expect(r.counts.added + r.counts.removed).toBe(0);
+  });
+
+  it("reports only inline TOML changes, not whole-block noise", () => {
+    const a = `[database]\nserver = "192.168.1.1"\nports = [8000, 8001, 8002]\nconnection_max = 5000\n`;
+    const b = `[database]\nserver = "10.0.0.5"\nports = [8000, 8001, 8002, 8003]\nconnection_max = 5000\n`;
+    const r = computeDiff(a, b, "toml", {}, {});
+    expect(r.counts.added).toBeLessThan(3);
+    expect(r.counts.removed).toBeLessThan(3);
+  });
+
   it("reports real value changes", () => {
     const a = '{"name":"M","age":30}';
     const b = '{"name":"M","age":31}';

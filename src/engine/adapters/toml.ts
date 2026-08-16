@@ -20,7 +20,7 @@ export const tomlAdapter: LanguageAdapter = {
     }
     return 0;
   },
-  toggles: [{ id: "sortKeys", label: "Alphabetize keys (recursive)" }],
+  toggles: [{ id: "sortKeys", label: "Alphabetize keys (recursive)", default: true }],
   format(input: string, opts: FormatOptions) {
     let v: unknown;
     try {
