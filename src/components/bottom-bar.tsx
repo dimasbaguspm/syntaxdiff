@@ -19,6 +19,7 @@ import { listDiffs } from "../db";
 import { trackEvent } from "../lib/analytics/track";
 import { APP_VERSION } from "../constants/version";
 import { DropdownMenu } from "./dropdown-menu";
+import { Tooltip } from "./tooltip";
 
 const SITE_URL = "https://syntaxdiff.dimasbaguspm.dev";
 const GITHUB_URL = "https://github.com/dimasbaguspm/syntaxdiff";
@@ -50,46 +51,48 @@ export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
     <footer className="relative z-30 shrink-0 border-t border-edge">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-3 py-1">
         <div className="flex items-center justify-start gap-0.5">
-          <button
-            type="button"
-            onClick={() => {
-              trackEvent("changelog_open");
-              setChangelogOpen(true);
-            }}
-            aria-label="Changelog"
-            title="Changelog"
-            className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
-          >
-            <ScrollText className="size-4" aria-hidden />
-          </button>
+          <Tooltip label="Changelog">
+            <button
+              type="button"
+              onClick={() => {
+                trackEvent("changelog_open");
+                setChangelogOpen(true);
+              }}
+              aria-label="Changelog"
+              className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
+            >
+              <ScrollText className="size-4" aria-hidden />
+            </button>
+          </Tooltip>
 
-          <button
-            type="button"
-            onClick={() => {
-              trackEvent("help_open");
-              setHelpOpen(true);
-            }}
-            aria-label="Help"
-            title="Help"
-            className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
-          >
-            <HelpCircle className="size-4" aria-hidden />
-          </button>
+          <Tooltip label="Help">
+            <button
+              type="button"
+              onClick={() => {
+                trackEvent("help_open");
+                setHelpOpen(true);
+              }}
+              aria-label="Help"
+              className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
+            >
+              <HelpCircle className="size-4" aria-hidden />
+            </button>
+          </Tooltip>
 
-          <button
-            type="button"
-            onClick={openHistory}
-            aria-label="History"
-            title="History"
-            className="flex items-center gap-1.5 rounded px-1.5 py-1 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
-          >
-            <Bookmark className="size-4" aria-hidden />
-            <span className="hidden text-xs font-medium tabular-nums sm:inline">{count} Saved</span>
-          </button>
-
-          <span className="ml-1 hidden items-center gap-1 rounded-full border border-edge px-2 py-0.5 text-[11px] font-medium text-faint sm:flex">
-            <Tag className="size-3" aria-hidden />v{APP_VERSION}
-          </span>
+          <Tooltip label="History">
+            <button
+              type="button"
+              onClick={openHistory}
+              aria-label="History"
+              className="flex items-center gap-1.5 rounded px-1.5 py-1 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
+            >
+              <Bookmark className="size-4" aria-hidden />
+              <span className="text-xs font-medium tabular-nums sm:hidden">{count}</span>
+              <span className="hidden text-xs font-medium tabular-nums sm:inline">
+                {count} Saved
+              </span>
+            </button>
+          </Tooltip>
         </div>
 
         <a
@@ -103,40 +106,46 @@ export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
         </a>
 
         <div className="flex items-center justify-end gap-1 sm:gap-3">
-          <a
-            href={GITHUB_URL}
-            target="_blank"
-            rel="noreferrer"
-            aria-label="GitHub"
-            title="GitHub"
-            onClick={() => trackEvent("nav_github")}
-            className="flex items-center gap-1.5 rounded-full border border-edge bg-surface-2/50 px-2 py-1 text-dim transition-colors hover:border-edge-strong hover:bg-surface-2 hover:text-ink"
-          >
-            <GithubIcon size={14} />
-            {stars !== null && (
-              <span className="flex items-center gap-1 text-xs font-medium tabular-nums">
-                <Star className="size-3 text-[#C8A65B]" fill="currentColor" aria-hidden />
-                {stars >= 1000 ? `${(stars / 1000).toFixed(1)}k` : stars}
-              </span>
-            )}
-          </a>
+          <span className="hidden items-center gap-1 rounded-full border border-edge px-2 py-0.5 text-[11px] font-medium text-faint sm:flex">
+            <Tag className="size-3" aria-hidden />v{APP_VERSION}
+          </span>
 
-          <button
-            type="button"
-            onClick={() => {
-              trackEvent("theme_toggle", { theme: theme === "dark" ? "light" : "dark" });
-              toggle();
-            }}
-            aria-label="Toggle theme"
-            title="Toggle theme"
-            className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
-          >
-            {theme === "dark" ? (
-              <Sun className="size-4" aria-hidden />
-            ) : (
-              <Moon className="size-4" aria-hidden />
-            )}
-          </button>
+          <Tooltip label="GitHub">
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="GitHub"
+              onClick={() => trackEvent("nav_github")}
+              className="flex items-center gap-1.5 rounded-full border border-edge bg-surface-2/50 px-2 py-1 text-dim transition-colors hover:border-edge-strong hover:bg-surface-2 hover:text-ink"
+            >
+              <GithubIcon size={14} className="hidden sm:block" />
+              {stars !== null && (
+                <span className="flex items-center gap-1 text-xs font-medium tabular-nums">
+                  <Star className="size-3 text-[#C8A65B]" fill="currentColor" aria-hidden />
+                  {stars >= 1000 ? `${(stars / 1000).toFixed(1)}k` : stars}
+                </span>
+              )}
+            </a>
+          </Tooltip>
+
+          <Tooltip label={theme === "dark" ? "Light mode" : "Dark mode"}>
+            <button
+              type="button"
+              onClick={() => {
+                trackEvent("theme_toggle", { theme: theme === "dark" ? "light" : "dark" });
+                toggle();
+              }}
+              aria-label="Toggle theme"
+              className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
+            >
+              {theme === "dark" ? (
+                <Sun className="size-4" aria-hidden />
+              ) : (
+                <Moon className="size-4" aria-hidden />
+              )}
+            </button>
+          </Tooltip>
 
           <a
             href={FEEDBACK_URL}
