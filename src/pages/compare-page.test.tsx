@@ -84,15 +84,14 @@ describe("ComparePage", () => {
     renderCompare();
     fireEvent.click(screen.getByRole("button", { name: /Options/i }));
     expect(screen.getByText("JSON options")).toBeInTheDocument();
-    expect(screen.getAllByRole("checkbox").length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("switch").length).toBeGreaterThan(0);
   });
 
-  it("shows per-pane tools (Escape/Validate/Format) for JSON", () => {
+  it("shows per-pane tools (Validate/Format) for JSON", () => {
     useStore.setState({ a: '{"x":1}', b: '{"x":2}', lang: "json" });
     renderCompare();
     expect(screen.getAllByRole("button", { name: /Validate syntax/i }).length).toBe(2);
     expect(screen.getAllByRole("button", { name: /Format/i }).length).toBe(2);
-    expect(screen.getAllByRole("button", { name: /Escape JSON/i }).length).toBe(2);
   });
 
   it("Validate shows a success snack for valid JSON", () => {

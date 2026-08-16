@@ -1,26 +1,52 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Braces,
+  CheckCircle2,
   ChevronRight,
-  Code2,
   ShieldCheck,
   SlidersHorizontal,
   Wand2,
   WrapText,
+  XCircle,
 } from "lucide-react";
 import { adapters, autoDetect, getAdapter } from "@/engine";
-import type { LanguageId } from "@/engine";
+import type { FormatOptions, LanguageAdapter, LanguageId } from "@/engine";
 import { useStore } from "@/store";
 import { saveDiff } from "@/db";
 import { createDiffClient } from "@/worker/client";
 import { TogglesPanel } from "@/components/toggles-panel";
 import { Modal } from "@/components/modal";
+import { Tooltip } from "@/components/tooltip";
+import { SplitPanes } from "@/components/split-panes";
+import { LineNumberedTextarea } from "@/components/line-numbered-textarea";
 import { btnPrimary, Spinner } from "@/components/ui";
-import { escapeJsonString, looksEscaped, unescapeJsonString } from "@/lib/text-ops";
 
 const client = createDiffClient();
 const iconBtn = "rounded p-1 text-dim transition-colors hover:bg-surface-2 hover:text-ink";
+
+type PaneStatus = "valid" | "invalid" | "idle";
+
+/** Debounced live validation of a pane against the active adapter. */
+function usePaneStatus(value: string, adapter: LanguageAdapter, opts: FormatOptions): PaneStatus {
+  const [status, setStatus] = useState<PaneStatus>("idle");
+  useEffect(() => {
+    if (!value.trim()) {
+      setStatus("idle");
+      return;
+    }
+    const id = setTimeout(() => {
+      try {
+        adapter.format(value, opts);
+        setStatus("valid");
+      } catch {
+        setStatus("invalid");
+      }
+    }, 350);
+    return () => clearTimeout(id);
+  }, [value, adapter, opts]);
+  return status;
+}
 
 function Pane({
   label,
@@ -29,6 +55,7 @@ function Pane({
   placeholder,
   wrap,
   onToggleWrap,
+  status,
   children,
 }: {
   label: string;
@@ -37,6 +64,7 @@ function Pane({
   placeholder: string;
   wrap: boolean;
   onToggleWrap: () => void;
+  status: PaneStatus;
   children?: ReactNode;
 }) {
   return (
@@ -45,28 +73,32 @@ function Pane({
         <span className="flex items-center gap-1.5 text-xs font-medium text-dim">
           <Braces className="size-3.5" aria-hidden />
           {label}
+          {status === "valid" && (
+            <CheckCircle2 className="size-3 text-[var(--tint-emerald-fg)]" aria-hidden />
+          )}
+          {status === "invalid" && (
+            <XCircle className="size-3 text-[var(--tint-rose-fg)]" aria-hidden />
+          )}
         </span>
         <div className="ml-auto flex items-center gap-0.5">
           {children}
-          <button
-            type="button"
-            onClick={onToggleWrap}
-            title={wrap ? "Unwrap" : "Wrap"}
-            aria-label={wrap ? "Unwrap" : "Wrap"}
-            className={iconBtn}
-          >
-            <WrapText className="size-4" aria-hidden />
-          </button>
+          <Tooltip label={wrap ? "Unwrap" : "Wrap"}>
+            <button
+              type="button"
+              onClick={onToggleWrap}
+              aria-label="Toggle wrap"
+              className={iconBtn}
+            >
+              <WrapText className="size-4" aria-hidden />
+            </button>
+          </Tooltip>
         </div>
       </div>
-      <textarea
+      <LineNumberedTextarea
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={onChange}
         placeholder={placeholder}
-        spellCheck={false}
-        className={`min-h-0 w-full flex-1 resize-none bg-transparent p-4 font-mono text-xs leading-relaxed text-ink placeholder-faint focus:outline-none ${
-          wrap ? "whitespace-pre-wrap break-words" : "whitespace-pre"
-        }`}
+        wrap={wrap}
       />
     </div>
   );
@@ -94,6 +126,8 @@ export function ComparePage() {
     () => (lang === "auto" ? autoDetect(a || b) : getAdapter(lang as LanguageId)),
     [lang, a, b],
   );
+  const statusA = usePaneStatus(a, adapter, opts);
+  const statusB = usePaneStatus(b, adapter, opts);
 
   const validate = (value: string) => {
     try {
@@ -110,16 +144,6 @@ export function ComparePage() {
       showSnack(`Formatted as ${adapter.label}`, "success");
     } catch (e) {
       showSnack((e as Error).message, "error");
-    }
-  };
-
-  const escapeToggle = (set: (v: string) => void, value: string) => {
-    if (looksEscaped(value)) {
-      set(unescapeJsonString(value));
-      showSnack("Unescaped JSON", "success");
-    } else {
-      set(escapeJsonString(value));
-      showSnack("Escaped JSON", "success");
     }
   };
 
@@ -146,35 +170,26 @@ export function ComparePage() {
 
   const paneButtons = (set: (v: string) => void, value: string) => (
     <>
-      {adapter.id === "json" && (
+      <Tooltip label="Validate syntax">
         <button
           type="button"
-          onClick={() => escapeToggle(set, value)}
-          title={looksEscaped(value) ? "Unescape JSON" : "Escape JSON"}
-          aria-label={looksEscaped(value) ? "Unescape JSON" : "Escape JSON"}
+          onClick={() => validate(value)}
+          aria-label="Validate syntax"
           className={iconBtn}
         >
-          <Code2 className="size-4" aria-hidden />
+          <ShieldCheck className="size-4" aria-hidden />
         </button>
-      )}
-      <button
-        type="button"
-        onClick={() => validate(value)}
-        title="Validate syntax"
-        aria-label="Validate syntax"
-        className={iconBtn}
-      >
-        <ShieldCheck className="size-4" aria-hidden />
-      </button>
-      <button
-        type="button"
-        onClick={() => formatPane(set, value)}
-        title="Format"
-        aria-label="Format"
-        className={iconBtn}
-      >
-        <Wand2 className="size-4" aria-hidden />
-      </button>
+      </Tooltip>
+      <Tooltip label="Format">
+        <button
+          type="button"
+          onClick={() => formatPane(set, value)}
+          aria-label="Format"
+          className={iconBtn}
+        >
+          <Wand2 className="size-4" aria-hidden />
+        </button>
+      </Tooltip>
     </>
   );
 
@@ -197,50 +212,59 @@ export function ComparePage() {
           </select>
         </label>
 
-        <button
-          type="button"
-          onClick={() => setOptionsOpen(true)}
-          title="Options"
-          aria-label="Options"
-          className={iconBtn}
-        >
-          <SlidersHorizontal className="size-4" aria-hidden />
-        </button>
+        <Tooltip label="Options">
+          <button
+            type="button"
+            onClick={() => setOptionsOpen(true)}
+            aria-label="Options"
+            className={iconBtn}
+          >
+            <SlidersHorizontal className="size-4" aria-hidden />
+          </button>
+        </Tooltip>
 
-        <button
-          type="button"
-          onClick={onCompare}
-          disabled={status === "running" || !a || !b}
-          className={`${btnPrimary} ml-auto`}
-        >
-          {status === "running" ? <Spinner /> : null}
-          {status === "running" ? "Diffing…" : "Compare"}
-          <ChevronRight className="size-4" aria-hidden />
-        </button>
+        <Tooltip label="Compare">
+          <button
+            type="button"
+            onClick={onCompare}
+            disabled={status === "running" || !a || !b}
+            className={`${btnPrimary} ml-auto`}
+          >
+            {status === "running" ? <Spinner /> : null}
+            {status === "running" ? "Diffing…" : "Compare"}
+            <ChevronRight className="size-4" aria-hidden />
+          </button>
+        </Tooltip>
       </div>
 
-      <div className="flex min-h-0 flex-1 gap-px bg-edge">
-        <Pane
-          label="Source A"
-          value={a}
-          onChange={setA}
-          placeholder="Paste source A…"
-          wrap={wrapA}
-          onToggleWrap={() => setWrapA((w) => !w)}
-        >
-          {paneButtons(setA, a)}
-        </Pane>
-        <Pane
-          label="Source B"
-          value={b}
-          onChange={setB}
-          placeholder="Paste source B…"
-          wrap={wrapB}
-          onToggleWrap={() => setWrapB((w) => !w)}
-        >
-          {paneButtons(setB, b)}
-        </Pane>
-      </div>
+      <SplitPanes
+        left={
+          <Pane
+            label="Source A"
+            value={a}
+            onChange={setA}
+            placeholder="Paste source A…"
+            wrap={wrapA}
+            onToggleWrap={() => setWrapA((w) => !w)}
+            status={statusA}
+          >
+            {paneButtons(setA, a)}
+          </Pane>
+        }
+        right={
+          <Pane
+            label="Source B"
+            value={b}
+            onChange={setB}
+            placeholder="Paste source B…"
+            wrap={wrapB}
+            onToggleWrap={() => setWrapB((w) => !w)}
+            status={statusB}
+          >
+            {paneButtons(setB, b)}
+          </Pane>
+        }
+      />
 
       <Modal
         open={optionsOpen}

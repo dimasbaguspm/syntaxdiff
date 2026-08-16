@@ -1,11 +1,29 @@
+import { useEffect, useState } from "react";
 import { Bookmark, MessageSquareText, Moon, Sun } from "lucide-react";
 import { useTheme } from "../hooks/use-theme";
+import { listDiffs } from "../db";
 
 const SITE_URL = "https://syntaxdiff.dimasbaguspm.dev";
 const FEEDBACK_URL = "https://github.com/dimasbaguspm/syntaxdiff/issues";
 
 export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
   const { theme, toggle } = useTheme();
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    void listDiffs().then((d) => {
+      if (active) setCount(d.length);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const openHistory = () => {
+    onOpenHistory();
+    void listDiffs().then((d) => setCount(d.length));
+  };
 
   return (
     <footer className="relative z-30 shrink-0 border-t border-edge">
@@ -13,12 +31,15 @@ export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
         <div className="flex items-center justify-start gap-0.5">
           <button
             type="button"
-            onClick={onOpenHistory}
+            onClick={openHistory}
             aria-label="History"
             title="History"
-            className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
+            className="flex items-center gap-1.5 rounded px-1.5 py-1 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
           >
             <Bookmark className="size-4" aria-hidden />
+            <span className="text-xs font-medium tabular-nums">
+              {count} {count === 1 ? "Saved" : "Saved"}
+            </span>
           </button>
         </div>
 

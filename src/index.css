@@ -119,12 +119,19 @@ body {
   border-bottom: 1px solid var(--edge);
   color: var(--dim);
 }
+/* Hide the ADDED / CHANGED / REMOVED file-state tags */
+.diff-body .d2h-file-header .d2h-tag,
+.diff-body .d2h-tag {
+  display: none;
+}
 .diff-body .d2h-info {
   background: transparent;
   color: var(--dim);
 }
+/* Diff text: bold + bright, clearly readable (not dimmer than the canvas) */
 .diff-body .d2h-code-line {
-  color: var(--ink);
+  color: #e6edf3;
+  font-weight: 500;
 }
 /* Inserted / deleted text: bright, high-contrast on the tinted bg */
 .diff-body .d2h-ins,
@@ -145,7 +152,7 @@ body {
 }
 .diff-body .d2h-cntx {
   background: transparent;
-  color: var(--dim);
+  color: #c9d1d9;
 }
 .diff-body .d2h-lines-added {
   color: var(--tint-emerald-fg);

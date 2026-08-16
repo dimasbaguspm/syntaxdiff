@@ -1,13 +1,14 @@
 import { SlidersHorizontal } from "lucide-react";
 import type { LanguageAdapter } from "../engine";
 import { useStore } from "../store";
+import { Switch } from "./switch";
 
 export function TogglesPanel({ adapter }: { adapter: LanguageAdapter }) {
   const opts = useStore((s) => s.opts);
   const setOpt = useStore((s) => s.setOpt);
 
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-edge bg-surface px-3 py-2">
+    <div className="flex flex-col gap-3">
       <span className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-dim">
         <SlidersHorizontal className="size-3.5" aria-hidden />
         {adapter.label} options
@@ -18,17 +19,9 @@ export function TogglesPanel({ adapter }: { adapter: LanguageAdapter }) {
         adapter.toggles.map((t) => {
           const checked = opts[t.id] ?? t.default ?? false;
           return (
-            <label
-              key={t.id}
-              className="flex cursor-pointer items-center gap-1.5 text-xs text-dim transition-colors hover:text-ink"
-            >
-              <input
-                type="checkbox"
-                checked={checked}
-                onChange={(e) => setOpt(t.id, e.target.checked)}
-                className="size-3.5 rounded border-edge bg-well accent-accent"
-              />
-              {t.label}
+            <label key={t.id} className="flex cursor-pointer items-center justify-between gap-3">
+              <span className="text-sm text-ink">{t.label}</span>
+              <Switch checked={checked} onChange={(v) => setOpt(t.id, v)} />
             </label>
           );
         })
