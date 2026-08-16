@@ -44,8 +44,8 @@ describe("DiffPage", () => {
     const id = await saveDiff(makeRecord());
     renderDiff(`/diff/${id}`);
     expect(await screen.findByText("JSON")).toBeInTheDocument();
-    expect(screen.getByText("+1")).toBeInTheDocument();
-    expect(screen.getByText("−1")).toBeInTheDocument();
+    expect(screen.getByText("+1 added")).toBeInTheDocument();
+    expect(screen.getByText("−1 removed")).toBeInTheDocument();
     expect(document.querySelector(".diff-body")).not.toBeNull();
   });
 
@@ -54,14 +54,9 @@ describe("DiffPage", () => {
     expect(await screen.findByText("Diff not found.")).toBeInTheDocument();
   });
 
-  it("renders the metric tiles (lengths and size delta)", async () => {
-    const id = await saveDiff(makeRecord({ a: "111", b: "222222" })); // a=3, b=6, delta=+3
+  it("renders a wrap toggle button", async () => {
+    const id = await saveDiff(makeRecord());
     renderDiff(`/diff/${id}`);
-    expect(await screen.findByText("Length A")).toBeInTheDocument();
-    expect(screen.getByText("Length B")).toBeInTheDocument();
-    expect(screen.getByText("Added")).toBeInTheDocument();
-    expect(screen.getByText("Removed")).toBeInTheDocument();
-    expect(screen.getByText("Δ Size")).toBeInTheDocument();
-    expect(screen.getByText("+3")).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Toggle wrap" })).toBeInTheDocument();
   });
 });

@@ -1,28 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { clsx } from "clsx";
-import { ArrowLeft, Columns2, FileDiff, Rows3 } from "lucide-react";
+import { ArrowLeft, Columns2, FileDiff, Rows3, WrapText } from "lucide-react";
 import { getAdapter } from "@/engine";
 import { getDiff, type DiffRecord } from "@/db";
 import { useStore } from "@/store";
 import { DiffView } from "@/components/diff-view";
+import { Tooltip } from "@/components/tooltip";
 import { btnActive, Spinner } from "@/components/ui";
 
 const btnSegment =
   "inline-flex items-center justify-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-dim transition-colors hover:text-ink focus:outline-none focus:ring-2 focus:ring-accent/40";
-
-function fmt(n: number): string {
-  return n.toLocaleString();
-}
-
-function Tile({ label, value, accent }: { label: string; value: string; accent?: string }) {
-  return (
-    <div className="rounded-lg border border-edge bg-surface px-3 py-2">
-      <div className="text-[10px] font-medium uppercase tracking-wide text-faint">{label}</div>
-      <div className={`font-mono text-sm tabular-nums ${accent ?? "text-ink"}`}>{value}</div>
-    </div>
-  );
-}
 
 export function DiffPage() {
   const { id } = useParams();
@@ -30,6 +18,10 @@ export function DiffPage() {
   const mode = useStore((s) => s.mode);
   const setMode = useStore((s) => s.setMode);
   const [rec, setRec] = useState<DiffRecord | null | undefined>(undefined);
+  const [wrap, setWrap] = useState(false);
+  const [height, setHeight] = useState<number | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ startY: number; startH: number } | null>(null);
 
   useEffect(() => {
     const n = Number(id);
@@ -65,7 +57,18 @@ export function DiffPage() {
   }
 
   const adapter = getAdapter(rec.lang);
-  const delta = rec.b.length - rec.a.length;
+
+  const onHandleDown = (e: React.PointerEvent) => {
+    drag.current = { startY: e.clientY, startH: scrollRef.current?.clientHeight ?? 0 };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onHandleMove = (e: React.PointerEvent) => {
+    if (!drag.current) return;
+    setHeight(Math.max(120, drag.current.startH + (e.clientY - drag.current.startY)));
+  };
+  const onHandleUp = () => {
+    drag.current = null;
+  };
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -85,47 +88,64 @@ export function DiffPage() {
           {adapter.label}
         </span>
 
-        <div className="ml-auto flex items-center gap-0.5 rounded-lg border border-edge bg-surface-2/50 p-0.5">
-          <button
-            type="button"
-            onClick={() => setMode("split")}
-            className={clsx(btnSegment, mode === "split" && btnActive)}
-            aria-label="Split view"
-            title="Split (side-by-side)"
-          >
-            <Columns2 className="size-4" aria-hidden />
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("unified")}
-            className={clsx(btnSegment, mode === "unified" && btnActive)}
-            aria-label="Unified view"
-            title="Unified (inline)"
-          >
-            <Rows3 className="size-4" aria-hidden />
-          </button>
+        <div className="ml-auto flex items-center gap-1">
+          <Tooltip label={wrap ? "Unwrap" : "Wrap"}>
+            <button
+              type="button"
+              onClick={() => setWrap((w) => !w)}
+              aria-label="Toggle wrap"
+              className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
+            >
+              <WrapText className="size-4" aria-hidden />
+            </button>
+          </Tooltip>
+
+          <div className="flex items-center gap-0.5 rounded-lg border border-edge bg-surface-2/50 p-0.5">
+            <button
+              type="button"
+              onClick={() => setMode("split")}
+              className={clsx(btnSegment, mode === "split" && btnActive)}
+              aria-label="Split view"
+              title="Split (side-by-side)"
+            >
+              <Columns2 className="size-4" aria-hidden />
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("unified")}
+              className={clsx(btnSegment, mode === "unified" && btnActive)}
+              aria-label="Unified view"
+              title="Unified (inline)"
+            >
+              <Rows3 className="size-4" aria-hidden />
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="grid shrink-0 grid-cols-2 gap-2 px-4 py-3 sm:grid-cols-5">
-        <Tile label="Length A" value={fmt(rec.a.length)} />
-        <Tile label="Length B" value={fmt(rec.b.length)} />
-        <Tile label="Added" value={`+${rec.added}`} accent="text-[var(--tint-emerald-fg)]" />
-        <Tile label="Removed" value={`−${rec.removed}`} accent="text-[var(--tint-rose-fg)]" />
-        <Tile
-          label="Δ Size"
-          value={`${delta >= 0 ? "+" : ""}${fmt(delta)}`}
-          accent={delta >= 0 ? "text-[var(--tint-emerald-fg)]" : "text-[var(--tint-rose-fg)]"}
-        />
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-auto p-4">
+      <div
+        ref={scrollRef}
+        className="min-h-0 flex-1 overflow-auto p-4"
+        style={height ? { height } : undefined}
+      >
         <DiffView
           patch={rec.patch}
           mode={mode}
           counts={{ added: rec.added, removed: rec.removed }}
+          wrap={wrap}
         />
       </div>
+
+      <div
+        role="separator"
+        aria-orientation="horizontal"
+        onPointerDown={onHandleDown}
+        onPointerMove={onHandleMove}
+        onPointerUp={onHandleUp}
+        onPointerCancel={onHandleUp}
+        title="Drag to resize"
+        className="h-1.5 shrink-0 cursor-row-resize touch-none bg-edge-strong transition-colors hover:bg-accent"
+      />
     </div>
   );
 }

@@ -94,12 +94,14 @@ function Pane({
           </Tooltip>
         </div>
       </div>
-      <LineNumberedTextarea
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        wrap={wrap}
-      />
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-well">
+        <LineNumberedTextarea
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          wrap={wrap}
+        />
+      </div>
     </div>
   );
 }
@@ -196,45 +198,44 @@ export function ComparePage() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-edge bg-surface/40 px-4 py-2">
-        <label className="flex items-center gap-2 text-sm text-dim">
-          Language
-          <select
-            value={lang}
-            onChange={(e) => setLang(e.target.value as typeof lang)}
-            className="rounded-lg border border-edge bg-well px-2 py-1.5 text-sm text-ink focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20"
-          >
-            <option value="auto">Auto — detected: {adapter.label}</option>
-            {adapters.map((ad) => (
-              <option key={ad.id} value={ad.id}>
-                {ad.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <select
+          value={lang}
+          onChange={(e) => setLang(e.target.value as typeof lang)}
+          className="rounded-lg border border-edge bg-well px-2 py-1.5 text-sm text-ink focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20"
+        >
+          <option value="auto">Auto — detected: {adapter.label}</option>
+          {adapters.map((ad) => (
+            <option key={ad.id} value={ad.id}>
+              {ad.label}
+            </option>
+          ))}
+        </select>
 
-        <Tooltip label="Options">
-          <button
-            type="button"
-            onClick={() => setOptionsOpen(true)}
-            aria-label="Options"
-            className={iconBtn}
-          >
-            <SlidersHorizontal className="size-4" aria-hidden />
-          </button>
-        </Tooltip>
+        <div className="ml-auto flex items-center gap-2">
+          <Tooltip label="Options">
+            <button
+              type="button"
+              onClick={() => setOptionsOpen(true)}
+              aria-label="Options"
+              className={iconBtn}
+            >
+              <SlidersHorizontal className="size-4" aria-hidden />
+            </button>
+          </Tooltip>
 
-        <Tooltip label="Compare">
-          <button
-            type="button"
-            onClick={onCompare}
-            disabled={status === "running" || !a || !b}
-            className={`${btnPrimary} ml-auto`}
-          >
-            {status === "running" ? <Spinner /> : null}
-            {status === "running" ? "Diffing…" : "Compare"}
-            <ChevronRight className="size-4" aria-hidden />
-          </button>
-        </Tooltip>
+          <Tooltip label="Compare">
+            <button
+              type="button"
+              onClick={onCompare}
+              disabled={status === "running" || !a || !b}
+              className={btnPrimary}
+            >
+              {status === "running" ? <Spinner /> : null}
+              {status === "running" ? "Diffing…" : "Compare"}
+              <ChevronRight className="size-4" aria-hidden />
+            </button>
+          </Tooltip>
+        </div>
       </div>
 
       <SplitPanes

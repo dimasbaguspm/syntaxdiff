@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { DiffView } from "./diff-view";
 
@@ -14,22 +14,10 @@ const PATCH = `--- a/file.txt
 afterEach(() => cleanup());
 
 describe("DiffView", () => {
-  beforeEach(() => {
-    Object.defineProperty(navigator, "clipboard", {
-      value: { writeText: vi.fn().mockResolvedValue(undefined) },
-      configurable: true,
-    });
-  });
-
   it("renders the added and removed counts", () => {
     render(<DiffView patch={PATCH} mode="unified" counts={{ added: 2, removed: 3 }} />);
     expect(screen.getByText("+2 added")).toBeInTheDocument();
     expect(screen.getByText("−3 removed")).toBeInTheDocument();
-  });
-
-  it("renders a copy button", () => {
-    render(<DiffView patch={PATCH} mode="split" counts={{ added: 1, removed: 1 }} />);
-    expect(screen.getByRole("button", { name: /Copy diff/ })).toBeInTheDocument();
   });
 
   it("renders the diff body container", () => {
@@ -37,5 +25,12 @@ describe("DiffView", () => {
       <DiffView patch={PATCH} mode="unified" counts={{ added: 1, removed: 1 }} />,
     );
     expect(container.querySelector(".diff-body")).not.toBeNull();
+  });
+
+  it("applies the wrap class when wrap is enabled", () => {
+    const { container } = render(
+      <DiffView patch={PATCH} mode="unified" counts={{ added: 1, removed: 1 }} wrap />,
+    );
+    expect(container.querySelector(".diff-body")?.classList.contains("diff-wrap")).toBe(true);
   });
 });

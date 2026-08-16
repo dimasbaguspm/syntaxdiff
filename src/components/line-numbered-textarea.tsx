@@ -23,15 +23,17 @@ export function LineNumberedTextarea({
 
   return (
     <div className="flex min-h-0 w-full flex-1 overflow-hidden">
-      <div
-        ref={gutterRef}
-        aria-hidden
-        className="select-none overflow-hidden border-r border-edge bg-surface/40 py-4 pr-2 pl-2 text-right font-mono text-xs leading-[1.5] text-faint"
-      >
-        {Array.from({ length: lineCount }, (_, i) => i + 1).map((n) => (
-          <div key={n}>{n}</div>
-        ))}
-      </div>
+      {!wrap && (
+        <div
+          ref={gutterRef}
+          aria-hidden
+          className="select-none overflow-hidden border-r border-edge bg-surface/40 py-4 pr-2 pl-2 text-right font-mono text-xs leading-[1.5] text-faint"
+        >
+          {Array.from({ length: lineCount }, (_, i) => i + 1).map((n) => (
+            <div key={n}>{n}</div>
+          ))}
+        </div>
+      )}
       <textarea
         ref={taRef}
         value={value}
