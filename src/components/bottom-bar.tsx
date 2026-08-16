@@ -18,10 +18,10 @@ import { useGithubStars } from "../hooks/use-github-stars";
 import { listDiffs } from "../db";
 import { trackEvent } from "../lib/analytics/track";
 import { APP_VERSION } from "../constants/version";
+import { SITE_HOST, SITE_NAME, SITE_URL } from "../constants/site";
 import { DropdownMenu } from "./dropdown-menu";
 import { Tooltip } from "./tooltip";
 
-const SITE_URL = "https://syntaxdiff.dimasbaguspm.dev";
 const GITHUB_URL = "https://github.com/dimasbaguspm/syntaxdiff";
 const FEEDBACK_URL = "https://github.com/dimasbaguspm/syntaxdiff/issues";
 
@@ -101,12 +101,12 @@ export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
           rel="noreferrer"
           className="flex items-center gap-1.5 rounded px-2 py-1 text-xs font-medium text-dim transition-colors hover:bg-surface-2 hover:text-ink"
         >
-          <span className="hidden sm:inline">syntaxdiff.dimasbaguspm.dev</span>
-          <span className="sm:hidden">syntaxdiff</span>
+          <span className="hidden sm:inline">{SITE_HOST}</span>
+          <span className="sm:hidden">{SITE_NAME}</span>
         </a>
 
         <div className="flex items-center justify-end gap-1 sm:gap-3">
-          <span className="hidden items-center gap-1 rounded-full border border-edge px-2 py-0.5 text-[11px] font-medium text-faint sm:flex">
+          <span className="hidden items-center gap-1 rounded-full border border-edge px-2 py-0.5 text-[11px] font-medium text-accent sm:flex">
             <Tag className="size-3" aria-hidden />v{APP_VERSION}
           </span>
 
