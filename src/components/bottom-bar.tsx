@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
-import { Bookmark, MessageSquareText, Moon, MoreVertical, Star, Sun } from "lucide-react";
+import {
+  Bookmark,
+  HelpCircle,
+  MessageSquareText,
+  Moon,
+  MoreVertical,
+  Star,
+  Sun,
+} from "lucide-react";
 import { GithubIcon } from "./icons/github-icon";
+import { HelpModal } from "./help-modal";
 import { useTheme } from "../hooks/use-theme";
 import { useGithubStars } from "../hooks/use-github-stars";
 import { listDiffs } from "../db";
@@ -15,6 +24,7 @@ export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
   const { theme, toggle } = useTheme();
   const stars = useGithubStars();
   const [count, setCount] = useState(0);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -35,6 +45,19 @@ export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
     <footer className="relative z-30 shrink-0 border-t border-edge">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-3 py-1">
         <div className="flex items-center justify-start gap-0.5">
+          <button
+            type="button"
+            onClick={() => {
+              trackEvent("help_open");
+              setHelpOpen(true);
+            }}
+            aria-label="Help"
+            title="Help"
+            className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
+          >
+            <HelpCircle className="size-4" aria-hidden />
+          </button>
+
           <button
             type="button"
             onClick={openHistory}
@@ -125,6 +148,7 @@ export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
           </div>
         </div>
       </div>
+      <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
     </footer>
   );
 }

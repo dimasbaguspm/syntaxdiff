@@ -53,6 +53,13 @@ describe("BottomBar", () => {
     expect(await screen.findByText("12")).toBeInTheDocument();
   });
 
+  it("opens the Help modal with numbered steps", () => {
+    render(<BottomBar onOpenHistory={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Help" }));
+    expect(screen.getByText("How to use SyntaxDiff")).toBeInTheDocument();
+    expect(screen.getByText("Paste Source A and Source B into the two panes.")).toBeInTheDocument();
+  });
+
   it("links to the Feedback issue tracker", () => {
     render(<BottomBar onOpenHistory={vi.fn()} />);
     const link = screen.getByText("Feedback").closest("a");

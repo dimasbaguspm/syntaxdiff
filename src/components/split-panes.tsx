@@ -47,8 +47,10 @@ export function SplitPanes({ left, right }: { left: ReactNode; right: ReactNode 
         role="separator"
         aria-orientation="vertical"
         onPointerDown={onPointerDown}
-        className="relative z-10 h-1.5 shrink-0 cursor-row-resize touch-none bg-edge-strong transition-colors hover:bg-accent md:h-auto md:w-1 md:cursor-col-resize"
-      />
+        className="relative z-10 flex h-2 shrink-0 cursor-row-resize touch-none select-none items-center justify-center bg-edge transition-colors hover:bg-edge-strong md:h-auto md:w-2 md:cursor-col-resize"
+      >
+        <span className="h-0.5 w-10 rounded-full bg-edge-strong md:h-10 md:w-0.5" aria-hidden />
+      </div>
       <div className="flex min-h-0 min-w-0 flex-col" style={pane(`${(1 - ratio) * 100}%`)}>
         {right}
       </div>

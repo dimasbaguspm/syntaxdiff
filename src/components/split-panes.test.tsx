@@ -16,6 +16,13 @@ describe("SplitPanes", () => {
     expect(screen.getByRole("separator")).toBeInTheDocument();
   });
 
+  it("divider includes a visible grab handle", () => {
+    const { container } = render(<SplitPanes left={<div>l</div>} right={<div>r</div>} />);
+    const separator = container.querySelector('[role="separator"]');
+    expect(separator).not.toBeNull();
+    expect(separator!.querySelector("span")).not.toBeNull();
+  });
+
   it("container stacks on mobile and uses md:flex-row on desktop", () => {
     const { container } = render(<SplitPanes left={<div>l</div>} right={<div>r</div>} />);
     const root = container.firstElementChild as HTMLElement;

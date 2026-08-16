@@ -3,7 +3,6 @@ import { Braces } from "lucide-react";
 import type { DiffLine } from "../engine";
 import type { ViewMode } from "../store";
 import { SplitPanes } from "./split-panes";
-import { useIsMobile } from "../hooks/use-is-mobile";
 
 interface DiffViewProps {
   lines: DiffLine[];
@@ -108,11 +107,9 @@ function UnifiedView({ lines }: { lines: DiffLine[] }) {
 }
 
 export function DiffView({ lines, mode }: DiffViewProps) {
-  const isMobile = useIsMobile();
-  const view = isMobile ? "unified" : mode;
   return (
     <div className="diff-view flex min-h-0 min-w-0 flex-1 flex-col bg-well">
-      {view === "split" ? <SplitView lines={lines} /> : <UnifiedView lines={lines} />}
+      {mode === "split" ? <SplitView lines={lines} /> : <UnifiedView lines={lines} />}
     </div>
   );
 }
