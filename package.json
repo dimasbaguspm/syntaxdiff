@@ -31,7 +31,6 @@
     "clsx": "^2.1.1",
     "dexie": "^4.4.4",
     "diff": "^8.0.2",
-    "diff2html": "^3.4.48",
     "fast-xml-parser": "^5.2.5",
     "js-yaml": "^4.1.0",
     "lucide-react": "^1.31.0",
@@ -44,7 +43,9 @@
     "zustand": "^5.0.9"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^7.0.1",

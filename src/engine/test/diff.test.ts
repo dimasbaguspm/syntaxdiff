@@ -26,9 +26,20 @@ describe("computeDiff", () => {
     expect(r.counts.added + r.counts.removed).toBeGreaterThan(0);
   });
 
-  it("produces a unified patch for diff2html", () => {
+  it("produces a unified patch for export", () => {
     const r = computeDiff("a\nb\n", "a\nc\n", "plain", {}, {});
     expect(r.patch).toContain("@@");
+  });
+
+  it("produces structured line rows for rendering", () => {
+    const r = computeDiff("a\nb\n", "a\nc\n", "plain", {}, {});
+    const del = r.lines.find((l) => l.kind === "del");
+    const add = r.lines.find((l) => l.kind === "add");
+    expect(r.lines.length).toBeGreaterThan(0);
+    expect(del?.a).toBe("b");
+    expect(del?.aNum).toBe(2);
+    expect(add?.b).toBe("c");
+    expect(add?.bNum).toBe(2);
   });
 
   it("uses identical file names so diff2html does not report a rename", () => {

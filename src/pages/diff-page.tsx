@@ -6,6 +6,7 @@ import { getAdapter } from "@/engine";
 import { getDiff, type DiffRecord } from "@/db";
 import { useStore } from "@/store";
 import { DiffView } from "@/components/diff-view";
+import { Tooltip } from "@/components/tooltip";
 import { btnActive, Spinner } from "@/components/ui";
 
 const btnSegment =
@@ -55,15 +56,16 @@ export function DiffPage() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-edge bg-surface/40 px-4 py-2">
-        <button
-          type="button"
-          onClick={() => navigate("/")}
-          aria-label="Back"
-          title="Back"
-          className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
-        >
-          <ArrowLeft className="size-4" aria-hidden />
-        </button>
+        <Tooltip label="Back">
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            aria-label="Back"
+            className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
+          >
+            <ArrowLeft className="size-4" aria-hidden />
+          </button>
+        </Tooltip>
 
         <span className="inline-flex items-center gap-1.5 rounded-full border border-edge bg-surface-2 px-2.5 py-0.5 text-xs font-medium text-dim">
           <FileDiff className="size-3.5" aria-hidden />
@@ -72,30 +74,32 @@ export function DiffPage() {
 
         <div className="ml-auto flex items-center gap-1">
           <div className="flex items-center gap-0.5 rounded-lg border border-edge bg-surface-2/50 p-0.5">
-            <button
-              type="button"
-              onClick={() => setMode("split")}
-              className={clsx(btnSegment, mode === "split" && btnActive)}
-              aria-label="Split view"
-              title="Split (side-by-side)"
-            >
-              <Columns2 className="size-4" aria-hidden />
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("unified")}
-              className={clsx(btnSegment, mode === "unified" && btnActive)}
-              aria-label="Unified view"
-              title="Unified (inline)"
-            >
-              <Rows3 className="size-4" aria-hidden />
-            </button>
+            <Tooltip label="Split (side-by-side)">
+              <button
+                type="button"
+                onClick={() => setMode("split")}
+                className={clsx(btnSegment, mode === "split" && btnActive)}
+                aria-label="Split view"
+              >
+                <Columns2 className="size-4" aria-hidden />
+              </button>
+            </Tooltip>
+            <Tooltip label="Unified (inline)">
+              <button
+                type="button"
+                onClick={() => setMode("unified")}
+                className={clsx(btnSegment, mode === "unified" && btnActive)}
+                aria-label="Unified view"
+              >
+                <Rows3 className="size-4" aria-hidden />
+              </button>
+            </Tooltip>
           </div>
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 p-4">
-        <DiffView patch={rec.patch} mode={mode} />
+      <div className="flex min-h-0 flex-1">
+        <DiffView lines={rec.lines} mode={mode} />
       </div>
     </div>
   );

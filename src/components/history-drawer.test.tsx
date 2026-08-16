@@ -37,6 +37,7 @@ function makeRecord(over: Partial<Omit<DiffRecord, "id">> = {}): Omit<DiffRecord
     a: '{"x":1}',
     b: '{"x":2}',
     patch: `--- a\n+++ b\n@@ -1 +1 @@\n-old\n+new\n`,
+    lines: [],
     added: 1,
     removed: 1,
     ...over,

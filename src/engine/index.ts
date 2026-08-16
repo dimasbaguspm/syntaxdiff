@@ -3,6 +3,7 @@ export { computeDiff } from "./diff";
 export { canonicalize } from "./canonical";
 export type {
   DiffCounts,
+  DiffLine,
   DiffResult,
   FormatOptions,
   FormatResult,

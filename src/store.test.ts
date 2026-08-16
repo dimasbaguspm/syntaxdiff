@@ -12,6 +12,7 @@ const sampleResult: DiffResult = {
   language: "json",
   patch: "@@ diff @@",
   counts: { added: 1, removed: 1 },
+  lines: [],
 };
 
 describe("store", () => {

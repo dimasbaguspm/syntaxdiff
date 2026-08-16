@@ -1,11 +1,14 @@
-import { createTwoFilesPatch } from "diff";
+import { createTwoFilesPatch, diffLines, type Change } from "diff";
 import { getAdapter } from "./registry";
-import type { DiffCounts, DiffResult, FormatOptions, LanguageId } from "./types";
+import type { DiffCounts, DiffLine, DiffResult, FormatOptions, LanguageId } from "./types";
 
 /**
- * Format both inputs to canonical form, then produce a line-based unified
- * diff. This is the whole pipeline, kept synchronous so it runs untouched
- * inside a Web Worker (off the main thread) and in vitest.
+ * Format both inputs to canonical form, then diff them. The pipeline is kept
+ * synchronous so it runs untouched inside a Web Worker (off the main thread)
+ * and in vitest.
+ *
+ * Besides a unified patch (for export) and counts, it returns structured
+ * line-level rows that the UI renders directly — no external diff renderer.
  */
 export function computeDiff(
   a: string,
@@ -17,8 +20,7 @@ export function computeDiff(
   const adapter = getAdapter(lang);
   const canonicalA = adapter.format(a, optsA).canonical;
   const canonicalB = adapter.format(b, optsB).canonical;
-  // Use the SAME file name for both sides so diff2html doesn't report the two
-  // inputs as a "rename".
+  // Use the SAME file name for both sides so the patch has no rename.
   const patch = createTwoFilesPatch("diff", "diff", canonicalA, canonicalB, "", "", {
     context: 3,
   });
@@ -26,7 +28,36 @@ export function computeDiff(
     language: adapter.id,
     patch,
     counts: countLines(patch),
+    lines: buildLines(diffLines(canonicalA, canonicalB)),
   };
+}
+
+function buildLines(parts: Change[]): DiffLine[] {
+  const lines: DiffLine[] = [];
+  let aNum = 0;
+  let bNum = 0;
+  for (const part of parts) {
+    const arr = part.value.split("\n");
+    if (arr[arr.length - 1] === "") arr.pop();
+    if (part.removed) {
+      for (const text of arr) {
+        aNum++;
+        lines.push({ kind: "del", a: text, aNum, b: null, bNum: null });
+      }
+    } else if (part.added) {
+      for (const text of arr) {
+        bNum++;
+        lines.push({ kind: "add", a: null, aNum: null, b: text, bNum });
+      }
+    } else {
+      for (const text of arr) {
+        aNum++;
+        bNum++;
+        lines.push({ kind: "ctx", a: text, aNum, b: text, bNum });
+      }
+    }
+  }
+  return lines;
 }
 
 function countLines(patch: string): DiffCounts {

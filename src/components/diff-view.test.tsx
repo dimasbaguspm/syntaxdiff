@@ -1,33 +1,39 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { DiffView } from "./diff-view";
+import type { DiffLine } from "../engine";
 
-const PATCH = `--- a/file.txt
-+++ b/file.txt
-@@ -1,3 +1,3 @@
- line1
--line2
-+line2b
- line3
-`;
+const LINES: DiffLine[] = [
+  { kind: "ctx", a: "line1", aNum: 1, b: "line1", bNum: 1 },
+  { kind: "del", a: "old line", aNum: 2, b: null, bNum: null },
+  { kind: "add", a: null, aNum: null, b: "new line", bNum: 2 },
+  { kind: "ctx", a: "line3", aNum: 3, b: "line3", bNum: 3 },
+];
 
 afterEach(() => cleanup());
 
 describe("DiffView", () => {
-  it("renders the diff body container", () => {
-    const { container } = render(<DiffView patch={PATCH} mode="unified" />);
-    expect(container.querySelector(".diff-body")).not.toBeNull();
-  });
-
-  it("labels the sides Source A / Source B in split view", () => {
-    render(<DiffView patch={PATCH} mode="split" />);
+  it("labels Source A / Source B in split view", () => {
+    render(<DiffView lines={LINES} mode="split" />);
     expect(screen.getByText("Source A")).toBeInTheDocument();
     expect(screen.getByText("Source B")).toBeInTheDocument();
   });
 
-  it("does not show side labels in unified view", () => {
-    render(<DiffView patch={PATCH} mode="unified" />);
+  it("renders both sides with line numbers in split view", () => {
+    const { container } = render(<DiffView lines={LINES} mode="split" />);
+    expect(screen.getAllByText("line1").length).toBe(2);
+    expect(screen.getByText("old line")).toBeInTheDocument();
+    expect(screen.getByText("new line")).toBeInTheDocument();
+    expect(container.querySelectorAll(".dv-row").length).toBe(LINES.length);
+  });
+
+  it("renders a unified interleaved view with markers and no side labels", () => {
+    render(<DiffView lines={LINES} mode="unified" />);
     expect(screen.queryByText("Source A")).not.toBeInTheDocument();
     expect(screen.queryByText("Source B")).not.toBeInTheDocument();
+    expect(screen.getByText("old line")).toBeInTheDocument();
+    expect(screen.getByText("new line")).toBeInTheDocument();
+    expect(screen.getAllByText("+").length).toBe(1);
+    expect(screen.getAllByText("−").length).toBe(1);
   });
 });

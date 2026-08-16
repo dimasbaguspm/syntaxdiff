@@ -1,5 +1,5 @@
 import Dexie, { type Table } from "dexie";
-import type { FormatOptions, LanguageId } from "./engine";
+import type { DiffLine, FormatOptions, LanguageId } from "./engine";
 
 /** A saved diff, persisted in IndexedDB so results survive page jumps. */
 export interface DiffRecord {
@@ -10,6 +10,7 @@ export interface DiffRecord {
   a: string;
   b: string;
   patch: string;
+  lines: DiffLine[];
   added: number;
   removed: number;
 }

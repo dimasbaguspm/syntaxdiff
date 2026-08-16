@@ -9,6 +9,7 @@ function makeRecord(over: Partial<DiffRecord> = {}): Omit<DiffRecord, "id"> {
     a: "line a\n",
     b: "line b\n",
     patch: "@@ diff @@",
+    lines: [],
     added: 1,
     removed: 1,
     ...over,

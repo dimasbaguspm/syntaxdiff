@@ -24,6 +24,7 @@ function makeRecord(over: Partial<Omit<DiffRecord, "id">> = {}): Omit<DiffRecord
     a: '{"x":1}',
     b: '{"x":2}',
     patch: `--- a\n+++ b\n@@ -1 +1 @@\n-old\n+new\n`,
+    lines: [],
     added: 1,
     removed: 1,
     ...over,
@@ -44,7 +45,7 @@ describe("DiffPage", () => {
     const id = await saveDiff(makeRecord());
     renderDiff(`/diff/${id}`);
     expect(await screen.findByText("JSON")).toBeInTheDocument();
-    expect(document.querySelector(".diff-body")).not.toBeNull();
+    expect(document.querySelector(".diff-view")).not.toBeNull();
   });
 
   it("renders Source A and Source B labels in split view", async () => {

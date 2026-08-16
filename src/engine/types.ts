@@ -41,9 +41,20 @@ export interface DiffCounts {
   removed: number;
 }
 
+/** One rendered row of a diff. `a`/`b` carry the two sides (null when absent). */
+export interface DiffLine {
+  kind: "ctx" | "add" | "del";
+  a: string | null;
+  aNum: number | null;
+  b: string | null;
+  bNum: number | null;
+}
+
 export interface DiffResult {
   language: LanguageId;
-  /** Unified diff text (jsdiff), fed to diff2html for rendering. */
+  /** Unified diff text (jsdiff), kept for reference/export. */
   patch: string;
   counts: DiffCounts;
+  /** Structured line-level rows for rendering (split or unified). */
+  lines: DiffLine[];
 }

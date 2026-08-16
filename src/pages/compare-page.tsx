@@ -136,6 +136,7 @@ export function ComparePage() {
         a,
         b,
         patch: res.patch,
+        lines: res.lines,
         added: res.counts.added,
         removed: res.counts.removed,
       });
