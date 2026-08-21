@@ -1,10 +1,25 @@
 import { useRef, useState, type ReactNode } from "react";
 
+export type Orientation = "horizontal" | "vertical";
+
 /**
- * Two resizable panes split by a draggable divider. On desktop the divider is
- * vertical (drag left/right); on mobile the layout stacks vertically.
+ * Two resizable panes split by a draggable divider.
+ *
+ * - `orientation="horizontal"` (default): desktop is a horizontal split
+ *   (drag left/right); on mobile (window.innerWidth < 768) it auto-stacks
+ *   vertically for touch ergonomics.
+ * - `orientation="vertical"`: always a vertical stack (drag up/down); used by
+ *   the entry/compare page so Source A sits above Source B.
  */
-export function SplitPanes({ left, right }: { left: ReactNode; right: ReactNode }) {
+export function SplitPanes({
+  left,
+  right,
+  orientation = "horizontal",
+}: {
+  left: ReactNode;
+  right: ReactNode;
+  orientation?: Orientation;
+}) {
   const [ratio, setRatio] = useState(0.5);
   // State (not just a ref) so the drag-shield overlay mounts/unmounts with
   // the gesture — see regression note above the overlay in the JSX below.
@@ -25,8 +40,11 @@ export function SplitPanes({ left, right }: { left: ReactNode; right: ReactNode 
     if (activePointer.current !== e.pointerId) return;
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
-    // On mobile the layout is flex-col (stacks A over B), so drag is vertical.
-    const vertical = typeof window !== "undefined" && window.innerWidth < 768;
+    // Explicit "vertical" always stacks; "horizontal" stacks only on mobile
+    // (window.innerWidth < 768), matching the touch-friendly fallback.
+    const vertical =
+      orientation === "vertical" ||
+      (orientation === "horizontal" && typeof window !== "undefined" && window.innerWidth < 768);
     const size = vertical ? rect.height : rect.width;
     if (size === 0) return;
     const pos = vertical ? e.clientY - rect.top : e.clientX - rect.left;
@@ -47,10 +65,29 @@ export function SplitPanes({ left, right }: { left: ReactNode; right: ReactNode 
     flexShrink: 0,
   });
 
+  // Layout + divider styling per orientation.
+  const isVertical = orientation === "vertical";
+  const containerClassName = isVertical
+    ? "flex min-h-0 flex-1 flex-col"
+    : "flex min-h-0 flex-1 flex-col md:flex-row";
+  // A vertical split is resized up/down, so the separator is a horizontal bar.
+  const dividerClassName = isVertical
+    ? "relative z-10 flex h-2 w-full shrink-0 cursor-row-resize touch-none select-none items-center justify-center bg-edge transition-colors hover:bg-edge-strong"
+    : "relative z-10 flex h-2 shrink-0 cursor-row-resize touch-none select-none items-center justify-center bg-edge transition-colors hover:bg-edge-strong md:h-auto md:w-2 md:cursor-col-resize";
+  const dividerHandleClassName = isVertical
+    ? "h-0.5 w-10 rounded-full bg-edge-strong"
+    : "h-0.5 w-10 rounded-full bg-edge-strong md:h-10 md:w-0.5";
+  // aria-orientation describes the divider's axis: a horizontal bar that moves
+  // up/down is "horizontal"; a vertical bar that moves left/right is "vertical".
+  const ariaOrientation = isVertical ? "horizontal" : "vertical";
+  const shieldClassName = isVertical
+    ? "fixed inset-0 z-20 cursor-row-resize touch-none select-none"
+    : "fixed inset-0 z-20 cursor-row-resize touch-none select-none md:cursor-col-resize";
+
   return (
     <div
       ref={containerRef}
-      className="flex min-h-0 flex-1 flex-col md:flex-row"
+      className={containerClassName}
       onPointerMove={onPointerMove}
       onPointerUp={stopDrag}
       onPointerCancel={stopDrag}
@@ -68,22 +105,17 @@ export function SplitPanes({ left, right }: { left: ReactNode; right: ReactNode 
         stream runs to completion on BOTH pages. Desktop behaviour is unchanged:
         the shield only exists mid-drag and is visually inert.
       */}
-      {dragging && (
-        <div
-          aria-hidden
-          className="fixed inset-0 z-20 cursor-row-resize touch-none select-none md:cursor-col-resize"
-        />
-      )}
+      {dragging && <div aria-hidden className={shieldClassName} />}
       <div className="flex min-h-0 min-w-0 flex-col" style={pane(`${ratio * 100}%`)}>
         {left}
       </div>
       <div
         role="separator"
-        aria-orientation="vertical"
+        aria-orientation={ariaOrientation}
         onPointerDown={onPointerDown}
-        className="relative z-10 flex h-2 shrink-0 cursor-row-resize touch-none select-none items-center justify-center bg-edge transition-colors hover:bg-edge-strong md:h-auto md:w-2 md:cursor-col-resize"
+        className={dividerClassName}
       >
-        <span className="h-0.5 w-10 rounded-full bg-edge-strong md:h-10 md:w-0.5" aria-hidden />
+        <span className={dividerHandleClassName} aria-hidden />
       </div>
       <div className="flex min-h-0 min-w-0 flex-col" style={pane(`${(1 - ratio) * 100}%`)}>
         {right}

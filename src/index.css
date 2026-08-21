@@ -135,6 +135,9 @@ body {
   display: flex;
   flex-direction: column;
   min-width: max-content;
+  /* Fill at least the full viewport so the gutter stripe + editor surface
+     reach the bottom even for short diffs (no bare pane below the rows). */
+  min-height: 100%;
 }
 .dv-row,
 .u-row {
@@ -267,12 +270,34 @@ mark {
 .u-row .dv-gutter {
   left: 1.25rem;
 }
+/* Unified +/- marker: leftmost, intent-colored so the symbol reads as the
+   change type at a glance. Neutral/faint for context lines. */
+.u-row .dv-marker {
+  color: var(--faint);
+}
+.u-row.del .dv-marker {
+  color: var(--tint-rose-fg);
+}
+.u-row.add .dv-marker {
+  color: var(--tint-emerald-fg);
+}
+/* Split view has no +/- marker, but color the changed row's left edge (inside
+   the sticky gutter) by intent so additions/deletions still read clearly. */
+.dv-row.del .dv-gutter {
+  box-shadow: inset 3px 0 0 var(--tint-rose-fg);
+}
+.dv-row.add .dv-gutter {
+  box-shadow: inset 3px 0 0 var(--tint-emerald-fg);
+}
 
 /* Full-height gutter stripe: rows are virtualized, so with few lines the
    painted gutters stop at the last row and bare pane shows below. Paint a
    viewport-fixed stripe on the scroll container itself (backgrounds don't
    scroll) sized from --dv-gutter-w, which diff-view.tsx measures from the
-   real rendered gutter cells (marker + numbers). */
+   real rendered gutter cells (marker + numbers). `scroll` attachment keeps
+   the stripe pinned full-height at every scroll position (a `local`
+   attachment scrolled the stripe up with the content, leaving a well-colored
+   gap below the gutter — the reported "gutter doesn't reach the bottom" bug). */
 .dv-scroll,
 .u-scroll {
   background:
@@ -281,7 +306,7 @@ mark {
         var(--surface) 0 var(--dv-gutter-w, 2.5rem),
         transparent var(--dv-gutter-w, 2.5rem)
       )
-      0 0 / auto 100% no-repeat local,
+      0 0 / auto 100% no-repeat scroll,
     var(--well);
   border-right: 1px solid var(--edge);
 }

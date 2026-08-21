@@ -7,6 +7,7 @@ import { Tooltip } from "@/components/tooltip";
 import { Spinner } from "@/components/ui";
 import { Pane } from "@/modules/compare/ui/pane";
 import { OptionsModal } from "@/modules/compare/ui/options-modal";
+import { SelectInput } from "@/components/inputs";
 
 /** Compare screen layout: language toolbar, two source panes, options modal. */
 export function CompareView() {
@@ -26,10 +27,10 @@ export function CompareView() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-edge bg-surface/40 px-4 py-2">
-        <select
+        <SelectInput
           value={lang}
           onChange={(e) => setLang(e.target.value as LangChoice)}
-          className="max-w-[10rem] rounded-lg border border-edge bg-well px-2 py-1.5 text-sm text-ink focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20 sm:max-w-[16rem]"
+          className="max-w-[10rem] sm:max-w-[16rem]"
         >
           <option value="auto">Auto ({adapter.label})</option>
           {adapters.map((ad) => (
@@ -37,7 +38,7 @@ export function CompareView() {
               {ad.label}
             </option>
           ))}
-        </select>
+        </SelectInput>
 
         <div className="ml-auto flex items-center gap-2">
           <Tooltip label="Options">
@@ -66,7 +67,7 @@ export function CompareView() {
         </div>
       </div>
 
-      <SplitPanes left={<Pane side="a" />} right={<Pane side="b" />} />
+      <SplitPanes orientation="vertical" left={<Pane side="a" />} right={<Pane side="b" />} />
 
       <OptionsModal open={optionsOpen} onClose={closeOptions} adapter={adapter} />
     </div>
