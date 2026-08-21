@@ -16,7 +16,7 @@ import { useStore } from "@/store";
 import { saveDiff } from "@/db";
 import { createDiffClient } from "@/worker/client";
 import { trackEvent } from "@/lib/analytics/track";
-import { logError, logInfo } from "@/lib/analytics/otel";
+import { logError } from "@/lib/analytics/otel";
 import { TogglesPanel } from "@/components/toggles-panel";
 import { Modal } from "@/components/modal";
 import { Tooltip } from "@/components/tooltip";
@@ -193,14 +193,12 @@ export function ComparePage() {
         // Feed the same callback as paste/type so content-based auto-detection
         // runs exactly like manual input (no language forcing).
         set(text);
-        logInfo("import file", { method, ext, lang: adapter.id, bytes: file.size });
         trackEvent("import_file", { method, ext, lang: adapter.id, bytes: file.size });
         showSnack(`Imported ${file.name}`, "success");
       })
       .catch((e) => {
         showSnack(`Failed to read ${file.name}`, "error");
         logError(e, "import file failed", { name: file.name });
-        trackEvent("import_file_error", { name: file.name });
       });
   };
 
@@ -208,7 +206,6 @@ export function ComparePage() {
     try {
       adapter.format(value, eOpts);
       showSnack(`Valid ${adapter.label}`, "success");
-      logInfo("validate", { lang: adapter.id, ok: true });
       trackEvent("validate", { lang: adapter.id, ok: "true" });
     } catch (e) {
       showSnack(`Invalid ${adapter.label}: ${(e as Error).message}`, "error");
@@ -221,7 +218,6 @@ export function ComparePage() {
     try {
       set(adapter.format(value, eOpts).canonical);
       showSnack(`Formatted as ${adapter.label}`, "success");
-      logInfo("format", { lang: adapter.id, ok: true });
       trackEvent("format", { lang: adapter.id, ok: "true" });
     } catch (e) {
       showSnack((e as Error).message, "error");
@@ -247,11 +243,6 @@ export function ComparePage() {
         removed: res.counts.removed,
       });
       runSuccess(res);
-      logInfo("compare done", {
-        lang: res.language,
-        added: res.counts.added,
-        removed: res.counts.removed,
-      });
       trackEvent("compare_done", {
         lang: res.language,
         added: res.counts.added,
@@ -261,7 +252,6 @@ export function ComparePage() {
     } catch (e) {
       runError((e as Error).message);
       logError(e, "compare failed", { lang: adapter.id });
-      trackEvent("compare_error", { lang: adapter.id });
     }
   };
 

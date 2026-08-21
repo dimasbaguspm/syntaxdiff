@@ -19,11 +19,7 @@ export function PwaUpdateBanner() {
         >
           <Download className="size-4 shrink-0" aria-hidden />
           <p className="min-w-0 flex-1">A new version of SyntaxDiff is available.</p>
-          <button
-            type="button"
-            onClick={acceptUpdate}
-            className={`${btn} px-2.5 py-1 text-xs`}
-          >
+          <button type="button" onClick={acceptUpdate} className={`${btn} px-2.5 py-1 text-xs`}>
             Update
           </button>
           <button
