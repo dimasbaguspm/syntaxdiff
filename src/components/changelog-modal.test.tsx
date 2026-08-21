@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { ChangelogModal } from "./changelog-modal";
+import { ChangelogModal } from "@/components/changelog-modal";
 
 afterEach(() => cleanup());
 

@@ -1,5 +1,5 @@
 import { AlertTriangle, CheckCircle2, Info, X } from "lucide-react";
-import { useStore, type SnackType } from "../store";
+import { useStore, type SnackType } from "@/core/store";
 
 const STYLE: Record<SnackType, string> = {
   info: "border-[var(--tint-sky-bd)] bg-[var(--tint-sky-bg)] text-[var(--tint-sky-fg)]",

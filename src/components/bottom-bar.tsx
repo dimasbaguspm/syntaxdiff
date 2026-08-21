@@ -10,17 +10,17 @@ import {
   Sun,
   Tag,
 } from "lucide-react";
-import { GithubIcon } from "./icons/github-icon";
-import { HelpModal } from "./help-modal";
-import { ChangelogModal } from "./changelog-modal";
-import { useTheme } from "../hooks/use-theme";
-import { useGithubStars } from "../hooks/use-github-stars";
-import { listDiffs } from "../db";
-import { trackEvent } from "../lib/analytics/track";
-import { APP_VERSION } from "../constants/version";
-import { SITE_HOST, SITE_NAME, SITE_URL } from "../constants/site";
-import { DropdownMenu } from "./dropdown-menu";
-import { Tooltip } from "./tooltip";
+import { GithubIcon } from "@/components/icons/github-icon";
+import { HelpModal } from "@/components/help-modal";
+import { ChangelogModal } from "@/components/changelog-modal";
+import { useTheme } from "@/hooks/use-theme";
+import { useGithubStars } from "@/hooks/use-github-stars";
+import { listDiffs } from "@/core/db";
+import { trackEvent } from "@/modules/analytics/lib/track";
+import { APP_VERSION } from "@/utils/version";
+import { SITE_HOST, SITE_NAME, SITE_URL } from "@/utils/site";
+import { DropdownMenu } from "@/components/dropdown-menu";
+import { Tooltip } from "@/components/tooltip";
 
 const GITHUB_URL = "https://github.com/dimasbaguspm/syntaxdiff";
 const FEEDBACK_URL = "https://github.com/dimasbaguspm/syntaxdiff/issues";

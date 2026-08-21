@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { LineNumberedTextarea } from "./line-numbered-textarea";
+import { LineNumberedTextarea } from "@/components/line-numbered-textarea";
 
 afterEach(() => cleanup());
 

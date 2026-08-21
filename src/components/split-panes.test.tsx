@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
-import { SplitPanes } from "./split-panes";
+import { SplitPanes } from "@/components/split-panes";
 
 afterEach(() => cleanup());
 

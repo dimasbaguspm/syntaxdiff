@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useTheme } from "./use-theme";
+import { useTheme } from "@/hooks/use-theme";
 
 const STORAGE_KEY = "syntaxdiff-theme";
 

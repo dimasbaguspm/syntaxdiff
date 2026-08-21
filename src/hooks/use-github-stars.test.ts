@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderHook } from "@testing-library/react";
-import { useGithubStars } from "./use-github-stars";
+import { useGithubStars } from "@/hooks/use-github-stars";
 
 const fetchMock = vi.fn();
 

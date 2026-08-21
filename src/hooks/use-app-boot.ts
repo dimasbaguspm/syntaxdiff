@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { ANALYTICS } from "@/constants/analytics";
-import { logInfo } from "@/lib/analytics/otel";
-import { trackEvent } from "@/lib/analytics/track";
+import { ANALYTICS } from "@/utils/analytics-config";
+import { logInfo } from "@/modules/analytics/lib/otel";
+import { trackEvent } from "@/modules/analytics/lib/track";
 
 /**
  * Boots async dependencies (OTEL telemetry) and returns true once ready.
@@ -15,7 +15,7 @@ export function useAppBoot(): boolean {
     (async () => {
       try {
         if (ANALYTICS.otelUrl) {
-          const { initTelemetry } = await import("@/lib/analytics/telemetry");
+          const { initTelemetry } = await import("@/modules/analytics/lib/telemetry");
           initTelemetry();
         }
       } catch {

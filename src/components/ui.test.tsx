@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { CopyButton, ErrorBanner, Spinner } from "./ui";
+import { CopyButton, ErrorBanner, Spinner } from "@/components/ui";
 
 afterEach(() => cleanup());
 
