@@ -2,9 +2,9 @@ import { useRef, useState, type ReactNode } from "react";
 import { AlignLeft, CheckCircle2, ScrollText, Upload, XCircle } from "lucide-react";
 import { useCompare, type Side } from "@/modules/compare/providers/context";
 import { Icon } from "@/modules/engine/ui/language-icon";
+import { Button } from "@/components/button";
 import { Tooltip } from "@/components/tooltip";
 import { LineNumberedTextarea } from "@/components/line-numbered-textarea";
-import { iconBtn } from "@/modules/compare/ui/styles";
 
 const PLACEHOLDER: Record<Side, string> = {
   a: "Paste source A, or drop a file…",
@@ -64,34 +64,34 @@ export function Pane({ side, children }: { side: Side; children?: ReactNode }) {
         </span>
         <div className="ml-auto flex items-center gap-0.5">
           <Tooltip label="Upload / drop a file">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               onClick={() => inputRef.current?.click()}
               aria-label="Upload a file into this source"
-              className={iconBtn}
+              className="p-1"
             >
               <Upload className="size-4" aria-hidden />
-            </button>
+            </Button>
           </Tooltip>
           <Tooltip label="Validate syntax">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               onClick={() => validateSide(side)}
               aria-label="Validate syntax"
-              className={iconBtn}
+              className="p-1"
             >
               <ScrollText className="size-4" aria-hidden />
-            </button>
+            </Button>
           </Tooltip>
           <Tooltip label="Format">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               onClick={() => formatSide(side)}
               aria-label="Format"
-              className={iconBtn}
+              className="p-1"
             >
               <AlignLeft className="size-4" aria-hidden />
-            </button>
+            </Button>
           </Tooltip>
           {children}
         </div>

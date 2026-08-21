@@ -1,17 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Columns2, FileDiff, Rows3 } from "lucide-react";
-import { clsx } from "clsx";
 import { getAdapter } from "@/modules/engine/lib";
 import { useStore } from "@/core/store";
 import { Icon } from "@/modules/engine/ui/language-icon";
 import { DiffView } from "@/modules/diff/ui/diff-view";
 import { useDiff } from "@/modules/diff/providers/context";
+import { Button } from "@/components/button";
 import { Tooltip } from "@/components/tooltip";
 import { trackEvent } from "@/modules/analytics/lib/track";
-import { btnActive, Spinner } from "@/components/ui";
-
-const btnSegment =
-  "inline-flex items-center justify-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-dim transition-colors hover:text-ink focus:outline-none focus:ring-2 focus:ring-accent/40";
+import { Spinner } from "@/components/ui";
 
 /** Diff screen view: renders the loaded record or its empty/not-found states. */
 export function DiffPageView() {
@@ -33,13 +30,9 @@ export function DiffPageView() {
       <div className="flex flex-1 flex-col items-center justify-center gap-2 text-faint">
         <FileDiff className="size-8" aria-hidden="true" />
         <p className="text-sm">Diff not found.</p>
-        <button
-          type="button"
-          className="rounded-lg border border-edge bg-surface-2 px-3 py-1.5 text-sm text-ink transition-colors hover:border-edge-strong"
-          onClick={() => navigate("/")}
-        >
+        <Button size="sm" onClick={() => navigate("/")}>
           Back
-        </button>
+        </Button>
       </div>
     );
   }
@@ -50,17 +43,17 @@ export function DiffPageView() {
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-edge bg-surface/40 px-4 py-2">
         <Tooltip label="Back">
-          <button
-            type="button"
+          <Button
+            variant="ghost"
             onClick={() => {
               navigate("/");
               trackEvent("back");
             }}
             aria-label="Back"
-            className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
+            className="p-1.5"
           >
             <ArrowLeft className="size-4" aria-hidden="true" />
-          </button>
+          </Button>
         </Tooltip>
 
         <span className="inline-flex items-center gap-1.5 rounded-full border border-edge bg-surface-2 px-2.5 py-0.5 text-xs font-medium text-dim">
@@ -71,30 +64,30 @@ export function DiffPageView() {
         <div className="ml-auto flex items-center gap-1">
           <div className="flex items-center gap-0.5 rounded-lg border border-edge bg-surface-2/50 p-0.5">
             <Tooltip label="Split (side-by-side)">
-              <button
-                type="button"
+              <Button
+                variant="segment"
+                active={mode === "split"}
                 onClick={() => {
                   setMode("split");
                   trackEvent("switch_view", { mode: "split" });
                 }}
-                className={clsx(btnSegment, mode === "split" && btnActive)}
                 aria-label="Split view"
               >
                 <Columns2 className="size-4" aria-hidden="true" />
-              </button>
+              </Button>
             </Tooltip>
             <Tooltip label="Unified (inline)">
-              <button
-                type="button"
+              <Button
+                variant="segment"
+                active={mode === "unified"}
                 onClick={() => {
                   setMode("unified");
                   trackEvent("switch_view", { mode: "unified" });
                 }}
-                className={clsx(btnSegment, mode === "unified" && btnActive)}
                 aria-label="Unified view"
               >
                 <Rows3 className="size-4" aria-hidden="true" />
-              </button>
+              </Button>
             </Tooltip>
           </div>
         </div>

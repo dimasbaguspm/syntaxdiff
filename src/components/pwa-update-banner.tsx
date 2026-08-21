@@ -1,6 +1,6 @@
 import { Download, Info, X } from "lucide-react";
 import { usePwaUpdate } from "@/hooks/use-pwa-update";
-import { btn } from "@/components/ui";
+import { Button } from "@/components/button";
 
 /**
  * New-version CTA prompt. When the service worker detects a fresh build, we
@@ -19,17 +19,17 @@ export function PwaUpdateBanner() {
         >
           <Download className="size-4 shrink-0" aria-hidden />
           <p className="min-w-0 flex-1">A new version of SyntaxDiff is available.</p>
-          <button type="button" onClick={acceptUpdate} className={`${btn} px-2.5 py-1 text-xs`}>
+          <Button size="sm" onClick={acceptUpdate}>
             Update
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="ghost"
             onClick={dismiss}
             aria-label="Dismiss update"
-            className="shrink-0 rounded p-0.5 opacity-70 transition-opacity hover:opacity-100"
+            className="shrink-0 p-0.5 opacity-70 transition-opacity hover:opacity-100"
           >
             <X className="size-4" aria-hidden />
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -44,14 +44,14 @@ export function PwaUpdateBanner() {
         >
           <Info className="size-4 shrink-0" aria-hidden />
           <p className="min-w-0 flex-1">SyntaxDiff is ready to work offline.</p>
-          <button
-            type="button"
+          <Button
+            variant="ghost"
             onClick={dismissOffline}
             aria-label="Dismiss offline notice"
-            className="shrink-0 rounded p-0.5 opacity-70 transition-opacity hover:opacity-100"
+            className="shrink-0 p-0.5 opacity-70 transition-opacity hover:opacity-100"
           >
             <X className="size-4" aria-hidden />
-          </button>
+          </Button>
         </div>
       </div>
     );
