@@ -31,12 +31,33 @@ beforeEach(async () => {
 afterEach(() => cleanup());
 
 describe("ComparePage", () => {
-  it("renders Source A and Source B textareas", () => {
+  it("renders Source A and Source B editable label inputs", () => {
     renderCompare();
-    expect(screen.getByText("Source A")).toBeInTheDocument();
-    expect(screen.getByText("Source B")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Source A")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Source B")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Paste source A, or drop a file…")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Paste source B, or drop a file…")).toBeInTheDocument();
+  });
+
+  it("editing a source label updates the store and persists to the saved record", async () => {
+    useStore.setState({
+      a: '{"name":"M","age":30}',
+      b: '{"name":"M","age":31}',
+      lang: "json",
+      opts: { sortKeys: true },
+    });
+    renderCompare();
+    const inputA = screen.getByDisplayValue("Source A") as HTMLInputElement;
+    fireEvent.change(inputA, { target: { value: "Old config" } });
+    expect(useStore.getState().labelA).toBe("Old config");
+
+    const button = screen.getByRole("button", { name: /Compare/ });
+    fireEvent.click(button);
+    await waitFor(() => {
+      expect(screen.getByTestId("location").textContent).toMatch(/^\/diff\/[0-9a-f-]+$/);
+    });
+    const saved = await listDiffs();
+    expect(saved[0].labelA).toBe("Old config");
   });
 
   it("typing updates the store", () => {

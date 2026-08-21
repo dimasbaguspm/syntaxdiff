@@ -13,6 +13,9 @@ export interface DiffRecord {
   lines: DiffLine[];
   added: number;
   removed: number;
+  /** Optional user-assigned source labels (default "Source A" / "Source B"). */
+  labelA?: string;
+  labelB?: string;
 }
 
 class SyntaxDiffDB extends Dexie {

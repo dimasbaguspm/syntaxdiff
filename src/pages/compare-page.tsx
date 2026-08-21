@@ -74,6 +74,7 @@ function languageFromExtension(name: string): LanguageId | undefined {
 
 function Pane({
   label,
+  onLabelChange,
   value,
   onChange,
   placeholder,
@@ -82,6 +83,7 @@ function Pane({
   children,
 }: {
   label: string;
+  onLabelChange: (v: string) => void;
   value: string;
   onChange: (v: string) => void;
   placeholder: string;
@@ -121,8 +123,14 @@ function Pane({
       )}
       <div className="flex shrink-0 items-center gap-1 border-b border-edge bg-surface-2 px-2 py-1.5">
         <span className="flex items-center gap-1.5 text-xs font-medium text-dim">
-          <Braces className="size-3.5" aria-hidden />
-          {label}
+          <Braces className="size-3.5 shrink-0" aria-hidden />
+          <input
+            value={label}
+            onChange={(e) => onLabelChange(e.target.value)}
+            aria-label="Source label"
+            placeholder="Source label"
+            className="min-w-0 max-w-[10rem] flex-1 rounded bg-transparent px-1 text-xs font-medium text-ink outline-none focus:bg-surface hover:bg-surface/60"
+          />
           {status === "valid" && (
             <CheckCircle2 className="size-3 text-[var(--tint-emerald-fg)]" aria-hidden />
           )}
@@ -170,6 +178,10 @@ export function ComparePage() {
   const status = useStore((s) => s.status);
   const setA = useStore((s) => s.setA);
   const setB = useStore((s) => s.setB);
+  const labelA = useStore((s) => s.labelA);
+  const labelB = useStore((s) => s.labelB);
+  const setLabelA = useStore((s) => s.setLabelA);
+  const setLabelB = useStore((s) => s.setLabelB);
   const setLang = useStore((s) => s.setLang);
   const runStart = useStore((s) => s.runStart);
   const runSuccess = useStore((s) => s.runSuccess);
@@ -237,6 +249,8 @@ export function ComparePage() {
         opts,
         a,
         b,
+        labelA,
+        labelB,
         patch: res.patch,
         lines: res.lines,
         added: res.counts.added,
@@ -339,7 +353,8 @@ export function ComparePage() {
       <SplitPanes
         left={
           <Pane
-            label="Source A"
+            label={labelA}
+            onLabelChange={setLabelA}
             value={a}
             onChange={setA}
             placeholder="Paste source A, or drop a file…"
@@ -351,7 +366,8 @@ export function ComparePage() {
         }
         right={
           <Pane
-            label="Source B"
+            label={labelB}
+            onLabelChange={setLabelB}
             value={b}
             onChange={setB}
             placeholder="Paste source B, or drop a file…"
