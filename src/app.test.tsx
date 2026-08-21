@@ -13,8 +13,9 @@ describe("App", () => {
   it("renders the Compare page after booting past the Spinner", async () => {
     render(<App />);
     // Waits past the async boot spinner and asserts the Compare page content.
-    expect(await screen.findByText("Source A")).toBeInTheDocument();
-    expect(screen.getByText("Source B")).toBeInTheDocument();
+    // Source labels are editable inputs (PR #3), so assert on their values.
+    expect(await screen.findByDisplayValue("Source A")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Source B")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Compare/ })).toBeInTheDocument();
   });
 
