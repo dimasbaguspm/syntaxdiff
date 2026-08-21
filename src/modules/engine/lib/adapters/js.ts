@@ -1,5 +1,5 @@
 import type { FormatOptions, LanguageAdapter } from "@/modules/engine/lib/types";
-import { codeToggles, formatCode } from "./code-format";
+import { codeToggles, formatCode, formatCodeAsync } from "./code-format";
 
 /** Heuristic confidence that `input` is JavaScript (not TypeScript). */
 function detectJs(input: string): number {
@@ -25,5 +25,9 @@ export const jsAdapter: LanguageAdapter = {
   toggles: [...codeToggles],
   format(input: string, opts: FormatOptions) {
     return formatCode(input, opts);
+  },
+  // Real formatter pass (Prettier `babel`); see `formatCodeAsync`.
+  async formatAsync(input: string, opts: FormatOptions) {
+    return formatCodeAsync(input, opts, "js");
   },
 };

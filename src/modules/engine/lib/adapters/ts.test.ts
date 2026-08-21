@@ -32,4 +32,14 @@ function getUser<T>(id: T): Promise<User> {
   it("exposes the expected toggles", () => {
     expect(tsAdapter.toggles.map((t) => t.id)).toEqual(["trimTrailing", "normalizeIndent"]);
   });
+
+  it("formatAsync applies real Prettier formatting (TS)", async () => {
+    const out = await tsAdapter.formatAsync!("const x:number=1;interface A{b:string}", {});
+    expect(out.canonical).toBe("const x: number = 1;\ninterface A {\n  b: string;\n}\n");
+  });
+
+  it("formatAsync reindents unformatted TS via Prettier", async () => {
+    const out = await tsAdapter.formatAsync!("if(x){\nconsole.log(x)\n}", {});
+    expect(out.canonical).toBe("if (x) {\n  console.log(x);\n}\n");
+  });
 });

@@ -1,5 +1,5 @@
 import type { FormatOptions, LanguageAdapter } from "@/modules/engine/lib/types";
-import { codeToggles, formatCode } from "./code-format";
+import { codeToggles, formatCode, formatCodeAsync } from "./code-format";
 
 /** Heuristic confidence that `input` is Go. */
 function detectGo(input: string): number {
@@ -23,5 +23,11 @@ export const goAdapter: LanguageAdapter = {
   toggles: [...codeToggles],
   format(input: string, opts: FormatOptions) {
     return formatCode(input, opts);
+  },
+  // NOTE (FE #12): gofmt has no robust, worker-friendly pure-JS port, so Go
+  // uses the best-effort whitespace canonicalizer rather than a fabricated
+  // "real" formatter. `formatAsync` still resolves to the canonical text.
+  async formatAsync(input: string, opts: FormatOptions) {
+    return formatCodeAsync(input, opts, "go");
   },
 };

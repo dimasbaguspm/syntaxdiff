@@ -30,4 +30,9 @@ function greet($name) {
   it("exposes the expected toggles", () => {
     expect(phpAdapter.toggles.map((t) => t.id)).toEqual(["trimTrailing", "normalizeIndent"]);
   });
+
+  it("formatAsync canonicalizes PHP (best-effort; no worker-friendly PHP formatter)", async () => {
+    const out = await phpAdapter.formatAsync!("<?php\nfunction f(){\necho 'x';\n}\n", {});
+    expect(out.canonical).toBe("<?php\nfunction f(){\n  echo 'x';\n}\n");
+  });
 });

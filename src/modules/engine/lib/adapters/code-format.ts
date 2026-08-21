@@ -1,9 +1,17 @@
-import type { FormatOptions } from "@/modules/engine/lib/types";
+import type { FormatOptions, LanguageId } from "@/modules/engine/lib/types";
 
 export interface CodeFormatOpts {
   trimTrailing?: boolean;
   normalizeIndent?: boolean;
 }
+
+/** Inputs longer than this many lines are offloaded to a dedicated formatter
+ *  Web Worker (see `src/core/worker/formatter-client.ts`); smaller inputs are
+ *  formatted inline to avoid the worker round-trip. */
+export const FORMATTER_LINE_THRESHOLD = 200;
+
+/** Prettier parsers we support. `babel` for JS, `babel-ts` for TS. */
+export type PrettierParser = "babel" | "babel-ts";
 
 /** Normalize line endings to `\n` and (optionally) trim trailing whitespace. */
 export function normalizeWhitespace(input: string, opts: CodeFormatOpts): string {
@@ -45,7 +53,8 @@ export function reindent(input: string): string | null {
   return out.join("\n");
 }
 
-/** Default canonicalization for code languages: trim + optional reindent. */
+/** Default canonicalization for code languages: trim + optional reindent.
+ *  This is the always-available, NEVER-throwing path used by `format()`. */
 export function formatCode(input: string, opts: FormatOptions): { canonical: string } {
   const trim = opts.trimTrailing !== false;
   const normalize = opts.normalizeIndent !== false;
@@ -59,6 +68,72 @@ export function formatCode(input: string, opts: FormatOptions): { canonical: str
     }
   }
   return { canonical };
+}
+
+/**
+ * Real formatter pass via Prettier (loaded lazily so it never bloats the
+ * cold-start of the synchronous `format()` path). Returns the formatted text,
+ * or `null` when Prettier is unavailable or rejects (e.g. invalid syntax) so
+ * callers can fall back to `formatCode`.
+ *
+ * NOTE: Prettier 3's `format` is async-only — there is no synchronous API. The
+ * engine's canonicalization pipeline is intentionally synchronous (it runs
+ * inside a Web Worker and in vitest, and `format()` must never throw), so the
+ * real Prettier pass lives on the async `formatCodeAsync` path and is
+ * offloaded to a dedicated formatter worker for large inputs. See the module
+ * header in `src/core/worker/formatter-client.ts`.
+ */
+export async function formatWithPrettier(
+  code: string,
+  parser: PrettierParser,
+): Promise<string | null> {
+  try {
+    const prettier = await import("prettier");
+    return await prettier.format(code, {
+      parser,
+      semi: true,
+      singleQuote: false,
+      printWidth: 80,
+      tabWidth: 2,
+    });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Canonicalization that layers the real Prettier formatter on top of the
+ * robust whitespace canonicalizer. `format()` stays synchronous & never
+ * throws; this async variant is what actually applies Prettier so trivial
+ * style diffs vanish.
+ *
+ * - JS/TS: Prettier (`babel` / `babel-ts`) — real formatting.
+ * - Go/PHP: no robust, worker-friendly pure-JS formatter exists (gofmt has no
+ *   reliable JS port; `@prettier/plugin-php` needs the PHP binary at runtime).
+ *   We keep the best-effort whitespace canonicalizer and document the
+ *   limitation rather than fabricate a result.
+ *
+ * Always resolves; on any failure it returns the robust canonical text.
+ */
+export async function formatCodeAsync(
+  input: string,
+  opts: FormatOptions,
+  lang: LanguageId,
+): Promise<{ canonical: string }> {
+  // Robust, synchronous, never-throwing baseline.
+  const robust = formatCode(input, opts).canonical;
+
+  // `useFormatter` defaults to true; opt out via opts.useFormatter === false.
+  if (opts.useFormatter === false) return { canonical: robust };
+
+  if (lang === "js" || lang === "ts") {
+    const parser: PrettierParser = lang === "ts" ? "babel-ts" : "babel";
+    const pretty = await formatWithPrettier(robust, parser);
+    return { canonical: pretty ?? robust };
+  }
+
+  // Go / PHP: best-effort only (documented limitation).
+  return { canonical: robust };
 }
 
 /** Shared toggle set for code-language adapters. */

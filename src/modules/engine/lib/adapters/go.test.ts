@@ -32,4 +32,12 @@ func main() {
   it("exposes the expected toggles", () => {
     expect(goAdapter.toggles.map((t) => t.id)).toEqual(["trimTrailing", "normalizeIndent"]);
   });
+
+  it("formatAsync canonicalizes Go (best-effort; no pure-JS gofmt)", async () => {
+    const out = await goAdapter.formatAsync!(
+      'package main\nfunc main(){\nfmt.Println("hi")\n}\n',
+      {},
+    );
+    expect(out.canonical).toBe('package main\nfunc main(){\n  fmt.Println("hi")\n}\n');
+  });
 });

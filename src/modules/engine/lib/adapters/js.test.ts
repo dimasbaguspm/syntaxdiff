@@ -42,4 +42,15 @@ export { greet };`;
   it("exposes the expected toggles", () => {
     expect(jsAdapter.toggles.map((t) => t.id)).toEqual(["trimTrailing", "normalizeIndent"]);
   });
+
+  it("formatAsync applies real Prettier formatting (JS)", async () => {
+    const out = await jsAdapter.formatAsync!("const x=1;function f(){return 2}", {});
+    // Prettier adds spaces, semicolons and reindents — whitespace-reindent alone does not.
+    expect(out.canonical).toBe("const x = 1;\nfunction f() {\n  return 2;\n}\n");
+  });
+
+  it("formatAsync never throws and falls back on invalid syntax", async () => {
+    const out = await jsAdapter.formatAsync!("const x = ;;;", {});
+    expect(typeof out.canonical).toBe("string");
+  });
 });

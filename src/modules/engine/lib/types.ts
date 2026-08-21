@@ -42,6 +42,13 @@ export interface LanguageAdapter {
   toggles: ToggleDef[];
   /** Parse + canonicalize `input`. Throws `ParseError` on invalid input. */
   format(input: string, opts: FormatOptions): FormatResult;
+  /**
+   * Async canonicalization that may apply a real, heavy formatter (e.g.
+   * Prettier for JS/TS) with worker offload for large inputs. Optional; when
+   * present it complements the synchronous `format()` (which is robust,
+   * never-throwing, and always available for the diff pipeline).
+   */
+  formatAsync?(input: string, opts: FormatOptions): Promise<FormatResult>;
 }
 
 export class ParseError extends Error {

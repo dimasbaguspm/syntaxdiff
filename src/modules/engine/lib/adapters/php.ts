@@ -1,5 +1,5 @@
 import type { FormatOptions, LanguageAdapter } from "@/modules/engine/lib/types";
-import { codeToggles, formatCode } from "./code-format";
+import { codeToggles, formatCode, formatCodeAsync } from "./code-format";
 
 /** Heuristic confidence that `input` is PHP. */
 function detectPhp(input: string): number {
@@ -21,5 +21,11 @@ export const phpAdapter: LanguageAdapter = {
   toggles: [...codeToggles],
   format(input: string, opts: FormatOptions) {
     return formatCode(input, opts);
+  },
+  // NOTE (FE #12): `@prettier/plugin-php` requires the PHP binary at runtime
+  // (not worker/browser-friendly), so PHP uses the best-effort whitespace
+  // canonicalizer. `formatAsync` still resolves to the canonical text.
+  async formatAsync(input: string, opts: FormatOptions) {
+    return formatCodeAsync(input, opts, "php");
   },
 };
