@@ -109,7 +109,12 @@ export function DiffPage() {
       </div>
 
       <div className="flex min-h-0 flex-1">
-        <DiffView lines={rec.lines} mode={mode} />
+        <DiffView
+          lines={rec.lines}
+          mode={mode}
+          labelA={rec.labelA ?? "Source A"}
+          labelB={rec.labelB ?? "Source B"}
+        />
       </div>
     </div>
   );

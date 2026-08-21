@@ -95,7 +95,15 @@ function Pane({
   );
 }
 
-function SplitView({ lines }: { lines: DiffLine[] }) {
+function SplitView({
+  lines,
+  labelA,
+  labelB,
+}: {
+  lines: DiffLine[];
+  labelA: string;
+  labelB: string;
+}) {
   const aRef = useRef<HTMLDivElement>(null);
   const bRef = useRef<HTMLDivElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
@@ -115,7 +123,7 @@ function SplitView({ lines }: { lines: DiffLine[] }) {
     <SplitPanes
       left={
         <Pane
-          label="Source A"
+          label={labelA}
           lines={lines}
           side="a"
           scrollRef={aRef}
@@ -128,7 +136,7 @@ function SplitView({ lines }: { lines: DiffLine[] }) {
       }
       right={
         <Pane
-          label="Source B"
+          label={labelB}
           lines={lines}
           side="b"
           scrollRef={bRef}
@@ -182,10 +190,24 @@ function UnifiedView({ lines }: { lines: DiffLine[] }) {
   );
 }
 
-export function DiffView({ lines, mode }: { lines: DiffLine[]; mode: ViewMode }) {
+export function DiffView({
+  lines,
+  mode,
+  labelA = "Source A",
+  labelB = "Source B",
+}: {
+  lines: DiffLine[];
+  mode: ViewMode;
+  labelA?: string;
+  labelB?: string;
+}) {
   return (
     <div className="diff-view flex min-h-0 min-w-0 flex-1 flex-col bg-well">
-      {mode === "split" ? <SplitView lines={lines} /> : <UnifiedView lines={lines} />}
+      {mode === "split" ? (
+        <SplitView lines={lines} labelA={labelA} labelB={labelB} />
+      ) : (
+        <UnifiedView lines={lines} />
+      )}
     </div>
   );
 }

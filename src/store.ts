@@ -19,6 +19,8 @@ const RESET = { status: "idle" as const, result: null };
 interface AppState {
   a: string;
   b: string;
+  labelA: string;
+  labelB: string;
   lang: LangChoice;
   opts: FormatOptions;
   mode: ViewMode;
@@ -27,6 +29,8 @@ interface AppState {
   snack: Snack | null;
   setA(v: string): void;
   setB(v: string): void;
+  setLabelA(v: string): void;
+  setLabelB(v: string): void;
   setLang(l: LangChoice): void;
   setOpt(id: string, val: boolean | string): void;
   setMode(m: ViewMode): void;
@@ -40,6 +44,8 @@ interface AppState {
 export const useStore = create<AppState>((set) => ({
   a: "",
   b: "",
+  labelA: "Source A",
+  labelB: "Source B",
   lang: "auto",
   opts: {},
   mode: "split",
@@ -48,6 +54,8 @@ export const useStore = create<AppState>((set) => ({
   snack: null,
   setA: (v) => set({ a: v, ...RESET }),
   setB: (v) => set({ b: v, ...RESET }),
+  setLabelA: (v) => set({ labelA: v }),
+  setLabelB: (v) => set({ labelB: v }),
   setLang: (l) => set({ lang: l, ...RESET }),
   setOpt: (id, val) => set((s) => ({ opts: { ...s.opts, [id]: val }, ...RESET })),
   setMode: (m) => set({ mode: m }),

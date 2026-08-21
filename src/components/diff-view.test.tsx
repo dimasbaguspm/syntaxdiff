@@ -23,6 +23,12 @@ describe("DiffView", () => {
     expect(container.querySelector('[role="separator"]')).not.toBeNull();
   });
 
+  it("renders custom source labels when provided", () => {
+    render(<DiffView lines={LINES} mode="split" labelA="Old config" labelB="New config" />);
+    expect(screen.getByText("Old config")).toBeInTheDocument();
+    expect(screen.getByText("New config")).toBeInTheDocument();
+  });
+
   it("renders the correct content on each side in split view", () => {
     render(<DiffView lines={LINES} mode="split" />);
     expect(screen.getAllByText("line1").length).toBe(2); // context on both sides

@@ -61,22 +61,28 @@ describe("HistoryDrawer", () => {
   it("lists diffs seeded in IndexedDB", async () => {
     const id = await saveDiff(makeRecord());
     renderDrawer();
-    expect(await screen.findByText("JSON")).toBeInTheDocument();
+    expect(await screen.findByText("Source A → Source B")).toBeInTheDocument();
     expect(screen.getByText("+1")).toBeInTheDocument();
     expect(screen.getByText("−1")).toBeInTheDocument();
     expect(id).toBeTruthy();
   });
 
+  it("shows user-assigned source labels in the history entry", async () => {
+    await saveDiff(makeRecord({ labelA: "Old config", labelB: "New config" }));
+    renderDrawer();
+    expect(await screen.findByText("Old config → New config")).toBeInTheDocument();
+  });
+
   it("does not render the drawer body when closed", async () => {
     await saveDiff(makeRecord());
     renderDrawer(false);
-    expect(screen.queryByText("JSON")).toBeNull();
+    expect(screen.queryByText("Source A → Source B")).toBeNull();
   });
 
   it("navigates to /diff/:id when a diff is opened", async () => {
     await saveDiff(makeRecord());
     renderDrawer();
-    const item = await screen.findByText("JSON");
+    const item = await screen.findByText("Source A → Source B");
     fireEvent.click(item);
     await waitFor(() => {
       expect(screen.getByTestId("location").textContent).toMatch(/^\/diff\/[0-9a-f-]+$/);
@@ -87,7 +93,7 @@ describe("HistoryDrawer", () => {
     const onClose = vi.fn();
     await saveDiff(makeRecord());
     renderDrawer(true, onClose);
-    const item = await screen.findByText("JSON");
+    const item = await screen.findByText("Source A → Source B");
     fireEvent.click(item);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
@@ -95,13 +101,13 @@ describe("HistoryDrawer", () => {
   it("deletes a diff from the database", async () => {
     const id = await saveDiff(makeRecord());
     renderDrawer();
-    await screen.findByText("JSON");
+    await screen.findByText("Source A → Source B");
     fireEvent.click(screen.getByRole("button", { name: "Delete" }));
     await waitFor(async () => {
       expect(await getDiff(id)).toBeUndefined();
     });
     await waitFor(() => {
-      expect(screen.queryByText("JSON")).toBeNull();
+      expect(screen.queryByText("Source A → Source B")).toBeNull();
     });
   });
 });

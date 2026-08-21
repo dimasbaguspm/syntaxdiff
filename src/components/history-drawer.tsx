@@ -19,7 +19,13 @@ export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () =>
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return diffs;
-    return diffs.filter((d) => getAdapter(d.lang).label.toLowerCase().includes(q));
+    return diffs.filter((d) => {
+      const hay = [getAdapter(d.lang).label, d.labelA, d.labelB]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return hay.includes(q);
+    });
   }, [diffs, query]);
 
   const handleOpen = (id: string) => {
@@ -69,7 +75,7 @@ export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () =>
                 <FileDiff className="size-4 shrink-0 text-dim" aria-hidden />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-medium text-ink">
-                    {getAdapter(d.lang).label}
+                    {d.labelA ?? "Source A"} → {d.labelB ?? "Source B"}
                   </span>
                   <span className="block text-xs text-faint">
                     <span className="text-[var(--tint-emerald-fg)]">+{d.added}</span>
