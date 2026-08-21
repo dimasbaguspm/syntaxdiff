@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { GithubIcon } from "./github-icon";
+import { Button } from "@/components/button";
 import { HelpModal } from "@/components/help-modal";
 import { ChangelogModal } from "@/components/changelog-modal";
 import { useTheme } from "@/hooks/use-theme";
@@ -55,46 +56,46 @@ export function BottomBar() {
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-3 py-1">
         <div className="flex items-center justify-start gap-0.5">
           <Tooltip label="Changelog">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               onClick={() => {
                 trackEvent("changelog_open");
                 setChangelogOpen(true);
               }}
               aria-label="Changelog"
-              className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
+              className="p-1.5"
             >
               <ScrollText className="size-4" aria-hidden />
-            </button>
+            </Button>
           </Tooltip>
 
           <Tooltip label="Help">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               onClick={() => {
                 trackEvent("help_open");
                 setHelpOpen(true);
               }}
               aria-label="Help"
-              className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
+              className="p-1.5"
             >
               <HelpCircle className="size-4" aria-hidden />
-            </button>
+            </Button>
           </Tooltip>
 
           <Tooltip label="History">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               onClick={openHistory}
               aria-label="History"
-              className="flex items-center gap-1.5 rounded px-1.5 py-1 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
+              className="flex items-center gap-1.5 px-1.5 py-1"
             >
               <Bookmark className="size-4" aria-hidden />
               <span className="text-xs font-medium tabular-nums sm:hidden">{count}</span>
               <span className="hidden text-xs font-medium tabular-nums sm:inline">
                 {count} Saved
               </span>
-            </button>
+            </Button>
           </Tooltip>
         </div>
 
@@ -133,21 +134,21 @@ export function BottomBar() {
           </Tooltip>
 
           <Tooltip label={theme === "dark" ? "Light mode" : "Dark mode"}>
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               onClick={() => {
                 trackEvent("theme_toggle", { theme: theme === "dark" ? "light" : "dark" });
                 toggle();
               }}
               aria-label="Toggle theme"
-              className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
+              className="p-1.5"
             >
               {theme === "dark" ? (
                 <Sun className="size-4" aria-hidden />
               ) : (
                 <Moon className="size-4" aria-hidden />
               )}
-            </button>
+            </Button>
           </Tooltip>
 
           <a

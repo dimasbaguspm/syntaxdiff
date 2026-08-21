@@ -2,6 +2,7 @@ import { FileDiff, Search, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Icon } from "@/modules/engine/ui/language-icon";
 import { trackEvent } from "@/modules/analytics/lib/track";
+import { Button } from "@/components/button";
 import { useCloseDrawer } from "@/components/app-layout/hooks/use-drawer-query";
 import { useHistory } from "@/modules/history/hooks/use-history";
 
@@ -29,13 +30,13 @@ export function HistoryDrawer() {
           className="w-full bg-transparent text-sm text-ink placeholder-faint focus:outline-none"
         />
         {filtered.length > 0 && (
-          <button
-            type="button"
+          <Button
+            variant="danger"
+            className="shrink-0 text-xs text-[var(--tint-rose-fg)]"
             onClick={() => void clear()}
-            className="shrink-0 text-xs text-[var(--tint-rose-fg)] transition-colors hover:bg-[var(--tint-rose-bg)]"
           >
             Clear
-          </button>
+          </Button>
         )}
       </div>
 
@@ -51,8 +52,8 @@ export function HistoryDrawer() {
               key={d.id}
               className="flex items-center gap-2 rounded-lg border border-edge bg-well px-2 py-2 transition-colors hover:border-edge-strong"
             >
-              <button
-                type="button"
+              <Button
+                variant="bare"
                 onClick={() => d.id !== undefined && handleOpen(d.id)}
                 className="flex min-w-0 flex-1 items-center gap-2 text-left"
               >
@@ -69,9 +70,9 @@ export function HistoryDrawer() {
                     {new Date(d.createdAt).toLocaleString()}
                   </span>
                 </span>
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant="danger"
                 onClick={() =>
                   d.id !== undefined &&
                   (() => {
@@ -81,10 +82,10 @@ export function HistoryDrawer() {
                 }
                 aria-label="Delete"
                 title="Delete"
-                className="rounded p-1 text-dim transition-colors hover:bg-[var(--tint-rose-bg)] hover:text-[var(--tint-rose-fg)]"
+                className="p-1 text-dim"
               >
                 <Trash2 className="size-4" aria-hidden="true" />
-              </button>
+              </Button>
             </div>
           ))}
         </div>

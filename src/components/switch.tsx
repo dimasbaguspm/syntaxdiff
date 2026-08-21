@@ -1,4 +1,5 @@
 import { clsx } from "clsx";
+import { Button } from "@/components/button";
 
 export function Switch({
   checked,
@@ -8,8 +9,8 @@ export function Switch({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <button
-      type="button"
+    <Button
+      variant="bare"
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
@@ -24,6 +25,6 @@ export function Switch({
           checked ? "translate-x-6" : "translate-x-1",
         )}
       />
-    </button>
+    </Button>
   );
 }

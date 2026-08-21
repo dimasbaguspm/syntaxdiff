@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import type { ReactNode } from "react";
+import { Button } from "@/components/button";
 
 export function Modal({
   open,
@@ -19,14 +20,9 @@ export function Modal({
       <div className="relative w-full max-w-lg rounded-xl border border-edge-strong bg-surface p-5 shadow-[var(--shadow)]">
         <div className="mb-4 flex items-center justify-between border-b border-edge pb-3">
           <h2 className="text-base font-semibold text-ink">{title}</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
-          >
+          <Button variant="ghost" onClick={onClose} aria-label="Close" className="p-1.5">
             <X className="size-5" aria-hidden />
-          </button>
+          </Button>
         </div>
         {children}
       </div>

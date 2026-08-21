@@ -1,12 +1,12 @@
 import { ChevronRight, SlidersHorizontal } from "lucide-react";
 import { useCompare } from "@/modules/compare/providers/context";
 import type { LangChoice } from "@/core/store";
+import { Button } from "@/components/button";
 import { SplitPanes } from "@/components/split-panes";
 import { Tooltip } from "@/components/tooltip";
-import { btnPrimary, Spinner } from "@/components/ui";
+import { Spinner } from "@/components/ui";
 import { Pane } from "@/modules/compare/ui/pane";
 import { OptionsModal } from "@/modules/compare/ui/options-modal";
-import { iconBtn } from "@/modules/compare/ui/styles";
 
 /** Compare screen layout: language toolbar, two source panes, options modal. */
 export function CompareView() {
@@ -41,18 +41,17 @@ export function CompareView() {
 
         <div className="ml-auto flex items-center gap-2">
           <Tooltip label="Options">
-            <button type="button" onClick={openOptions} aria-label="Options" className={iconBtn}>
+            <Button variant="ghost" onClick={openOptions} aria-label="Options" className="p-1">
               <SlidersHorizontal className="size-4" aria-hidden />
-            </button>
+            </Button>
           </Tooltip>
 
           <Tooltip label="Compare">
-            <button
-              type="button"
+            <Button
+              variant="primary"
               onClick={compare}
               disabled={status === "running" || !getPane("a").value || !getPane("b").value}
               aria-label="Compare"
-              className={btnPrimary}
             >
               {status === "running" ? (
                 <Spinner />
@@ -62,7 +61,7 @@ export function CompareView() {
                   <ChevronRight className="size-4" aria-hidden />
                 </>
               )}
-            </button>
+            </Button>
           </Tooltip>
         </div>
       </div>
