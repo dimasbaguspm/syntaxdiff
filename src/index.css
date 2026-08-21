@@ -123,13 +123,29 @@ body {
   font-size: 12px;
   line-height: 1.5;
   height: 18px; /* fixed height so the windowed renderer can position rows */
-  min-width: 100%; /* fill the viewport when content is shorter than the pane */
-  width: max-content; /* grow past the viewport so long lines scroll horizontally */
+}
+
+/* The windowed renderer wraps visible rows in a padded div; making it a flex
+   COLUMN gives every row the same width — that of the widest rendered row —
+   so add/del highlight bands run edge-to-edge even when the pane scrolls
+   horizontally (short changed lines no longer stop their background early).
+   min-width keeps short diffs filling the viewport. */
+.diff-view .dv-body,
+.diff-view .u-body {
+  display: flex;
+  flex-direction: column;
+  min-width: max-content;
+}
+.dv-row,
+.u-row {
+  align-self: stretch;
 }
 .dv-row {
   display: flex;
 }
-/* Line-number gutter — matches the entry editor (surface/40 + right border) */
+/* Line-number gutter — matches the entry editor (surface/40 + right border).
+   Opaque on purpose: a translucent background lets horizontally-scrolled text
+   bleed through the pinned column (user-reported overlap bug). */
 .dv-gutter {
   flex: none;
   position: sticky;
@@ -139,7 +155,7 @@ body {
   padding: 0 0.75rem 0 0.5rem;
   text-align: right;
   color: var(--faint);
-  background: color-mix(in srgb, var(--surface) 40%, transparent);
+  background: var(--surface);
   border-right: 1px solid var(--edge);
   user-select: none;
 }
@@ -244,10 +260,34 @@ mark {
   width: 1.25rem;
   text-align: center;
   color: var(--faint);
-  background: color-mix(in srgb, var(--surface) 40%, transparent);
+  background: var(--surface); /* opaque — see .dv-gutter note */
   user-select: none;
 }
 /* In unified view the gutter sits to the right of the pinned marker. */
 .u-row .dv-gutter {
   left: 1.25rem;
+}
+
+/* Full-height gutter stripe: rows are virtualized, so with few lines the
+   painted gutters stop at the last row and bare pane shows below. Paint a
+   viewport-fixed stripe on the scroll container itself (backgrounds don't
+   scroll) sized from --dv-gutter-w, which diff-view.tsx measures from the
+   real rendered gutter cells (marker + numbers). */
+.dv-scroll,
+.u-scroll {
+  background:
+    linear-gradient(
+        to right,
+        var(--surface) 0 var(--dv-gutter-w, 2.5rem),
+        transparent var(--dv-gutter-w, 2.5rem)
+      )
+      0 0 / auto 100% no-repeat local,
+    var(--well);
+  border-right: 1px solid var(--edge);
+}
+/* The stripe's right edge doubles as the gutter border; per-row borders would
+   only cover rendered rows. */
+.dv-scroll .dv-gutter,
+.u-scroll .dv-gutter {
+  border-right: none;
 }

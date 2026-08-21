@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Braces } from "lucide-react";
-import type { DiffLine } from "../engine";
+import type { DiffLine, LanguageId } from "../engine";
 import type { ViewMode } from "../store";
+import { useGutterWidth } from "../hooks/use-gutter-width";
+import { Icon } from "../lib/language-icon";
 import { SplitPanes } from "./split-panes";
 
 /** Fixed diff row height (12px * line-height 1.5) — required for windowing.
@@ -33,6 +35,7 @@ function Pane({
   label,
   lines,
   side,
+  icon,
   scrollRef,
   onScroll,
   start,
@@ -43,6 +46,8 @@ function Pane({
   label: string;
   lines: DiffLine[];
   side: "a" | "b";
+  /** Optional language id for the Material Symbols pane icon. */
+  icon?: LanguageId;
   scrollRef: React.RefObject<HTMLDivElement | null>;
   onScroll: () => void;
   start: number;
@@ -54,11 +59,15 @@ function Pane({
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <div className="flex shrink-0 items-center gap-1.5 border-b border-edge bg-surface-2 px-3 py-1.5 text-xs font-medium text-dim">
-        <Braces className="size-3.5" aria-hidden />
+        {icon ? (
+          <Icon name={icon} className="size-3.5 shrink-0 opacity-80" />
+        ) : (
+          <Braces className="size-3.5 shrink-0" aria-hidden />
+        )}
         {label}
       </div>
-      <div ref={scrollRef} onScroll={onScroll} className="min-h-0 flex-1 overflow-auto">
-        <div style={{ paddingTop: padTop, paddingBottom: padBottom }}>
+      <div ref={scrollRef} onScroll={onScroll} className="dv-scroll min-h-0 flex-1 overflow-auto">
+        <div className="dv-body" style={{ paddingTop: padTop, paddingBottom: padBottom }}>
           {slice.map((ln, i) => {
             const isA = side === "a";
             const text = isA ? ln.a : ln.b;
@@ -99,15 +108,18 @@ function SplitView({
   lines,
   labelA,
   labelB,
+  icon,
 }: {
   lines: DiffLine[];
   labelA: string;
   labelB: string;
+  icon?: LanguageId;
 }) {
   const aRef = useRef<HTMLDivElement>(null);
   const bRef = useRef<HTMLDivElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
   const viewportH = useViewportHeight(aRef);
+  useGutterWidth(aRef, ".dv-gutter");
   const { start, end, padTop, padBottom } = windowSlice(lines.length, scrollTop, viewportH);
 
   const syncFrom = (from: "a" | "b") => {
@@ -126,6 +138,7 @@ function SplitView({
           label={labelA}
           lines={lines}
           side="a"
+          icon={icon}
           scrollRef={aRef}
           onScroll={() => syncFrom("a")}
           start={start}
@@ -139,6 +152,7 @@ function SplitView({
           label={labelB}
           lines={lines}
           side="b"
+          icon={icon}
           scrollRef={bRef}
           onScroll={() => syncFrom("b")}
           start={start}
@@ -155,6 +169,7 @@ function UnifiedView({ lines }: { lines: DiffLine[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
   const viewportH = useViewportHeight(ref);
+  useGutterWidth(ref, ".dv-gutter");
   const { start, end, padTop, padBottom } = windowSlice(lines.length, scrollTop, viewportH);
   const slice = lines.slice(start, end);
 
@@ -162,9 +177,9 @@ function UnifiedView({ lines }: { lines: DiffLine[] }) {
     <div
       ref={ref}
       onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
-      className="min-h-0 flex-1 overflow-auto"
+      className="u-scroll min-h-0 flex-1 overflow-auto"
     >
-      <div style={{ paddingTop: padTop, paddingBottom: padBottom }}>
+      <div className="u-body" style={{ paddingTop: padTop, paddingBottom: padBottom }}>
         {slice.map((ln, i) => {
           const marker = ln.kind === "add" ? "+" : ln.kind === "del" ? "−" : " ";
           const num = ln.kind === "add" ? ln.bNum : ln.aNum;
@@ -195,16 +210,19 @@ export function DiffView({
   mode,
   labelA = "Source A",
   labelB = "Source B",
+  icon,
 }: {
   lines: DiffLine[];
   mode: ViewMode;
   labelA?: string;
   labelB?: string;
+  /** Optional language id for the Material Symbols pane icon. */
+  icon?: LanguageId;
 }) {
   return (
     <div className="diff-view flex min-h-0 min-w-0 flex-1 flex-col bg-well">
       {mode === "split" ? (
-        <SplitView lines={lines} labelA={labelA} labelB={labelB} />
+        <SplitView lines={lines} labelA={labelA} labelB={labelB} icon={icon} />
       ) : (
         <UnifiedView lines={lines} />
       )}
