@@ -38,7 +38,10 @@ describe("serializeAlignedCsv", () => {
       ["101", "John", "john.doe@example.com"],
       ["102", "Jane", "jane@example.com"],
     ];
-    const out = serializeAlignedCsv(rows).trim().split("\n").map((l) => l.trimEnd());
+    const out = serializeAlignedCsv(rows)
+      .trim()
+      .split("\n")
+      .map((l) => l.trimEnd());
     expect(out).toEqual([
       "id   | first_name | email",
       "101  | John       | john.doe@example.com",
@@ -55,7 +58,8 @@ describe("csvAdapter", () => {
 
   it("aligns columns and trims cells by default", () => {
     // QA fixture: messy quoting/spacing in source A.
-    const messy = 'id, "first_name" , last_name ,  email  , salary\n' +
+    const messy =
+      'id, "first_name" , last_name ,  email  , salary\n' +
       '101,"John", Doe , john.doe@example.com , 75000\n' +
       '102, Jane , Smith , "jane.smith@example.com", 82000\n';
     const out = csvAdapter.format(messy, {});
@@ -88,5 +92,18 @@ describe("csvAdapter", () => {
   it("keeps original order when sort is off", () => {
     const out = csvAdapter.format("name,n\nb,2\na,1\nc,3", { alignColumns: false });
     expect(out.canonical).toBe("name,n\nb,2\na,1\nc,3\n");
+  });
+
+  it("preserves cell whitespace when trimCells is disabled", () => {
+    const out = csvAdapter.format(" name , age \n Alice , 30 ", {
+      alignColumns: false,
+      trimCells: false,
+    });
+    expect(out.canonical).toBe(" name , age \n Alice , 30 \n");
+  });
+
+  it("returns an empty canonical for empty input", () => {
+    expect(csvAdapter.format("", {}).canonical).toBe("");
+    expect(csvAdapter.format("   \n  ", {}).canonical).toBe("");
   });
 });

@@ -2,44 +2,50 @@ import { ParseError } from "../types";
 import type { FormatOptions, LanguageAdapter } from "../types";
 
 /**
- * Minimal RFC-4180-ish CSV parser. Handles quoted fields, commas/quotes/newlines
- * inside quotes, escaped quotes (`""`), and CRLF. Comma-separated only — the
- * MVP keeps tabs/delimiters out of scope.
+ * Minimal RFC 4180 CSV parser.
+ *
+ * Supports: quoted fields, commas / quotes / newlines inside quotes,
+ * doubled-quote escaping (`""`), and both CRLF and bare-CR line endings.
+ * Comma is the only supported delimiter (tabs / semicolons are out of
+ * scope for the MVP).
  */
 export function parseCsv(input: string): string[][] {
-  const s = input.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  const normalized = input.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
   const rows: string[][] = [];
   let row: string[] = [];
   let field = "";
   let inQuotes = false;
   let i = 0;
 
-  while (i < s.length) {
-    const c = s[i];
+  while (i < normalized.length) {
+    const c = normalized[i];
+
     if (inQuotes) {
       if (c === '"') {
-        if (s[i + 1] === '"') {
+        // Doubled quote => literal quote; otherwise it closes the field.
+        if (normalized[i + 1] === '"') {
           field += '"';
           i += 2;
-          continue;
+        } else {
+          inQuotes = false;
+          i += 1;
         }
-        inQuotes = false;
-        i++;
         continue;
       }
       field += c;
-      i++;
+      i += 1;
       continue;
     }
+
     if (c === '"') {
       inQuotes = true;
-      i++;
+      i += 1;
       continue;
     }
     if (c === ",") {
       row.push(field);
       field = "";
-      i++;
+      i += 1;
       continue;
     }
     if (c === "\n") {
@@ -47,16 +53,17 @@ export function parseCsv(input: string): string[][] {
       rows.push(row);
       row = [];
       field = "";
-      i++;
+      i += 1;
       continue;
     }
     field += c;
-    i++;
+    i += 1;
   }
 
   if (inQuotes) {
     throw new ParseError("Unterminated quoted field in CSV");
   }
+  // Emit the final row unless the input ended on a clean newline.
   if (field !== "" || row.length > 0) {
     row.push(field);
     rows.push(row);
@@ -64,13 +71,18 @@ export function parseCsv(input: string): string[][] {
   return rows;
 }
 
-/** Re-serialize parsed rows with consistent quoting and a trailing newline. */
+const NEEDS_QUOTING = /[",\n]/;
+
+/**
+ * Re-serialize parsed rows as RFC 4180 CSV. A cell is quoted only when it
+ * contains a delimiter, quote, or newline. Cell content is preserved exactly
+ * — any whitespace trimming is the caller's job (see `opts.trimCells` in
+ * `csvAdapter.format`), so this function never trims on its own.
+ */
 export function serializeCsv(rows: string[][]): string {
-  const quote = (cell: string): string => {
-    const trimmed = cell.trim();
-    if (/[",\n]/.test(trimmed)) return `"${trimmed.replace(/"/g, '""')}"`;
-    return trimmed;
-  };
+  const quote = (cell: string): string =>
+    NEEDS_QUOTING.test(cell) ? `"${cell.replace(/"/g, '""')}"` : cell;
+
   return rows.map((row) => row.map(quote).join(",")).join("\n") + "\n";
 }
 
@@ -87,10 +99,10 @@ export function serializeAlignedCsv(rows: string[][]): string {
   const header = rows[0] ?? [];
   const colCount = rows.reduce((max, r) => Math.max(max, r.length), header.length);
   const MIN_WIDTH = 4;
-  const widths: number[] = [];
-  for (let c = 0; c < colCount; c++) {
-    widths[c] = Math.max(header[c]?.length ?? 0, MIN_WIDTH);
-  }
+  const widths = Array.from({ length: colCount }, (_, c) =>
+    Math.max(header[c]?.length ?? 0, MIN_WIDTH),
+  );
+
   return (
     rows
       .map((row) => row.map((cell, c) => (cell ?? "").padEnd(widths[c] ?? 0)).join(" | "))
@@ -98,17 +110,23 @@ export function serializeAlignedCsv(rows: string[][]): string {
   );
 }
 
+const MIN_CSV_LINES = 2;
+
 export const csvAdapter: LanguageAdapter = {
   id: "csv",
   label: "CSV",
   detect(input: string): number {
-    const t = input.trim();
-    if (!t) return 0;
-    const lines = t.split("\n").filter((l) => l.trim() !== "");
-    if (lines.length < 2) return 0;
-    // Consistent column count across rows is a strong CSV signal.
-    const counts = new Set(lines.map((l) => l.split(",").length));
-    if (counts.size === 1 && (counts.values().next().value as number) > 1) {
+    const text = input.trim();
+    if (!text) return 0;
+
+    const lines = text.split("\n").filter((l) => l.trim() !== "");
+    if (lines.length < MIN_CSV_LINES) return 0;
+
+    // Consistent, multi-column structure is a strong CSV signal; prose or
+    // single-column text won't satisfy both conditions.
+    const columnCounts = new Set(lines.map((l) => l.split(",").length));
+    const firstCount = columnCounts.values().next().value as number | undefined;
+    if (columnCounts.size === 1 && (firstCount ?? 0) > 1) {
       return 0.7;
     }
     return 0;
@@ -120,14 +138,22 @@ export const csvAdapter: LanguageAdapter = {
   ],
   format(input: string, opts: FormatOptions) {
     const rows = parseCsv(input);
-    let normalized = rows.map((row) =>
-      opts.trimCells === false ? row : row.map((cell) => cell.trim()),
-    );
+    if (rows.length === 0) return { canonical: "" };
+
+    const trim = opts.trimCells !== false;
+    let normalized = trim ? rows.map((row) => row.map((cell) => cell.trim())) : rows;
+
+    // Whitespace-only input carries no data — treat it as empty rather than
+    // emitting blank aligned rows (which would create spurious diff lines).
+    const isBlank = normalized.every((row) => row.every((cell) => cell.trim() === ""));
+    if (isBlank) return { canonical: "" };
+
     if (opts.sortRows === true && normalized.length > 1) {
       const [header, ...data] = normalized;
       data.sort((a, b) => a.join(",").localeCompare(b.join(",")));
       normalized = [header, ...data];
     }
+
     const canonical =
       opts.alignColumns === false ? serializeCsv(normalized) : serializeAlignedCsv(normalized);
     return { canonical };
