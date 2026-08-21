@@ -4,7 +4,7 @@ import { clsx } from "clsx";
 import { ArrowLeft, Columns2, FileDiff, Rows3 } from "lucide-react";
 import { getAdapter } from "@/engine";
 import { getDiff, type DiffRecord } from "@/db";
-import { languageIcon } from "@/lib/language-icon";
+import { Icon } from "@/lib/language-icon";
 import { useStore } from "@/store";
 import { DiffView } from "@/components/diff-view";
 import { Tooltip } from "@/components/tooltip";
@@ -73,7 +73,7 @@ export function DiffPage() {
         </Tooltip>
 
         <span className="inline-flex items-center gap-1.5 rounded-full border border-edge bg-surface-2 px-2.5 py-0.5 text-xs font-medium text-dim">
-          <img src={languageIcon(rec.lang)} alt="" className="size-3.5" aria-hidden />
+          <Icon name={rec.lang} className="size-3.5" />
           {adapter.label}
         </span>
 
@@ -115,7 +115,7 @@ export function DiffPage() {
           mode={mode}
           labelA={rec.labelA ?? "Source A"}
           labelB={rec.labelB ?? "Source B"}
-          icon={languageIcon(rec.lang)}
+          icon={rec.lang}
         />
       </div>
     </div>

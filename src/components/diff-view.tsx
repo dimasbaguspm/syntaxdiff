@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Braces } from "lucide-react";
-import type { DiffLine } from "../engine";
+import type { DiffLine, LanguageId } from "../engine";
 import type { ViewMode } from "../store";
+import { useGutterWidth } from "../hooks/use-gutter-width";
+import { Icon } from "../lib/language-icon";
 import { SplitPanes } from "./split-panes";
 
 /** Fixed diff row height (12px * line-height 1.5) — required for windowing.
@@ -29,31 +31,6 @@ function useViewportHeight(ref: React.RefObject<HTMLDivElement | null>): number 
   return h;
 }
 
-/**
- * Measure the rendered gutter width (marker + line numbers) and expose it as
- * a CSS var on the scroll container, so the full-height stripe painted by
- * index.css always matches the real cells — including wide 5-digit numbers.
- */
-function useGutterWidth(scrollRef: React.RefObject<HTMLElement | null>, selector: string): void {
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const apply = () => {
-      const cell = el.querySelector<HTMLElement>(selector);
-      if (!cell) return;
-      const w = cell.getBoundingClientRect().width;
-      if (w > 0) el.style.setProperty("--dv-gutter-w", `${w}px`);
-    };
-    apply();
-    if (typeof ResizeObserver !== "function") return;
-    // Re-measure when the first row (and thus its gutter cell) changes size.
-    const ro = new ResizeObserver(apply);
-    const firstCell = el.querySelector(selector);
-    if (firstCell) ro.observe(firstCell);
-    return () => ro.disconnect();
-  }, [scrollRef, selector]);
-}
-
 function Pane({
   label,
   lines,
@@ -69,8 +46,8 @@ function Pane({
   label: string;
   lines: DiffLine[];
   side: "a" | "b";
-  /** Optional Material Symbols SVG URL for the language. */
-  icon?: string;
+  /** Optional language id for the Material Symbols pane icon. */
+  icon?: LanguageId;
   scrollRef: React.RefObject<HTMLDivElement | null>;
   onScroll: () => void;
   start: number;
@@ -83,7 +60,7 @@ function Pane({
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <div className="flex shrink-0 items-center gap-1.5 border-b border-edge bg-surface-2 px-3 py-1.5 text-xs font-medium text-dim">
         {icon ? (
-          <img src={icon} alt="" className="size-3.5 shrink-0 opacity-80" aria-hidden />
+          <Icon name={icon} className="size-3.5 shrink-0 opacity-80" />
         ) : (
           <Braces className="size-3.5 shrink-0" aria-hidden />
         )}
@@ -136,7 +113,7 @@ function SplitView({
   lines: DiffLine[];
   labelA: string;
   labelB: string;
-  icon?: string;
+  icon?: LanguageId;
 }) {
   const aRef = useRef<HTMLDivElement>(null);
   const bRef = useRef<HTMLDivElement>(null);
@@ -239,8 +216,8 @@ export function DiffView({
   mode: ViewMode;
   labelA?: string;
   labelB?: string;
-  /** Optional Material Symbols SVG URL for the language. */
-  icon?: string;
+  /** Optional language id for the Material Symbols pane icon. */
+  icon?: LanguageId;
 }) {
   return (
     <div className="diff-view flex min-h-0 min-w-0 flex-1 flex-col bg-well">

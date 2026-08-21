@@ -13,7 +13,7 @@ import { adapters, applyOptsDefaults, autoDetect, getAdapter } from "@/engine";
 import type { FormatOptions, LanguageAdapter, LanguageId } from "@/engine";
 import { useStore } from "@/store";
 import { saveDiff } from "@/db";
-import { languageIcon } from "@/lib/language-icon";
+import { Icon } from "@/lib/language-icon";
 import { createDiffClient } from "@/worker/client";
 import { trackEvent } from "@/lib/analytics/track";
 import { logError } from "@/lib/analytics/otel";
@@ -89,8 +89,8 @@ function Pane({
   onChange: (v: string) => void;
   placeholder: string;
   status: PaneStatus;
-  /** Material Symbols SVG URL for the detected/selected language. */
-  icon: string;
+  /** Language id for the Material Symbols pane icon. */
+  icon: LanguageId;
   onImportFile: (file: File, method: "drop" | "button") => void;
   children?: ReactNode;
 }) {
@@ -126,7 +126,7 @@ function Pane({
       )}
       <div className="flex shrink-0 items-center gap-1 border-b border-edge bg-surface-2 px-2 py-1.5">
         <span className="flex items-center gap-1.5 text-xs font-medium text-dim">
-          <img src={icon} alt="" className="size-3.5 shrink-0 opacity-80" aria-hidden />
+          <Icon name={icon} className="size-3.5 shrink-0 opacity-80" />
           <input
             value={label}
             onChange={(e) => onLabelChange(e.target.value)}
@@ -362,7 +362,7 @@ export function ComparePage() {
             onChange={setA}
             placeholder="Paste source A, or drop a file…"
             status={statusA}
-            icon={languageIcon(adapter.id)}
+            icon={adapter.id}
             onImportFile={(file, method) => importFile(setA, file, method)}
           >
             {paneButtons(setA, a)}
@@ -376,7 +376,7 @@ export function ComparePage() {
             onChange={setB}
             placeholder="Paste source B, or drop a file…"
             status={statusB}
-            icon={languageIcon(adapter.id)}
+            icon={adapter.id}
             onImportFile={(file, method) => importFile(setB, file, method)}
           >
             {paneButtons(setB, b)}

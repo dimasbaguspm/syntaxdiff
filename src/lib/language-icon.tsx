@@ -11,8 +11,7 @@ import tomlIcon from "@material-symbols/svg-400/outlined/settings_applications.s
 import xmlIcon from "@material-symbols/svg-400/outlined/code.svg";
 import plainIcon from "@material-symbols/svg-400/outlined/description.svg";
 
-/** Material icon (SVG URL) per language, auto-detected or explicit. */
-export const languageIcons: Record<LanguageId, string> = {
+const ICONS: Record<LanguageId, string> = {
   json: jsonIcon,
   yaml: yamlIcon,
   sql: sqlIcon,
@@ -22,6 +21,12 @@ export const languageIcons: Record<LanguageId, string> = {
   plain: plainIcon,
 };
 
-export function languageIcon(id: LanguageId): string {
-  return languageIcons[id];
+export interface IconProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+  /** Language whose Material Symbol should render. */
+  name: LanguageId;
+}
+
+/** Material Symbols icon for a language (auto-detected or explicit). */
+export function Icon({ name, ...attrs }: IconProps) {
+  return <img src={ICONS[name]} alt="" aria-hidden {...attrs} />;
 }
