@@ -1,6 +1,7 @@
 import { clsx } from "clsx";
 import { ChevronRight } from "lucide-react";
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { Button } from "@/components/button";
 
 const MenuContext = createContext<{ close: () => void }>({ close: () => {} });
 
@@ -38,16 +39,16 @@ export function DropdownMenu({
 
   return (
     <div ref={ref} className="relative">
-      <button
-        type="button"
+      <Button
+        variant="ghost"
         aria-label={label}
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className="rounded p-1.5 text-dim transition-colors hover:bg-surface-2 hover:text-ink"
+        className="p-1.5"
       >
         {trigger}
-      </button>
+      </Button>
       {open && (
         <MenuContext.Provider value={{ close: () => setOpen(false) }}>
           <div
@@ -70,8 +71,8 @@ export function DropdownMenu({
 export function MenuItem({ onClick, children }: { onClick: () => void; children: ReactNode }) {
   const { close } = useContext(MenuContext);
   return (
-    <button
-      type="button"
+    <Button
+      variant="bare"
       role="menuitem"
       onClick={() => {
         onClick();
@@ -80,7 +81,7 @@ export function MenuItem({ onClick, children }: { onClick: () => void; children:
       className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-ink transition-colors hover:bg-surface-2"
     >
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -99,8 +100,8 @@ export function NestedMenuItem({
 }) {
   return (
     <div className="relative">
-      <button
-        type="button"
+      <Button
+        variant="bare"
         role="menuitem"
         aria-haspopup="menu"
         aria-expanded={open}
@@ -112,7 +113,7 @@ export function NestedMenuItem({
       >
         <ChevronRight className="size-4 text-dim" aria-hidden />
         {label}
-      </button>
+      </Button>
       {open && (
         <div
           role="menu"

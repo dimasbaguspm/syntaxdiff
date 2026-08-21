@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { jsonAdapter } from "../engine/adapters/json";
-import { sqlAdapter } from "../engine/adapters/sql";
-import { useStore } from "../store";
-import { TogglesPanel } from "./toggles-panel";
+import { jsonAdapter } from "@/modules/engine/lib/adapters/json";
+import { sqlAdapter } from "@/modules/engine/lib/adapters/sql";
+import { useStore } from "@/core/store";
+import { TogglesPanel } from "@/components/toggles-panel";
 
 const initial = useStore.getState();
 

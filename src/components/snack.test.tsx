@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { useStore } from "../store";
-import { Snack } from "./snack";
+import { useStore } from "@/core/store";
+import { Snack } from "@/components/snack";
 
 const initial = useStore.getState();
 

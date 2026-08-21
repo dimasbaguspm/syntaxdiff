@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { trackEvent } from "@/lib/analytics/track";
+import { trackEvent } from "@/modules/analytics/lib/track";
 
 type UpdateSW = ((reloadPage?: boolean) => Promise<void>) | null;
 

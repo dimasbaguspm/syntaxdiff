@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { useStore } from "../store";
-import { db, saveDiff } from "../db";
-import type { DiffRecord } from "../db";
+import { useStore } from "@/core/store";
+import { db, saveDiff } from "@/core/db";
+import type { DiffRecord } from "@/core/db";
 import { DiffPage } from "./diff-page";
 
 function renderDiff(initialPath: string) {

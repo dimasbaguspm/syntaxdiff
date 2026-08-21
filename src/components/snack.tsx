@@ -1,5 +1,6 @@
 import { AlertTriangle, CheckCircle2, Info, X } from "lucide-react";
-import { useStore, type SnackType } from "../store";
+import { useStore, type SnackType } from "@/core/store";
+import { Button } from "@/components/button";
 
 const STYLE: Record<SnackType, string> = {
   info: "border-[var(--tint-sky-bd)] bg-[var(--tint-sky-bg)] text-[var(--tint-sky-fg)]",
@@ -24,15 +25,15 @@ export function Snack() {
       >
         <Icon className="mt-0.5 size-4 shrink-0" aria-hidden />
         <p className="min-w-0 flex-1 break-words">{snack.message}</p>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
           onClick={dismiss}
           aria-label="Dismiss"
           title="Dismiss"
-          className="shrink-0 rounded p-0.5 opacity-70 transition-opacity hover:opacity-100"
+          className="shrink-0 p-0.5 opacity-70 transition-opacity hover:opacity-100"
         >
           <X className="size-4" aria-hidden />
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
-import { useAppBoot } from "./use-app-boot";
+import { useAppBoot } from "@/hooks/use-app-boot";
 
 describe("useAppBoot", () => {
   it("returns true once boot has completed", async () => {

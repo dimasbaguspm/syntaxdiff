@@ -1,7 +1,7 @@
-import type { LanguageAdapter } from "../engine";
-import { useStore } from "../store";
-import { trackEvent } from "../lib/analytics/track";
-import { Switch } from "./switch";
+import type { LanguageAdapter } from "@/modules/engine/lib";
+import { useStore } from "@/core/store";
+import { trackEvent } from "@/modules/analytics/lib/track";
+import { Switch } from "@/components/switch";
 
 export function TogglesPanel({ adapter }: { adapter: LanguageAdapter }) {
   const opts = useStore((s) => s.opts);

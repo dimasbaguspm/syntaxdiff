@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import changelogRaw from "../../CHANGELOG.md?raw";
-import { Modal } from "./modal";
+import { Modal } from "@/components/modal";
 
 interface Section {
   heading: string;

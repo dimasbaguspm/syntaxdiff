@@ -1,6 +1,8 @@
 import { X } from "lucide-react";
 import type { ReactNode } from "react";
+import { Button } from "@/components/button";
 
+/** Presentational drawer shell. Open/close state is owned by the caller. */
 export function Drawer({
   open,
   title,
@@ -19,14 +21,14 @@ export function Drawer({
       <div className="absolute top-0 right-0 flex h-full w-full max-w-sm flex-col border-l border-edge bg-surface shadow-[var(--shadow)]">
         <div className="flex shrink-0 items-center justify-between border-b border-edge bg-surface-2 px-4 py-3">
           <h2 className="text-sm font-semibold tracking-wide text-ink uppercase">{title}</h2>
-          <button
-            type="button"
+          <Button
+            variant="ghost"
             onClick={onClose}
             aria-label="Close"
-            className="rounded p-1 text-dim transition-colors hover:bg-surface hover:text-ink"
+            className="p-1 hover:bg-surface"
           >
             <X className="size-4" aria-hidden />
-          </button>
+          </Button>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto p-3">{children}</div>
       </div>

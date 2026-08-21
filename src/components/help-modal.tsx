@@ -1,4 +1,4 @@
-import { Modal } from "./modal";
+import { Modal } from "@/components/modal";
 
 const STEPS = [
   "Paste Source A and Source B into the two panes.",

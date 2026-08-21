@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { clsx } from "clsx";
 import { Check, Copy } from "lucide-react";
+import { Button } from "@/components/button";
 
 /** Shared UI class constants — mirrors the uncover64 design system. */
 export const btn =
@@ -53,13 +53,13 @@ export function CopyButton({
     }
   };
   return (
-    <button type="button" className={clsx(btn, className)} onClick={() => void copy()}>
+    <Button className={className} onClick={() => void copy()}>
       {copied ? (
         <Check className="size-3.5" aria-hidden />
       ) : (
         <Copy className="size-3.5" aria-hidden />
       )}
       {copied ? "Copied" : label}
-    </button>
+    </Button>
   );
 }

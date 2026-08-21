@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
-import { useStore } from "../store";
-import { db, listDiffs } from "../db";
-import { ComparePage } from "./compare-page";
+import { useStore } from "@/core/store";
+import { db, listDiffs } from "@/core/db";
+import { ComparePage } from "@/pages/compare-page";
 
 function LocationDisplay() {
   const location = useLocation();
