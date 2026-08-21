@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FileDiff, Search, Trash2 } from "lucide-react";
 import { getAdapter } from "../engine";
 import { clearDiffs, deleteDiff, listDiffs, type DiffRecord } from "../db";
+import { languageIcon } from "../lib/language-icon";
 import { trackEvent } from "../lib/analytics/track";
 import { Drawer } from "./drawer";
 
@@ -72,7 +73,12 @@ export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () =>
                 onClick={() => d.id !== undefined && handleOpen(d.id)}
                 className="flex min-w-0 flex-1 items-center gap-2 text-left"
               >
-                <FileDiff className="size-4 shrink-0 text-dim" aria-hidden />
+                <img
+                  src={languageIcon(d.lang)}
+                  alt=""
+                  className="size-4 shrink-0 opacity-80"
+                  aria-hidden
+                />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-medium text-ink">
                     {d.labelA ?? "Source A"} → {d.labelB ?? "Source B"}
