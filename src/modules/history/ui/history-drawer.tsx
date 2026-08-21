@@ -2,22 +2,24 @@ import { FileDiff, Search, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Icon } from "@/modules/engine/ui/language-icon";
 import { trackEvent } from "@/modules/analytics/lib/track";
-import { Drawer } from "@/components/drawer";
+import { useCloseDrawer } from "@/components/app-layout/hooks/use-drawer-query";
 import { useHistory } from "@/modules/history/hooks/use-history";
 
-/** History drawer: searchable list of saved diffs with open/delete actions. */
-export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+/** History drawer content — rendered inside the URL-driven DrawerHost. */
+export function HistoryDrawer() {
   const navigate = useNavigate();
-  const { filtered, query, setQuery, clear, remove } = useHistory(open);
+  const close = useCloseDrawer();
+  // The drawer is mounted only when ?drawerId=history is present, so treat it as open.
+  const { filtered, query, setQuery, clear, remove } = useHistory(true);
 
   const handleOpen = (id: string) => {
-    onClose();
+    close();
     trackEvent("open_diff");
     navigate(`/diff/${id}`);
   };
 
   return (
-    <Drawer open={open} title="History" onClose={onClose}>
+    <div>
       <div className="flex items-center gap-2 rounded-md border border-edge bg-well px-2 py-1.5">
         <Search className="size-4 shrink-0 text-faint" aria-hidden="true" />
         <input
@@ -87,6 +89,6 @@ export function HistoryDrawer({ open, onClose }: { open: boolean; onClose: () =>
           ))}
         </div>
       )}
-    </Drawer>
+    </div>
   );
 }

@@ -1,12 +1,11 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Columns2, FileDiff, Rows3 } from "lucide-react";
 import { clsx } from "clsx";
 import { getAdapter } from "@/modules/engine/lib";
-import { getDiff, type DiffRecord } from "@/core/db";
-import { Icon } from "@/modules/engine/ui/language-icon";
 import { useStore } from "@/core/store";
+import { Icon } from "@/modules/engine/ui/language-icon";
 import { DiffView } from "@/modules/diff/ui/diff-view";
+import { useDiff } from "@/modules/diff/providers/context";
 import { Tooltip } from "@/components/tooltip";
 import { trackEvent } from "@/modules/analytics/lib/track";
 import { btnActive, Spinner } from "@/components/ui";
@@ -14,21 +13,12 @@ import { btnActive, Spinner } from "@/components/ui";
 const btnSegment =
   "inline-flex items-center justify-center gap-2 rounded-md px-2 py-1.5 text-sm font-medium text-dim transition-colors hover:text-ink focus:outline-none focus:ring-2 focus:ring-accent/40";
 
-/** Route piece: loads a saved diff by id and renders the diff view. */
-export function DiffPage() {
-  const { id } = useParams();
+/** Diff screen view: renders the loaded record or its empty/not-found states. */
+export function DiffPageView() {
+  const { rec } = useDiff();
   const navigate = useNavigate();
   const mode = useStore((s) => s.mode);
   const setMode = useStore((s) => s.setMode);
-  const [rec, setRec] = useState<DiffRecord | null | undefined>(undefined);
-
-  useEffect(() => {
-    if (!id) {
-      setRec(null);
-      return;
-    }
-    void getDiff(id).then((r) => setRec(r ?? null));
-  }, [id]);
 
   if (rec === undefined) {
     return (

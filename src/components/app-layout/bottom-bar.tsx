@@ -10,7 +10,8 @@ import {
   Sun,
   Tag,
 } from "lucide-react";
-import { GithubIcon } from "@/components/icons/github-icon";
+import { useNavigate } from "react-router-dom";
+import { GithubIcon } from "./github-icon";
 import { HelpModal } from "@/components/help-modal";
 import { ChangelogModal } from "@/components/changelog-modal";
 import { useTheme } from "@/hooks/use-theme";
@@ -21,11 +22,13 @@ import { APP_VERSION } from "@/utils/version";
 import { SITE_HOST, SITE_NAME, SITE_URL } from "@/utils/site";
 import { DropdownMenu } from "@/components/dropdown-menu";
 import { Tooltip } from "@/components/tooltip";
+import { drawerHref } from "@/components/app-layout/hooks/use-drawer-query";
 
 const GITHUB_URL = "https://github.com/dimasbaguspm/syntaxdiff";
 const FEEDBACK_URL = "https://github.com/dimasbaguspm/syntaxdiff/issues";
 
-export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
+export function BottomBar() {
+  const navigate = useNavigate();
   const { theme, toggle } = useTheme();
   const stars = useGithubStars();
   const [count, setCount] = useState(0);
@@ -43,8 +46,8 @@ export function BottomBar({ onOpenHistory }: { onOpenHistory: () => void }) {
   }, []);
 
   const openHistory = () => {
-    onOpenHistory();
-    void listDiffs().then((d) => setCount(d.length));
+    trackEvent("history_open");
+    navigate(drawerHref("history"));
   };
 
   return (

@@ -1,6 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { BottomBar } from "@/components/bottom-bar";
+import { MemoryRouter, useLocation } from "react-router-dom";
+import { BottomBar } from "@/components/app-layout/bottom-bar";
+
+function LocationDisplay() {
+  const location = useLocation();
+  return <div data-testid="location">{location.search}</div>;
+}
 
 afterEach(() => {
   cleanup();
@@ -16,37 +22,61 @@ beforeEach(() => {
 });
 
 describe("BottomBar", () => {
-  it("calls onOpenHistory when the history button is clicked", () => {
-    const onOpenHistory = vi.fn();
-    render(<BottomBar onOpenHistory={onOpenHistory} />);
+  it("navigates to ?drawerId=history when the history button is clicked", () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <BottomBar />
+        <LocationDisplay />
+      </MemoryRouter>,
+    );
     fireEvent.click(screen.getByRole("button", { name: "History" }));
-    expect(onOpenHistory).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("location").textContent).toContain("drawerId=history");
   });
 
   it("shows the site name", () => {
-    render(<BottomBar onOpenHistory={vi.fn()} />);
+    render(
+      <MemoryRouter>
+        <BottomBar />
+      </MemoryRouter>,
+    );
     expect(screen.getByText("syntaxdiff.dimasbaguspm.dev")).toBeInTheDocument();
   });
 
   it("has a theme toggle button", () => {
-    render(<BottomBar onOpenHistory={vi.fn()} />);
+    render(
+      <MemoryRouter>
+        <BottomBar />
+      </MemoryRouter>,
+    );
     expect(screen.getByRole("button", { name: "Toggle theme" })).toBeInTheDocument();
   });
 
   it("toggles the theme class on the document element", () => {
     document.documentElement.classList.remove("light");
-    render(<BottomBar onOpenHistory={vi.fn()} />);
+    render(
+      <MemoryRouter>
+        <BottomBar />
+      </MemoryRouter>,
+    );
     fireEvent.click(screen.getByRole("button", { name: "Toggle theme" }));
     expect(document.documentElement.classList.contains("light")).toBe(true);
   });
 
   it("has a mobile More menu button", () => {
-    render(<BottomBar onOpenHistory={vi.fn()} />);
+    render(
+      <MemoryRouter>
+        <BottomBar />
+      </MemoryRouter>,
+    );
     expect(screen.getByRole("button", { name: "More" })).toBeInTheDocument();
   });
 
   it("links to the GitHub repo with the star count", async () => {
-    render(<BottomBar onOpenHistory={vi.fn()} />);
+    render(
+      <MemoryRouter>
+        <BottomBar />
+      </MemoryRouter>,
+    );
     const link = screen.getByLabelText("GitHub");
     expect(link).toHaveAttribute("href", "https://github.com/dimasbaguspm/syntaxdiff");
     expect(link).toHaveAttribute("target", "_blank");
@@ -54,25 +84,41 @@ describe("BottomBar", () => {
   });
 
   it("opens the Help modal with numbered steps", () => {
-    render(<BottomBar onOpenHistory={vi.fn()} />);
+    render(
+      <MemoryRouter>
+        <BottomBar />
+      </MemoryRouter>,
+    );
     fireEvent.click(screen.getByRole("button", { name: "Help" }));
     expect(screen.getByText("How to use SyntaxDiff")).toBeInTheDocument();
     expect(screen.getByText("Paste Source A and Source B into the two panes.")).toBeInTheDocument();
   });
 
   it("opens the Changelog modal from the bottom bar", () => {
-    render(<BottomBar onOpenHistory={vi.fn()} />);
+    render(
+      <MemoryRouter>
+        <BottomBar />
+      </MemoryRouter>,
+    );
     fireEvent.click(screen.getByRole("button", { name: "Changelog" }));
     expect(screen.getAllByText("Changelog").length).toBeGreaterThan(0);
   });
 
   it("shows the app version badge", () => {
-    render(<BottomBar onOpenHistory={vi.fn()} />);
+    render(
+      <MemoryRouter>
+        <BottomBar />
+      </MemoryRouter>,
+    );
     expect(screen.getByText(/v(Nightly|0\.1\.0)/)).toBeInTheDocument();
   });
 
   it("links to the Feedback issue tracker", () => {
-    render(<BottomBar onOpenHistory={vi.fn()} />);
+    render(
+      <MemoryRouter>
+        <BottomBar />
+      </MemoryRouter>,
+    );
     const link = screen.getByText("Feedback").closest("a");
     expect(link).toHaveAttribute("href", "https://github.com/dimasbaguspm/syntaxdiff/issues");
     expect(link).toHaveAttribute("target", "_blank");

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { db, getDiff, saveDiff } from "@/core/db";
@@ -10,7 +10,7 @@ function LocationDisplay() {
   return <div data-testid="location">{location.pathname}</div>;
 }
 
-function renderDrawer(open = true, onClose = vi.fn()) {
+function renderDrawer() {
   return render(
     <MemoryRouter initialEntries={["/"]}>
       <Routes>
@@ -18,7 +18,7 @@ function renderDrawer(open = true, onClose = vi.fn()) {
           path="/"
           element={
             <>
-              <HistoryDrawer open={open} onClose={onClose} />
+              <HistoryDrawer />
               <LocationDisplay />
             </>
           }
@@ -59,24 +59,17 @@ describe("HistoryDrawer", () => {
   });
 
   it("lists diffs seeded in IndexedDB", async () => {
-    const id = await saveDiff(makeRecord());
+    await saveDiff(makeRecord());
     renderDrawer();
     expect(await screen.findByText("Source A → Source B")).toBeInTheDocument();
     expect(screen.getByText("+1")).toBeInTheDocument();
     expect(screen.getByText("−1")).toBeInTheDocument();
-    expect(id).toBeTruthy();
   });
 
   it("shows user-assigned source labels in the history entry", async () => {
     await saveDiff(makeRecord({ labelA: "Old config", labelB: "New config" }));
     renderDrawer();
     expect(await screen.findByText("Old config → New config")).toBeInTheDocument();
-  });
-
-  it("does not render the drawer body when closed", async () => {
-    await saveDiff(makeRecord());
-    renderDrawer(false);
-    expect(screen.queryByText("Source A → Source B")).toBeNull();
   });
 
   it("navigates to /diff/:id when a diff is opened", async () => {
@@ -87,15 +80,6 @@ describe("HistoryDrawer", () => {
     await waitFor(() => {
       expect(screen.getByTestId("location").textContent).toMatch(/^\/diff\/[0-9a-f-]+$/);
     });
-  });
-
-  it("calls onClose when a diff is opened", async () => {
-    const onClose = vi.fn();
-    await saveDiff(makeRecord());
-    renderDrawer(true, onClose);
-    const item = await screen.findByText("Source A → Source B");
-    fireEvent.click(item);
-    await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 
   it("deletes a diff from the database", async () => {

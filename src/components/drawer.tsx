@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import type { ReactNode } from "react";
 
+/** Presentational drawer shell. Open/close state is owned by the caller. */
 export function Drawer({
   open,
   title,
