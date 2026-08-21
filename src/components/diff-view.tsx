@@ -4,8 +4,9 @@ import type { DiffLine } from "../engine";
 import type { ViewMode } from "../store";
 import { SplitPanes } from "./split-panes";
 
-/** Fixed diff row height (12.5px * line-height 1.5) — required for windowing. */
-const ROW_H = 18.75;
+/** Fixed diff row height (12px * line-height 1.5) — required for windowing.
+ *  Must stay in sync with `--dv-row` height in index.css. */
+const ROW_H = 18;
 const OVERSCAN = 8;
 
 function windowSlice(count: number, scrollTop: number, viewportH: number) {
@@ -77,15 +78,13 @@ function Pane({
               <div key={start + i} className={`dv-row ${kind}`}>
                 <span className="dv-gutter">{num ?? ""}</span>
                 <span className="dv-line">
-                  {segs && segs.length > 0 ? (
-                    segs.map((s, j) => (
-                      <span key={j} className={`inl-${s.kind}`}>
-                        {s.text}
-                      </span>
-                    ))
-                  ) : (
-                    (text ?? "")
-                  )}
+                  {segs && segs.length > 0
+                    ? segs.map((s, j) => (
+                        <span key={j} className={`inl-${s.kind}`}>
+                          {s.text}
+                        </span>
+                      ))
+                    : (text ?? "")}
                 </span>
               </div>
             );
@@ -167,15 +166,13 @@ function UnifiedView({ lines }: { lines: DiffLine[] }) {
               <span className="dv-marker">{marker}</span>
               <span className="dv-gutter">{num ?? ""}</span>
               <span className="dv-line">
-                {segs && segs.length > 0 ? (
-                  segs.map((s, j) => (
-                    <span key={j} className={`inl-${s.kind}`}>
-                      {s.text}
-                    </span>
-                  ))
-                ) : (
-                  (ln.a ?? ln.b ?? "")
-                )}
+                {segs && segs.length > 0
+                  ? segs.map((s, j) => (
+                      <span key={j} className={`inl-${s.kind}`}>
+                        {s.text}
+                      </span>
+                    ))
+                  : (ln.a ?? ln.b ?? "")}
               </span>
             </div>
           );

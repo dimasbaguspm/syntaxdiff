@@ -118,19 +118,23 @@ body {
 .dv-row,
 .u-row {
   font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 12.5px;
+  /* Match the entry editor (LineNumberedTextarea): text-xs / leading-1.5 → 12px / 18px,
+     so diff line numbers line up 1:1 with the source panes. */
+  font-size: 12px;
   line-height: 1.5;
-  height: 18.75px; /* fixed height so the windowed renderer can position rows */
+  height: 18px; /* fixed height so the windowed renderer can position rows */
+  min-width: 100%; /* fill the viewport when content is shorter than the pane */
+  width: max-content; /* grow past the viewport so long lines scroll horizontally */
 }
 .dv-row {
   display: flex;
-  min-width: 0;
 }
 /* Line-number gutter — matches the entry editor (surface/40 + right border) */
 .dv-gutter {
   flex: none;
   position: sticky;
   left: 0;
+  z-index: 1; /* keep the line-number column pinned above scrolling content */
   min-width: 2.5rem;
   padding: 0 0.75rem 0 0.5rem;
   text-align: right;
@@ -140,8 +144,7 @@ body {
   user-select: none;
 }
 .dv-line {
-  flex: 1;
-  min-width: 0;
+  flex: none; /* natural content width; the pane scrolls horizontally for long lines */
   padding: 0 0.75rem;
   white-space: pre;
 }
@@ -235,8 +238,16 @@ mark {
 }
 .u-row .dv-marker {
   flex: none;
+  position: sticky;
+  left: 0;
+  z-index: 2;
   width: 1.25rem;
   text-align: center;
   color: var(--faint);
+  background: color-mix(in srgb, var(--surface) 40%, transparent);
   user-select: none;
+}
+/* In unified view the gutter sits to the right of the pinned marker. */
+.u-row .dv-gutter {
+  left: 1.25rem;
 }
