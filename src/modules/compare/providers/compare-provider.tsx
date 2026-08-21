@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { adapters, applyOptsDefaults, autoDetect, getAdapter } from "@/modules/engine/lib";
 import type { LanguageId } from "@/modules/engine/lib/types";
 import { useStore } from "@/core/store";
+import { useBaseDiff } from "@/core/stores/use-base-diff";
 import { saveDiff } from "@/core/db";
 import { createDiffClient } from "@/core/worker/client";
 import { trackEvent } from "@/modules/analytics/lib/track";
@@ -25,17 +26,13 @@ const client = createDiffClient();
  */
 export function CompareProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
-  const a = useStore((s) => s.a);
-  const b = useStore((s) => s.b);
+  const sideA = useBaseDiff("a");
+  const sideB = useBaseDiff("b");
+  const a = sideA.value;
+  const b = sideB.value;
   const lang = useStore((s) => s.lang);
   const opts = useStore((s) => s.opts);
   const status = useStore((s) => s.status);
-  const setA = useStore((s) => s.setA);
-  const setB = useStore((s) => s.setB);
-  const labelA = useStore((s) => s.labelA);
-  const labelB = useStore((s) => s.labelB);
-  const setLabelA = useStore((s) => s.setLabelA);
-  const setLabelB = useStore((s) => s.setLabelB);
   const setLangStore = useStore((s) => s.setLang);
   const runStart = useStore((s) => s.runStart);
   const runSuccess = useStore((s) => s.runSuccess);
@@ -62,8 +59,20 @@ export function CompareProvider({ children }: { children: ReactNode }) {
       status: ReturnType<typeof usePaneStatus>;
     }
   > = {
-    a: { value: a, label: labelA, set: setA, setLabel: setLabelA, status: statusA },
-    b: { value: b, label: labelB, set: setB, setLabel: setLabelB, status: statusB },
+    a: {
+      value: a,
+      label: sideA.label,
+      set: sideA.setValue,
+      setLabel: sideA.setLabel,
+      status: statusA,
+    },
+    b: {
+      value: b,
+      label: sideB.label,
+      set: sideB.setValue,
+      setLabel: sideB.setLabel,
+      status: statusB,
+    },
   };
 
   const importFile = (side: Side, file: File, method: "drop" | "button") => {
@@ -120,8 +129,8 @@ export function CompareProvider({ children }: { children: ReactNode }) {
         opts,
         a,
         b,
-        labelA,
-        labelB,
+        labelA: sideA.label,
+        labelB: sideB.label,
         patch: res.patch,
         lines: res.lines,
         added: res.counts.added,
