@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { logInfo } from "@/lib/analytics/otel";
 import { trackEvent } from "@/lib/analytics/track";
 
 type UpdateSW = ((reloadPage?: boolean) => Promise<void>) | null;
@@ -18,11 +17,13 @@ export function usePwaUpdate() {
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      let registerSW: ((options?: {
-        immediate?: boolean;
-        onNeedRefresh?: () => void;
-        onOfflineReady?: () => void;
-      }) => Promise<UpdateSW> | UpdateSW) | undefined;
+      let registerSW:
+        | ((options?: {
+            immediate?: boolean;
+            onNeedRefresh?: () => void;
+            onOfflineReady?: () => void;
+          }) => Promise<UpdateSW> | UpdateSW)
+        | undefined;
       try {
         const mod = await import("virtual:pwa-register");
         registerSW = mod.registerSW;
@@ -36,13 +37,11 @@ export function usePwaUpdate() {
         onNeedRefresh() {
           if (cancelled) return;
           setNeedRefresh(true);
-          logInfo("pwa update available", {});
           trackEvent("pwa_update_available");
         },
         onOfflineReady() {
           if (cancelled) return;
           setOfflineReady(true);
-          logInfo("pwa offline ready", {});
           trackEvent("pwa_offline_ready");
         },
       });
@@ -56,7 +55,6 @@ export function usePwaUpdate() {
 
   const acceptUpdate = useCallback(() => {
     trackEvent("pwa_update_accepted");
-    logInfo("pwa update accepted", {});
     void updateSW?.(true); // reloadPage = true → reload to the new version
   }, [updateSW]);
 

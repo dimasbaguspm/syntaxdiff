@@ -42,15 +42,29 @@ describe("DiffView", () => {
 
   it("renders inline word-level highlight segments inside changed lines", () => {
     const lines: DiffLine[] = [
-      { kind: "del", a: "101 | John | 75000", aNum: 1, b: null, bNum: null, aSeg: [
-        { text: "101 | John | ", kind: "ctx" },
-        { text: "75000", kind: "del" },
-      ] },
-      { kind: "add", a: null, aNum: null, b: "101 | John | 80000 | active", bNum: 1, bSeg: [
-        { text: "101 | John | ", kind: "ctx" },
-        { text: "80000", kind: "add" },
-        { text: " | active", kind: "add" },
-      ] },
+      {
+        kind: "del",
+        a: "101 | John | 75000",
+        aNum: 1,
+        b: null,
+        bNum: null,
+        aSeg: [
+          { text: "101 | John | ", kind: "ctx" },
+          { text: "75000", kind: "del" },
+        ],
+      },
+      {
+        kind: "add",
+        a: null,
+        aNum: null,
+        b: "101 | John | 80000 | active",
+        bNum: 1,
+        bSeg: [
+          { text: "101 | John | ", kind: "ctx" },
+          { text: "80000", kind: "add" },
+          { text: " | active", kind: "add" },
+        ],
+      },
     ];
     const { container } = render(<DiffView lines={lines} mode="split" />);
     expect(container.querySelectorAll(".inl-del").length).toBe(1);
