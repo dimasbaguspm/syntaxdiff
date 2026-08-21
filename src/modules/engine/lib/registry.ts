@@ -1,9 +1,13 @@
 import type { LanguageAdapter, LanguageId } from "@/modules/engine/lib/types";
 import { csvAdapter } from "@/modules/engine/lib/adapters/csv";
+import { goAdapter } from "@/modules/engine/lib/adapters/go";
+import { jsAdapter } from "@/modules/engine/lib/adapters/js";
 import { jsonAdapter } from "@/modules/engine/lib/adapters/json";
+import { phpAdapter } from "@/modules/engine/lib/adapters/php";
 import { plainAdapter } from "@/modules/engine/lib/adapters/plain";
 import { sqlAdapter } from "@/modules/engine/lib/adapters/sql";
 import { tomlAdapter } from "@/modules/engine/lib/adapters/toml";
+import { tsAdapter } from "@/modules/engine/lib/adapters/ts";
 import { xmlAdapter } from "@/modules/engine/lib/adapters/xml";
 import { yamlAdapter } from "@/modules/engine/lib/adapters/yaml";
 
@@ -14,6 +18,10 @@ export const adapters: LanguageAdapter[] = [
   csvAdapter,
   tomlAdapter,
   xmlAdapter,
+  jsAdapter,
+  tsAdapter,
+  goAdapter,
+  phpAdapter,
   plainAdapter,
 ];
 

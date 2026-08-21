@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import changelogRaw from "../../CHANGELOG.md?raw";
 import { Modal } from "@/components/modal";
+import { SelectInput } from "@/components/inputs";
 
 interface Section {
   heading: string;
@@ -121,9 +122,6 @@ export function ChangelogModal({ open, onClose }: { open: boolean; onClose: () =
     highlightInDom(el, query);
   }, [html, query, open]);
 
-  const selectCls =
-    "rounded-lg border border-edge bg-well px-2 py-1.5 text-sm text-ink focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20";
-
   return (
     <Modal open={open} title="Changelog" onClose={onClose}>
       <div className="flex flex-col gap-3">
@@ -141,11 +139,10 @@ export function ChangelogModal({ open, onClose }: { open: boolean; onClose: () =
               className="w-full rounded-lg border border-edge bg-well py-1.5 pl-9 pr-3 text-sm text-ink focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20"
             />
           </label>
-          <select
+          <SelectInput
             value={versionFilter}
             onChange={(e) => setVersionFilter(e.target.value)}
             aria-label="Filter by version"
-            className={selectCls}
           >
             <option value="">All versions</option>
             {versions.map((v) => (
@@ -153,12 +150,11 @@ export function ChangelogModal({ open, onClose }: { open: boolean; onClose: () =
                 v{v}
               </option>
             ))}
-          </select>
-          <select
+          </SelectInput>
+          <SelectInput
             value={sourceFilter}
             onChange={(e) => setSourceFilter(e.target.value)}
             aria-label="Filter by source"
-            className={selectCls}
           >
             <option value="">All sources</option>
             {sources.map((s) => (
@@ -166,7 +162,7 @@ export function ChangelogModal({ open, onClose }: { open: boolean; onClose: () =
                 {s}
               </option>
             ))}
-          </select>
+          </SelectInput>
         </div>
         <p className="text-xs text-faint">
           {matches} match{matches === 1 ? "" : "es"}

@@ -3,7 +3,18 @@
  * it must run identically in a Web Worker and in Node (vitest).
  */
 
-export type LanguageId = "json" | "yaml" | "sql" | "csv" | "toml" | "xml" | "plain";
+export type LanguageId =
+  | "json"
+  | "yaml"
+  | "sql"
+  | "csv"
+  | "toml"
+  | "xml"
+  | "js"
+  | "ts"
+  | "go"
+  | "php"
+  | "plain";
 
 /** A language-specific UI option, rendered from the adapter itself. */
 export interface ToggleDef {

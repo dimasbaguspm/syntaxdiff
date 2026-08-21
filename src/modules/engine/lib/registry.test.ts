@@ -4,7 +4,19 @@ import { adapters, autoDetect, getAdapter } from "@/modules/engine/lib/registry"
 describe("adapters", () => {
   it("registers all language adapters", () => {
     const ids = adapters.map((a) => a.id);
-    expect(ids).toEqual(["json", "yaml", "sql", "csv", "toml", "xml", "plain"]);
+    expect(ids).toEqual([
+      "json",
+      "yaml",
+      "sql",
+      "csv",
+      "toml",
+      "xml",
+      "js",
+      "ts",
+      "go",
+      "php",
+      "plain",
+    ]);
   });
 });
 

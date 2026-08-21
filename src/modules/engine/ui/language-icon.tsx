@@ -10,6 +10,10 @@ import csvIcon from "@material-symbols/svg-400/outlined/table_rows.svg";
 import tomlIcon from "@material-symbols/svg-400/outlined/settings_applications.svg";
 import xmlIcon from "@material-symbols/svg-400/outlined/code.svg";
 import plainIcon from "@material-symbols/svg-400/outlined/description.svg";
+import jsIcon from "@material-symbols/svg-400/outlined/javascript.svg";
+import tsIcon from "@material-symbols/svg-400/outlined/code.svg";
+import goIcon from "@material-symbols/svg-400/outlined/deployed_code.svg";
+import phpIcon from "@material-symbols/svg-400/outlined/code_blocks.svg";
 
 const ICONS: Record<LanguageId, string> = {
   json: jsonIcon,
@@ -19,6 +23,10 @@ const ICONS: Record<LanguageId, string> = {
   toml: tomlIcon,
   xml: xmlIcon,
   plain: plainIcon,
+  js: jsIcon,
+  ts: tsIcon,
+  go: goIcon,
+  php: phpIcon,
 };
 
 export interface IconProps extends React.ImgHTMLAttributes<HTMLImageElement> {

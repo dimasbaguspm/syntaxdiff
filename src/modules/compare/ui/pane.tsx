@@ -5,6 +5,7 @@ import { Icon } from "@/modules/engine/ui/language-icon";
 import { Button } from "@/components/button";
 import { Tooltip } from "@/components/tooltip";
 import { LineNumberedTextarea } from "@/components/line-numbered-textarea";
+import { TextInput, HiddenInput } from "@/components/inputs";
 
 const PLACEHOLDER: Record<Side, string> = {
   a: "Paste source A, or drop a file…",
@@ -48,12 +49,12 @@ export function Pane({ side, children }: { side: Side; children?: ReactNode }) {
       <div className="flex shrink-0 items-center gap-1 border-b border-edge bg-surface-2 px-2 py-1.5">
         <span className="flex items-center gap-1.5 text-xs font-medium text-dim">
           <Icon name={pane.icon} className="size-3.5 shrink-0 opacity-80" />
-          <input
+          <TextInput
             value={pane.label}
             onChange={(e) => pane.onLabelChange(e.target.value)}
             aria-label="Source label"
             placeholder="Source label"
-            className="min-w-0 max-w-[10rem] flex-1 rounded bg-transparent px-1 text-xs font-medium text-ink outline-none focus:bg-surface hover:bg-surface/60"
+            className="min-w-0 max-w-[10rem] flex-1 text-xs font-medium"
           />
           {pane.status === "valid" && (
             <CheckCircle2 className="size-3 text-[var(--tint-emerald-fg)]" aria-hidden />
@@ -95,10 +96,9 @@ export function Pane({ side, children }: { side: Side; children?: ReactNode }) {
           </Tooltip>
           {children}
         </div>
-        <input
+        <HiddenInput
           ref={inputRef}
           type="file"
-          className="hidden"
           accept=".csv,.json,.yaml,.yml,.toml,.xml,.sql,.txt,.log,text/plain,text/csv,application/json"
           onChange={(e) => {
             read(e.target.files?.[0], "button");
