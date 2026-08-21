@@ -15,7 +15,18 @@ export default defineConfig({
     },
   },
   test: {
-    environment: "jsdom",
+    // happy-dom provides a real localStorage implementation (jsdom omitted it,
+    // breaking use-theme / use-github-stars / bottom-bar / app boot tests).
+    environment: "happy-dom",
+    environmentOptions: {
+      happyDOM: {
+        settings: {
+          // Tests assume the dark scheme as the no-preference default;
+          // happy-dom's matchMedia otherwise reports "light".
+          device: { prefersColorScheme: "dark" },
+        },
+      },
+    },
     setupFiles: ["./src/test/setup.ts"],
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
   },
