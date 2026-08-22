@@ -69,7 +69,10 @@ function Pane({
                           {s.text}
                         </span>
                       ))
-                    : (text ?? "")}
+                    : // Empty (opposite side of a del/add): show a faint placeholder
+                      // so the row is never a blank void, keeping it aligned with
+                      // the changed line on the other pane (mobile + desktop).
+                      (text ?? "·")}
                 </span>
               </div>
             );

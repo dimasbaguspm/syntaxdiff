@@ -1,8 +1,9 @@
-import { FileDiff, Search, Trash2 } from "lucide-react";
+import { FileDiff, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Icon } from "@/modules/engine/ui/language-icon";
 import { trackEvent } from "@/modules/analytics/lib/track";
 import { Button } from "@/components/button";
+import { SearchInput } from "@/components/inputs";
 import { useCloseDrawer } from "@/components/app-layout/hooks/use-drawer-query";
 import { useHistory } from "@/modules/history/hooks/use-history";
 
@@ -21,13 +22,13 @@ export function HistoryDrawer() {
 
   return (
     <div>
-      <div className="flex items-center gap-2 rounded-md border border-edge bg-well px-2 py-1.5">
-        <Search className="size-4 shrink-0 text-faint" aria-hidden="true" />
-        <input
+      <div className="flex items-center gap-2">
+        <SearchInput
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search…"
-          className="w-full bg-transparent text-sm text-ink placeholder-faint focus:outline-none"
+          aria-label="Search history"
+          className="flex-1"
         />
         {filtered.length > 0 && (
           <Button

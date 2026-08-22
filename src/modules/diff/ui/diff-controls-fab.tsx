@@ -24,7 +24,7 @@ export function DiffControlsFab({ groupIdx, changeGroupsLen, goToGroup }: DiffCo
     <div
       role="group"
       aria-label={`Change navigation (${(groupIdx ?? 0) + 1} of ${changeGroupsLen})`}
-      className="fixed right-4 bottom-20 z-30 flex w-12 flex-col items-stretch gap-1 rounded-2xl border border-edge bg-surface/90 p-1.5 shadow-[var(--shadow)] backdrop-blur"
+      className="fixed right-4 bottom-20 z-30 flex w-12 flex-col items-stretch gap-1 rounded-3xl border border-edge bg-surface/90 p-1.5 shadow-[var(--shadow)] backdrop-blur"
     >
       <Tooltip label="Previous change">
         <Button
@@ -35,7 +35,7 @@ export function DiffControlsFab({ groupIdx, changeGroupsLen, goToGroup }: DiffCo
           }}
           disabled={(groupIdx ?? 0) === 0}
           aria-label="Previous change"
-          className="size-9 justify-center p-0"
+          className="flex size-9 items-center justify-center rounded-2xl p-0"
         >
           <ChevronUp className="size-4" aria-hidden="true" />
         </Button>
@@ -52,7 +52,7 @@ export function DiffControlsFab({ groupIdx, changeGroupsLen, goToGroup }: DiffCo
           }}
           disabled={(groupIdx ?? 0) >= changeGroupsLen - 1}
           aria-label="Next change"
-          className="size-9 justify-center p-0"
+          className="flex size-9 items-center justify-center rounded-2xl p-0"
         >
           <ChevronDown className="size-4" aria-hidden="true" />
         </Button>

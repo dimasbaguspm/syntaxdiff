@@ -2,6 +2,8 @@ export { TextInput } from "./text-input";
 export type { TextInputProps } from "./text-input";
 export { SelectInput } from "./select-input";
 export type { SelectInputProps, SelectInputOption } from "./select-input";
+export { SearchInput } from "./search-input";
+export type { SearchInputProps } from "./search-input";
 export { HiddenInput } from "./hidden-input";
 export type { HiddenInputProps } from "./hidden-input";
 export { SwitchInput } from "./switch-input";
