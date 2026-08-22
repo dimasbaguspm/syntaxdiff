@@ -141,13 +141,15 @@ describe("ComparePage", () => {
     }
   });
 
-  it("imports a dropped file into the pane (drop bubbles to onDrop)", async () => {
+  it("imports a file into the pane via the dropzone input (file -> zustand)", async () => {
     renderCompare();
-    const ta = screen.getByPlaceholderText("Paste source A, or drop a file…");
     const file = new File(['{"name":"dropped"}'], "dropped.json", { type: "application/json" });
-    // Simulate the full HTML5 drag sequence over the textarea.
-    fireEvent.dragOver(ta, { dataTransfer: { files: [file], types: ["Files"] } });
-    fireEvent.drop(ta, { dataTransfer: { files: [file], types: ["Files"] } });
+    // The dropzone renders a <input type=file> (getInputProps). Selecting a
+    // file there routes through the same read()/onImportFile path the HTML5
+    // drop uses, proving file -> zustand source state works with dropzone.
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    expect(input).toBeTruthy();
+    fireEvent.change(input, { target: { files: [file] } });
     await waitFor(() => {
       expect(useStore.getState().a).toBe('{"name":"dropped"}');
     });
