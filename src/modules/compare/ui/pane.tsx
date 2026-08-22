@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AlignLeft, CheckCircle2, Loader2, Upload, XCircle } from "lucide-react";
 import { useCompare, type Side } from "@/modules/compare/providers/context";
 import { Icon } from "@/modules/engine/ui/language-icon";
@@ -18,6 +18,7 @@ export function Pane({ side, children }: { side: Side; children?: ReactNode }) {
   const { getPane, formatSide, adapter, formatting } = useCompare();
   const pane = getPane(side);
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const dragDepth = useRef(0);
   const [dragging, setDragging] = useState(false);
 
@@ -26,32 +27,55 @@ export function Pane({ side, children }: { side: Side; children?: ReactNode }) {
     pane.onImportFile(file, method);
   };
 
+  // Native drag listeners on the container. React's synthetic drag events are
+  // unreliable for native HTML5 drops on nested children (the browser only
+  // allows a drop when dragover.preventDefault() ran on the element under the
+  // cursor, which synthetic bubbling doesn't guarantee). Native listeners
+  // attached directly to the container make the drop work regardless of which
+  // child the file is released over.
+  const readRef = useRef(read);
+  readRef.current = read;
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const onDragOver = (e: DragEvent) => e.preventDefault();
+    const onDragEnter = (e: DragEvent) => {
+      e.preventDefault();
+      dragDepth.current += 1;
+      setDragging(true);
+    };
+    const onDragLeave = () => {
+      dragDepth.current -= 1;
+      if (dragDepth.current <= 0) {
+        dragDepth.current = 0;
+        setDragging(false);
+      }
+    };
+    const onDrop = (e: DragEvent) => {
+      e.preventDefault();
+      dragDepth.current = 0;
+      setDragging(false);
+      const file = e.dataTransfer?.files?.[0];
+      readRef.current(file, "drop");
+    };
+    el.addEventListener("dragover", onDragOver);
+    el.addEventListener("dragenter", onDragEnter);
+    el.addEventListener("dragleave", onDragLeave);
+    el.addEventListener("drop", onDrop);
+    return () => {
+      el.removeEventListener("dragover", onDragOver);
+      el.removeEventListener("dragenter", onDragEnter);
+      el.removeEventListener("dragleave", onDragLeave);
+      el.removeEventListener("drop", onDrop);
+    };
+  }, []);
+
   return (
     <div
+      ref={containerRef}
       className={`relative flex min-h-0 min-w-0 flex-1 flex-col bg-well transition-colors ${
         dragging ? "outline-2 outline-accent/60" : ""
       }`}
-      onDragEnter={(e) => {
-        e.preventDefault();
-        dragDepth.current += 1;
-        setDragging(true);
-      }}
-      onDragOver={(e) => {
-        e.preventDefault();
-      }}
-      onDragLeave={() => {
-        dragDepth.current -= 1;
-        if (dragDepth.current <= 0) {
-          dragDepth.current = 0;
-          setDragging(false);
-        }
-      }}
-      onDrop={(e) => {
-        e.preventDefault();
-        dragDepth.current = 0;
-        setDragging(false);
-        read(e.dataTransfer.files?.[0], "drop");
-      }}
     >
       {dragging && (
         <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 border-2 border-dashed border-accent/70 bg-accent/10 text-ink">
