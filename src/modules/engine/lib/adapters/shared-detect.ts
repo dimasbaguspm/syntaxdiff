@@ -9,6 +9,7 @@
  */
 
 import { ParseError } from "@/modules/engine/lib/types";
+import type { SqlLanguage } from "sql-formatter";
 
 /* ------------------------------------------------------------------ */
 /* Generic shapes                                                     */
@@ -45,8 +46,8 @@ export const SQL_DIALECTS = [
 export const DIALECT_SET = new Set<string>(SQL_DIALECTS);
 
 /** Resolve a user-supplied dialect to a known one, defaulting to `"sql"`. */
-export function resolveDialect(dialect: unknown): string {
-  return typeof dialect === "string" && DIALECT_SET.has(dialect) ? dialect : "sql";
+export function resolveDialect(dialect: unknown): SqlLanguage {
+  return typeof dialect === "string" && DIALECT_SET.has(dialect) ? (dialect as SqlLanguage) : "sql";
 }
 
 /** Strongly SQL when a statement-leading keyword appears at the start. */
