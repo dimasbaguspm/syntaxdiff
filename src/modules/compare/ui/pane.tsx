@@ -1,5 +1,5 @@
 import { useRef, useState, type ReactNode } from "react";
-import { AlignLeft, CheckCircle2, Loader2, ScrollText, Upload, XCircle } from "lucide-react";
+import { AlignLeft, CheckCircle2, Loader2, Upload, XCircle } from "lucide-react";
 import { useCompare, type Side } from "@/modules/compare/providers/context";
 import { Icon } from "@/modules/engine/ui/language-icon";
 import { Button } from "@/components/button";
@@ -15,7 +15,7 @@ const PLACEHOLDER: Record<Side, string> = {
 
 /** Presentational source pane — all behaviour comes from the compare context. */
 export function Pane({ side, children }: { side: Side; children?: ReactNode }) {
-  const { getPane, validateSide, formatSide, adapter, formatting, validating } = useCompare();
+  const { getPane, formatSide, adapter, formatting } = useCompare();
   const pane = getPane(side);
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -76,17 +76,6 @@ export function Pane({ side, children }: { side: Side; children?: ReactNode }) {
               className="p-1"
             >
               <Upload className="size-4" aria-hidden />
-            </Button>
-          </Tooltip>
-          <Tooltip label="Validate syntax">
-            <Button
-              variant="ghost"
-              onClick={() => validateSide(side)}
-              aria-label="Validate syntax"
-              className="p-1"
-              disabled={validating[side]}
-            >
-              {validating[side] ? <Spinner /> : <ScrollText className="size-4" aria-hidden />}
             </Button>
           </Tooltip>
           <Tooltip label={adapter.formatterDisabled ? "Formatting unavailable" : "Format"}>

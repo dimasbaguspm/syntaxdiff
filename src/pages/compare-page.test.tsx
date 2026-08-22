@@ -108,19 +108,26 @@ describe("ComparePage", () => {
     expect(screen.getAllByRole("switch").length).toBeGreaterThan(0);
   });
 
-  it("shows per-pane tools (Validate/Format) for JSON", () => {
+  it("shows per-pane Format tool and no Validate button for JSON", () => {
     useStore.setState({ a: '{"x":1}', b: '{"x":2}', lang: "json" });
     renderCompare();
-    expect(screen.getAllByRole("button", { name: /Validate syntax/i }).length).toBe(2);
+    // Validate button removed (fe/frontend): validation runs live on type/paste
+    // and is surfaced as a status icon in the pane header.
+    expect(screen.queryAllByRole("button", { name: /Validate syntax/i }).length).toBe(0);
     expect(screen.getAllByRole("button", { name: /Format/i }).length).toBe(2);
   });
 
-  it("Validate shows a success snack for valid JSON", () => {
-    useStore.setState({ a: '{"x":1}', lang: "json" });
+  it("validates live on type/paste and shows a valid status icon for valid JSON", async () => {
+    useStore.setState({ a: "", lang: "json" });
     renderCompare();
-    fireEvent.click(screen.getAllByRole("button", { name: /Validate syntax/i })[0]);
-    expect(useStore.getState().snack?.type).toBe("success");
-    expect(useStore.getState().snack?.message).toContain("Valid JSON");
+    // Typing valid JSON into the SOURCE textarea triggers the debounced live
+    // validation -> the pane header renders the emerald "valid" check icon.
+    // (Use the placeholder, not role=textbox — the label input is also a textbox.)
+    const ta = screen.getByPlaceholderText("Paste source A, or drop a file…");
+    fireEvent.change(ta, { target: { value: '{"x":1}' } });
+    await waitFor(() => {
+      expect(document.querySelector('[class*="tint-emerald-fg"]')).not.toBeNull();
+    });
   });
 
   it("disables Format for formatter-disabled languages (ruby/kotlin/rust/glimmer)", () => {

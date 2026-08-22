@@ -27,10 +27,11 @@ export function LineNumberedTextarea({
         <div
           ref={gutterRef}
           aria-hidden
-          className="select-none overflow-hidden border-r border-edge bg-surface/40 py-4 pr-2 pl-2 text-right font-mono text-xs leading-[1.5] text-faint"
+          className="select-none overflow-hidden border-r border-edge bg-surface/40 py-0 pl-2 pr-2 text-right font-mono text-xs leading-[1.5] text-faint"
+          style={{ minWidth: "2.5rem" }}
         >
           {Array.from({ length: lineCount }, (_, i) => i + 1).map((n) => (
-            <div key={n} className="gutter-line">
+            <div key={n} className="gutter-line" style={{ height: "18px" }}>
               {n}
             </div>
           ))}
@@ -43,9 +44,10 @@ export function LineNumberedTextarea({
         onScroll={syncScroll}
         placeholder={placeholder}
         spellCheck={false}
-        className={`min-h-0 w-full flex-1 resize-none bg-transparent py-4 pr-4 pl-3 font-mono text-xs leading-[1.5] text-ink placeholder-faint focus:outline-none ${
+        className={`min-h-0 w-full flex-1 resize-none bg-transparent py-0 pl-3 pr-4 font-mono text-xs leading-[1.5] text-ink placeholder-faint focus:outline-none ${
           wrap ? "whitespace-pre-wrap break-words" : "whitespace-pre"
         }`}
+        style={{ lineHeight: "18px" }}
       />
     </div>
   );

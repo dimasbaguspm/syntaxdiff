@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, FileDiff } from "lucide-react";
+import { ArrowLeft, Columns2, FileDiff, Rows3 } from "lucide-react";
 import { getAdapter } from "@/modules/engine/lib";
 import { useStore } from "@/core/store";
 import { Icon } from "@/modules/engine/ui/language-icon";
@@ -88,6 +88,39 @@ export function DiffPageView() {
             <span className="text-[var(--tint-rose-fg)]">−{rec.removed}</span>
           </span>
         </span>
+
+        {changeGroups.length > 0 && (
+          <div className="ml-auto flex items-center gap-1">
+            <div className="flex items-center gap-0.5 rounded-lg border border-edge bg-surface-2/50 p-0.5">
+              <Tooltip label="Split (side-by-side)">
+                <Button
+                  variant="segment"
+                  active={mode === "split"}
+                  onClick={() => {
+                    setMode("split");
+                    trackEvent("switch_view", { mode: "split" });
+                  }}
+                  aria-label="Split view"
+                >
+                  <Columns2 className="size-4" aria-hidden="true" />
+                </Button>
+              </Tooltip>
+              <Tooltip label="Unified (inline)">
+                <Button
+                  variant="segment"
+                  active={mode === "unified"}
+                  onClick={() => {
+                    setMode("unified");
+                    trackEvent("switch_view", { mode: "unified" });
+                  }}
+                  aria-label="Unified view"
+                >
+                  <Rows3 className="size-4" aria-hidden="true" />
+                </Button>
+              </Tooltip>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex min-h-0 flex-1">
@@ -102,16 +135,12 @@ export function DiffPageView() {
         />
       </div>
 
-      {/* Split/unified toggle + change navigation float bottom-right on every
-          viewport size; the header keeps Back, language pill + +/- tally. */}
+      {/* Change navigation floats bottom-right on every viewport size;
+          the split/unified toggle + +/- tally stay in the header. */}
       <DiffControlsFab
-        mode={mode}
-        setMode={setMode}
         groupIdx={groupIdx}
         changeGroupsLen={changeGroups.length}
         goToGroup={goToGroup}
-        added={rec.added}
-        removed={rec.removed}
       />
     </div>
   );

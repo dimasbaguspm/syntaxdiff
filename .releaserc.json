@@ -12,11 +12,19 @@
         ]
       }
     ],
-    ["@semantic-release/release-notes-generator", { "preset": "conventionalcommits" }],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "writerOpts": "./release/writer-opts.mjs"
+      }
+    ],
     [
       "@semantic-release/changelog",
       {
-        "changelogFile": "CHANGELOG.md"
+        "changelogFile": "CHANGELOG.md",
+        "preset": "conventionalcommits",
+        "writerOpts": "./release/writer-opts.mjs"
       }
     ],
     ["@semantic-release/npm", { "npmPublish": false }],
