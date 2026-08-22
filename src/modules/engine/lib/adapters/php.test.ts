@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { getWorkerAdapter } from "@/core/worker/prettier-adapters";
 import { phpAdapter } from "@/modules/engine/lib/adapters/php";
 
 describe("phpAdapter", () => {
@@ -27,13 +28,16 @@ function greet($name) {
     });
   });
 
-  it("declares Prettier option toggles", () => {
+  it("declares formatting option toggles", () => {
     expect(phpAdapter.toggles.some((t) => t.id === "printWidth")).toBe(true);
     expect(phpAdapter.toggles.some((t) => t.id === "tabWidth")).toBe(true);
   });
 
-  it("formatAsync is enabled and never throws (falls back on no PHP runtime)", async () => {
-    const out = await phpAdapter.formatAsync!("<?php\nfunction f(){\necho 'x';\n}\n", {});
+  it("worker formatAsync is enabled and never throws (falls back on no PHP runtime)", async () => {
+    const out = await getWorkerAdapter("php").formatAsync!(
+      "<?php\nfunction f(){\necho 'x';\n}\n",
+      {},
+    );
     expect(typeof out.canonical).toBe("string");
     expect(out.canonical.length).toBeGreaterThan(0);
   });

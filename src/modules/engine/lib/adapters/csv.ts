@@ -5,20 +5,18 @@ import {
   serializeAlignedCsv,
   serializeCsv,
 } from "@/modules/engine/lib/adapters/csv-core";
-import { csvPlugin } from "@/modules/engine/lib/prettier-plugins/csv";
-import { makePrettierAdapter } from "@/modules/engine/lib/adapters/code-format";
 
 export { parseCsv, serializeCsv, serializeAlignedCsv };
 
 const MIN_CSV_LINES = 2;
 
-export const csvAdapter: LanguageAdapter = makePrettierAdapter({
+/** Plain metadata + robust sync canonicalization; the CSV formatter plugin is
+ *  wired worker-side only (see `src/core/worker`). */
+export const csvAdapter: LanguageAdapter = {
   id: "csv",
   label: "CSV",
-  parser: "csv",
-  plugins: [csvPlugin],
-  prettierOptions: { delimiter: ",", alignColumns: true },
-  robust: (input, opts) => csvCanonical(input, opts),
+  fmtParser: "csv",
+  fmtOptions: { delimiter: ",", alignColumns: true },
   detect(input: string): number {
     const text = input.trim();
     if (!text) return 0;
@@ -47,4 +45,5 @@ export const csvAdapter: LanguageAdapter = makePrettierAdapter({
     { id: "trimCells", label: "Trim cell whitespace", default: true },
     { id: "sortRows", label: "Sort rows (keep header)", default: false },
   ],
-});
+  format: (input, opts) => csvCanonical(input, opts),
+};

@@ -40,6 +40,10 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html,svg,png,webmanifest}"],
         navigateFallback: "index.html",
         cleanupOutdatedCaches: true,
+        // The engine worker chunk bundles the formatter runtime (several MB);
+        // without raising this limit workbox refuses to precache it, which
+        // would break offline diffing.
+        maximumFileSizeToCacheInBytes: 12 * 1024 * 1024,
       },
     }),
   ],

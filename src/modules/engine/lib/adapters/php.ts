@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { codePrettierToggles, formatCode, makePrettierAdapter } from "./code-format";
+import { codeFmtToggles, formatCode } from "./code-format";
 
 /** Heuristic confidence that `input` is PHP. */
 function detectPhp(input: string): number {
@@ -12,18 +12,17 @@ function detectPhp(input: string): number {
   return Math.min(1, Math.max(0, score));
 }
 
-// NOTE (FE #12): `@prettier/plugin-php` needs the PHP binary at runtime. In a
-// browser/worker there is no PHP runtime, so `formatAsync` falls back to the
+// NOTE (FE #12): the PHP formatter plugin needs the PHP binary at runtime. In a
+// browser/worker there is no PHP runtime, so the async pass falls back to the
 // robust whitespace canonical text — documented best-effort rather than a
 // fabricated result. Enabled (not formatterDisabled) so the Format button stays
 // available; it simply no-ops the real formatter when the binary is absent.
-export const phpAdapter: LanguageAdapter = makePrettierAdapter({
+export const phpAdapter: LanguageAdapter = {
   id: "php",
   label: "PHP",
-  parser: "php",
-  plugins: ["@prettier/plugin-php"],
-  prettierOptions: { printWidth: 80, tabWidth: 2 },
-  toggles: codePrettierToggles,
-  robust: (input, opts) => formatCode(input, opts),
+  fmtParser: "php",
+  fmtOptions: { printWidth: 80, tabWidth: 2 },
   detect: detectPhp,
-});
+  toggles: codeFmtToggles,
+  format: (input, opts) => formatCode(input, opts),
+};

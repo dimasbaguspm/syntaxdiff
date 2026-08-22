@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, markupPrettierToggles } from "./code-format";
+import { markupFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectLess(input: string): number {
   const t = input.trimStart();
@@ -9,11 +9,12 @@ function detectLess(input: string): number {
   return 0;
 }
 
-export const lessAdapter: LanguageAdapter = makePrettierAdapter({
+export const lessAdapter: LanguageAdapter = {
   id: "less",
   label: "Less",
-  parser: "less",
-  prettierOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
-  toggles: markupPrettierToggles,
+  fmtParser: "less",
+  fmtOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
   detect: detectLess,
-});
+  toggles: markupFmtToggles,
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

@@ -1,6 +1,6 @@
 import { ParseError } from "@/modules/engine/lib/types";
 import type { FormatOptions, FormatResult, LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, markupPrettierToggles } from "./code-format";
+import { markupFmtToggles } from "./code-format";
 
 function parse(input: string): unknown {
   try {
@@ -32,14 +32,16 @@ function detectJson(input: string): number {
   return 0;
 }
 
-export const jsonAdapter: LanguageAdapter = makePrettierAdapter({
+/** Plain metadata + robust sync canonicalization. The async formatting pass is
+ *  attached worker-side only (see `src/core/worker`). */
+export const jsonAdapter: LanguageAdapter = {
   id: "json",
   label: "JSON",
-  parser: "json",
-  prettierOptions: { tabWidth: 2, printWidth: 80 },
-  robust: jsonCanonical,
-  toggles: [{ id: "minify", label: "Minify" }, ...markupPrettierToggles],
+  fmtParser: "json",
+  fmtOptions: { tabWidth: 2, printWidth: 80 },
   detect: detectJson,
-});
+  toggles: [{ id: "minify", label: "Minify" }, ...markupFmtToggles],
+  format: jsonCanonical,
+};
 
 export { parse as parseJson };

@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { formatCode, makePrettierAdapter } from "./code-format";
+import { formatCode } from "./code-format";
 
 /** Heuristic confidence that `input` is Go. */
 function detectGo(input: string): number {
@@ -17,11 +17,13 @@ function detectGo(input: string): number {
 // NOTE (FE #12): gofmt has no robust, worker-friendly pure-JS port, so Go is
 // formatter-disabled — the diff uses the robust whitespace canonical text and
 // there is no user-facing async formatter.
-export const goAdapter: LanguageAdapter = makePrettierAdapter({
+export const goAdapter: LanguageAdapter = {
   id: "go",
   label: "Go",
-  parser: "go", // no built-in parser; formatterDisabled short-circuits formatAsync
+  // No built-in parser; formatterDisabled short-circuits the worker pass.
+  fmtParser: "go",
   formatterDisabled: true,
-  robust: (input, opts) => formatCode(input, opts),
   detect: detectGo,
-});
+  toggles: [],
+  format: (input, opts) => formatCode(input, opts),
+};

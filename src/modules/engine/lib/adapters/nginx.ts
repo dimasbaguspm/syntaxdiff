@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, markupPrettierToggles } from "./code-format";
+import { markupFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectNginx(input: string): number {
   const t = input.trimStart();
@@ -9,12 +9,12 @@ function detectNginx(input: string): number {
   return 0;
 }
 
-export const nginxAdapter: LanguageAdapter = makePrettierAdapter({
+export const nginxAdapter: LanguageAdapter = {
   id: "nginx",
   label: "Nginx",
-  parser: "nginx",
-  plugins: ["prettier-plugin-nginx"],
-  prettierOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
-  toggles: markupPrettierToggles,
+  fmtParser: "nginx",
+  fmtOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
   detect: detectNginx,
-});
+  toggles: markupFmtToggles,
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

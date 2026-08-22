@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { codePrettierToggles, makePrettierAdapter } from "./code-format";
+import { codeFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectAngular(input: string): number {
   const t = input.trimStart();
@@ -10,11 +10,12 @@ function detectAngular(input: string): number {
   return 0;
 }
 
-export const angularAdapter: LanguageAdapter = makePrettierAdapter({
+export const angularAdapter: LanguageAdapter = {
   id: "angular",
   label: "Angular",
-  parser: "angular",
-  prettierOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
-  toggles: codePrettierToggles,
+  fmtParser: "angular",
+  fmtOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
   detect: detectAngular,
-});
+  toggles: codeFmtToggles,
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

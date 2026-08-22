@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, markupPrettierToggles } from "./code-format";
+import { markupFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectScss(input: string): number {
   const t = input.trimStart();
@@ -9,11 +9,12 @@ function detectScss(input: string): number {
   return 0;
 }
 
-export const scssAdapter: LanguageAdapter = makePrettierAdapter({
+export const scssAdapter: LanguageAdapter = {
   id: "scss",
   label: "SCSS",
-  parser: "scss",
-  prettierOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
-  toggles: markupPrettierToggles,
+  fmtParser: "scss",
+  fmtOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
   detect: detectScss,
-});
+  toggles: markupFmtToggles,
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

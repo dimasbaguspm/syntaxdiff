@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, markupPrettierToggles } from "./code-format";
+import { markupFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectMarkdown(input: string): number {
   const t = input.trimStart();
@@ -11,11 +11,12 @@ function detectMarkdown(input: string): number {
   return 0;
 }
 
-export const markdownAdapter: LanguageAdapter = makePrettierAdapter({
+export const markdownAdapter: LanguageAdapter = {
   id: "markdown",
   label: "Markdown",
-  parser: "markdown",
-  prettierOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
-  toggles: markupPrettierToggles,
+  fmtParser: "markdown",
+  fmtOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
   detect: detectMarkdown,
-});
+  toggles: markupFmtToggles,
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

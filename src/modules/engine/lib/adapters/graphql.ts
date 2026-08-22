@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { markupPrettierToggles, makePrettierAdapter } from "./code-format";
+import { markupFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectGraphql(input: string): number {
   const t = input.trimStart();
@@ -14,11 +14,12 @@ function detectGraphql(input: string): number {
   return 0;
 }
 
-export const graphqlAdapter: LanguageAdapter = makePrettierAdapter({
+export const graphqlAdapter: LanguageAdapter = {
   id: "graphql",
   label: "GraphQL",
-  parser: "graphql",
-  prettierOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
-  toggles: markupPrettierToggles,
+  fmtParser: "graphql",
+  fmtOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
   detect: detectGraphql,
-});
+  toggles: markupFmtToggles,
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

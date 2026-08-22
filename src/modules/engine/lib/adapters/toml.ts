@@ -1,7 +1,7 @@
 import { parse, stringify } from "smol-toml";
 import { ParseError } from "@/modules/engine/lib/types";
 import type { FormatOptions, FormatResult, LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, markupPrettierToggles } from "./code-format";
+import { markupFmtToggles } from "./code-format";
 
 /** Parse + re-serialize WITHOUT key-sort (key order preserved). Throws on
  *  invalid TOML. */
@@ -30,15 +30,14 @@ function detectToml(input: string): number {
   return 0;
 }
 
-export const tomlAdapter: LanguageAdapter = makePrettierAdapter({
+export const tomlAdapter: LanguageAdapter = {
   id: "toml",
   label: "TOML",
-  parser: "toml",
-  plugins: ["prettier-plugin-toml"],
-  prettierOptions: { tabWidth: 2, printWidth: 80 },
-  robust: tomlCanonical,
-  toggles: markupPrettierToggles,
+  fmtParser: "toml",
+  fmtOptions: { tabWidth: 2, printWidth: 80 },
   detect: detectToml,
-});
+  toggles: markupFmtToggles,
+  format: tomlCanonical,
+};
 
 export { parse as parseToml };

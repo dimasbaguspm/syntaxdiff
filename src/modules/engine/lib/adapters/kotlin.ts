@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, whitespaceCanonicalize } from "./code-format";
+import { whitespaceCanonicalize } from "./code-format";
 
 function detectKotlin(input: string): number {
   const t = input.trimStart();
@@ -10,13 +10,14 @@ function detectKotlin(input: string): number {
   return 0;
 }
 
-// Format-disabled: the Kotlin Prettier plugin crashes against prettier 3.6.2.
+// Format-disabled: the Kotlin formatter plugin crashes in the browser runtime.
 // The diff uses whitespace-only canonical.
-export const kotlinAdapter: LanguageAdapter = makePrettierAdapter({
+export const kotlinAdapter: LanguageAdapter = {
   id: "kotlin",
   label: "Kotlin",
-  parser: "kotlin",
+  fmtParser: "kotlin",
   formatterDisabled: true,
-  robust: (input, opts) => whitespaceCanonicalize(input, opts),
   detect: detectKotlin,
-});
+  toggles: [],
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

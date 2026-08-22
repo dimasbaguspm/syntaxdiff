@@ -5,11 +5,11 @@ export type PaneStatus = "valid" | "invalid" | "idle" | "loading";
 
 /** Debounced live validation of a pane against the active adapter.
  *
- * While formatting/validating it reports `loading`; on settle it reports
- * `valid`/`invalid` from the synchronous parse canonicalizer (`format()`),
- * which throws `ParseError` on invalid input for data languages. The async
- * Prettier `formatAsync()` pass is awaited purely to drive the loading state
- * (it is intentionally lenient and never used as the validity signal). */
+ * While debouncing it reports `loading`; on settle it reports `valid`/
+ * `invalid` from the synchronous parse canonicalizer (`format()`), which
+ * throws `ParseError` on invalid input for data languages. Validation is sync
+ * and main-thread-safe — the heavy async formatting pass runs only inside the
+ * engine worker. */
 export function usePaneStatus(
   value: string,
   adapter: LanguageAdapter,
@@ -24,22 +24,13 @@ export function usePaneStatus(
     let cancelled = false;
     setStatus("loading");
     const id = setTimeout(() => {
-      void (async () => {
-        try {
-          if (adapter.formatAsync) {
-            await adapter.formatAsync(value, opts);
-          }
-          if (cancelled) return;
-          try {
-            adapter.format(value, opts);
-            if (!cancelled) setStatus("valid");
-          } catch {
-            if (!cancelled) setStatus("invalid");
-          }
-        } catch {
-          if (!cancelled) setStatus("valid");
-        }
-      })();
+      if (cancelled) return;
+      try {
+        adapter.format(value, opts);
+        if (!cancelled) setStatus("valid");
+      } catch {
+        if (!cancelled) setStatus("invalid");
+      }
     }, 350);
     return () => {
       cancelled = true;

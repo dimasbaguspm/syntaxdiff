@@ -114,12 +114,10 @@ export function CompareProvider({ children }: { children: ReactNode }) {
     const { value, set } = sides[side];
     setFormatting((s) => ({ ...s, [side]: true }));
     try {
-      // Real (Prettier) formatting when available; otherwise the robust
-      // whitespace canonicalizer. Both run async so the UI can show a spinner.
-      const out = await (adapter.formatAsync
-        ? adapter.formatAsync(value, eOpts)
-        : Promise.resolve(adapter.format(value, eOpts)));
-      set(out.canonical);
+      // Offload canonicalization to the engine worker (heavy formatter lives
+      // there); the main thread never imports the formatting runtime.
+      const out = await client.format({ text: value, lang: adapter.id, opts: eOpts });
+      set(out);
       showSnack(`Formatted as ${adapter.label}`, "success");
       trackEvent("format", { lang: adapter.id, ok: "true" });
     } catch (e) {

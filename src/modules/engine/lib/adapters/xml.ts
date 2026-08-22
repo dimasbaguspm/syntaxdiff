@@ -1,7 +1,7 @@
 import { XMLBuilder, XMLParser } from "fast-xml-parser";
 import { ParseError } from "@/modules/engine/lib/types";
 import type { FormatOptions, FormatResult, LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, markupPrettierToggles } from "./code-format";
+import { markupFmtToggles } from "./code-format";
 
 const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" });
 
@@ -29,15 +29,16 @@ function detectXml(input: string): number {
   return 0;
 }
 
-export const xmlAdapter: LanguageAdapter = makePrettierAdapter({
+/** Plain metadata + robust sync canonicalization; the XML plugin wiring lives
+ *  worker-side only (see `src/core/worker`). */
+export const xmlAdapter: LanguageAdapter = {
   id: "xml",
   label: "XML",
-  parser: "xml",
-  plugins: ["@prettier/plugin-xml"],
-  prettierOptions: { tabWidth: 2, printWidth: 80 },
-  robust: xmlCanonical,
-  toggles: markupPrettierToggles,
+  fmtParser: "xml",
+  fmtOptions: { tabWidth: 2, printWidth: 80 },
   detect: detectXml,
-});
+  toggles: markupFmtToggles,
+  format: xmlCanonical,
+};
 
 export { parser as parseXml };

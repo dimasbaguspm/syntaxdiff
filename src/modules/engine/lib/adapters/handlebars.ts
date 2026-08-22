@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, markupPrettierToggles } from "./code-format";
+import { markupFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectHandlebars(input: string): number {
   const t = input.trimStart();
@@ -9,12 +9,12 @@ function detectHandlebars(input: string): number {
   return 0;
 }
 
-export const handlebarsAdapter: LanguageAdapter = makePrettierAdapter({
+export const handlebarsAdapter: LanguageAdapter = {
   id: "handlebars",
   label: "Handlebars",
-  parser: "handlebars",
-  plugins: ["@poliklot/prettier-plugin-handlebars"],
-  prettierOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
-  toggles: markupPrettierToggles,
+  fmtParser: "handlebars",
+  fmtOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
   detect: detectHandlebars,
-});
+  toggles: markupFmtToggles,
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

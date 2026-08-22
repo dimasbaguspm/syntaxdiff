@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { codePrettierToggles, makePrettierAdapter } from "./code-format";
+import { codeFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectJava(input: string): number {
   if (!input.trim()) return 0;
@@ -11,12 +11,12 @@ function detectJava(input: string): number {
   return Math.min(1, score);
 }
 
-export const javaAdapter: LanguageAdapter = makePrettierAdapter({
+export const javaAdapter: LanguageAdapter = {
   id: "java",
   label: "Java",
-  parser: "java",
-  plugins: ["prettier-plugin-java"],
-  prettierOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
-  toggles: codePrettierToggles,
+  fmtParser: "java",
+  fmtOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
   detect: detectJava,
-});
+  toggles: codeFmtToggles,
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

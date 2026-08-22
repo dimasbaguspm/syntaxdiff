@@ -1,6 +1,10 @@
 /**
  * Core engine types. This module is intentionally framework-free and pure —
  * it must run identically in a Web Worker and in Node (vitest).
+ *
+ * NOTE: adapters are METADATA + robust sync canonicalization only. The heavy
+ * async formatting pass is attached worker-side (see `core/worker`), so this
+ * module (and everything reachable from it) stays main-thread-safe.
  */
 
 export type LanguageId =
@@ -68,28 +72,24 @@ export interface LanguageAdapter {
   /** Parse + canonicalize `input`. Throws `ParseError` on invalid input. */
   format(input: string, opts: FormatOptions): FormatResult;
   /**
-   * Async canonicalization that applies a real, heavy formatter (Prettier,
-   * run inside the engine Web Worker) on top of the robust synchronous
-   * `format()`. Optional; when present it complements `format()` and is what
-   * actually makes trivial style diffs vanish. When absent (e.g. for
-   * `formatterDisabled` languages) the diff uses the robust canonical text.
+   * Async canonicalization that applies a real, heavy formatter (run inside
+   * the engine Web Worker) on top of the robust synchronous `format()`.
+   * Optional; when present it complements `format()` and is what actually makes
+   * trivial style diffs vanish. Plain adapters never set it — the worker-side
+   * wrapper attaches it. When absent (e.g. for `formatterDisabled` languages)
+   * the diff uses the robust canonical text.
    */
   formatAsync?(input: string, opts: FormatOptions): Promise<FormatResult>;
   /**
-   * Prettier parser name (e.g. "babel", "json", "xml"). When set, the engine
-   * applies Prettier via `formatAsync` instead of the sync-only canonicalizer.
+   * Neutral formatter parser marker (e.g. "babel", "json", "xml"). Pure
+   * metadata: the worker-side wrapper maps it to the heavy formatter pass.
    */
-  prettierParser?: string;
-  /**
-   * Prettier plugin module specifiers (npm ids) or already-resolved plugin
-   * objects, dynamically imported only inside `formatAsync` (lazy, code-split).
-   */
-  prettierPlugins?: Array<string | import("prettier").Plugin>;
-  /** Default Prettier options, overridden per-key by matching `opts` entries. */
-  prettierOptions?: Record<string, unknown>;
+  fmtParser?: string;
+  /** Default formatter options, overridden per-key by matching `opts` entries. */
+  fmtOptions?: Record<string, unknown>;
   /**
    * True when no robust, browser/worker-friendly formatter exists (e.g. Ruby
-   * needs its runtime binary, Kotlin/Rust plugins crash vs prettier 3.6.2,
+   * needs its runtime binary, Kotlin/Rust toolchains crash in the browser,
    * Glimmer has no npm package). The Format button is disabled; the diff uses
    * the whitespace-only canonical text.
    */

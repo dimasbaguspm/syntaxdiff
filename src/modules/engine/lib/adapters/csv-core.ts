@@ -111,7 +111,7 @@ export function serializeAlignedCsv(rows: string[][]): string {
 }
 
 /** Whitespace/quote canonicalization used for the diff pipeline and as the
- *  Prettier fallback for CSV. Keeps rows aligned so unchanged rows match. */
+ *  worker-side fallback for CSV. Keeps rows aligned so unchanged rows match. */
 export function csvCanonical(input: string, opts: FormatOptions): FormatResult {
   const rows = parseCsv(input);
   if (rows.length === 0) return { canonical: "" };

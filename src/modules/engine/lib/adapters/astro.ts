@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { codePrettierToggles, makePrettierAdapter } from "./code-format";
+import { codeFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectAstro(input: string): number {
   const t = input.trimStart();
@@ -9,12 +9,12 @@ function detectAstro(input: string): number {
   return 0;
 }
 
-export const astroAdapter: LanguageAdapter = makePrettierAdapter({
+export const astroAdapter: LanguageAdapter = {
   id: "astro",
   label: "Astro",
-  parser: "astro",
-  plugins: ["prettier-plugin-astro"],
-  prettierOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
-  toggles: codePrettierToggles,
+  fmtParser: "astro",
+  fmtOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
   detect: detectAstro,
-});
+  toggles: codeFmtToggles,
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

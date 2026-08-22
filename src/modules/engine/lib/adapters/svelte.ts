@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { codePrettierToggles, makePrettierAdapter } from "./code-format";
+import { codeFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectSvelte(input: string): number {
   const t = input.trimStart();
@@ -10,12 +10,12 @@ function detectSvelte(input: string): number {
   return 0;
 }
 
-export const svelteAdapter: LanguageAdapter = makePrettierAdapter({
+export const svelteAdapter: LanguageAdapter = {
   id: "svelte",
   label: "Svelte",
-  parser: "svelte",
-  plugins: ["prettier-plugin-svelte"],
-  prettierOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
-  toggles: codePrettierToggles,
+  fmtParser: "svelte",
+  fmtOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
   detect: detectSvelte,
-});
+  toggles: codeFmtToggles,
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

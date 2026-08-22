@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, markupPrettierToggles } from "./code-format";
+import { markupFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectMdx(input: string): number {
   const t = input.trimStart();
@@ -10,11 +10,12 @@ function detectMdx(input: string): number {
   return 0;
 }
 
-export const mdxAdapter: LanguageAdapter = makePrettierAdapter({
+export const mdxAdapter: LanguageAdapter = {
   id: "mdx",
   label: "MDX",
-  parser: "mdx",
-  prettierOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
-  toggles: markupPrettierToggles,
+  fmtParser: "mdx",
+  fmtOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
   detect: detectMdx,
-});
+  toggles: markupFmtToggles,
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

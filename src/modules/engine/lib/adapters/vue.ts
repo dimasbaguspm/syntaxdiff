@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { codePrettierToggles, makePrettierAdapter } from "./code-format";
+import { codeFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectVue(input: string): number {
   const t = input.trimStart();
@@ -10,11 +10,12 @@ function detectVue(input: string): number {
   return 0;
 }
 
-export const vueAdapter: LanguageAdapter = makePrettierAdapter({
+export const vueAdapter: LanguageAdapter = {
   id: "vue",
   label: "Vue",
-  parser: "vue",
-  prettierOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
-  toggles: codePrettierToggles,
+  fmtParser: "vue",
+  fmtOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
   detect: detectVue,
-});
+  toggles: codeFmtToggles,
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

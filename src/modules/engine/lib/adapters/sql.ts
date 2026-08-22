@@ -1,9 +1,9 @@
 import { format, type SqlLanguage } from "sql-formatter";
 import { ParseError } from "@/modules/engine/lib/types";
 import type { FormatOptions, FormatResult, LanguageAdapter } from "@/modules/engine/lib/types";
-import { codePrettierToggles, makePrettierAdapter } from "./code-format";
+import { codeFmtToggles } from "./code-format";
 
-/** Supported SQL dialects (see prettier-plugin-sql / sql-formatter). */
+/** Supported SQL dialects (see sql-formatter). */
 export const SQL_DIALECTS = [
   "sql",
   "mysql",
@@ -28,7 +28,7 @@ function resolveDialect(dialect: unknown): SqlLanguage {
 const SQL_KEYWORDS = /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|WITH|SET|MERGE)\b/;
 
 /** Robust canonicalization via sql-formatter (used directly and as the
- *  Prettier fallback). Throws `ParseError` on invalid SQL. */
+ *  worker-side fallback). Throws `ParseError` on invalid SQL. */
 function sqlCanonical(input: string, opts: FormatOptions): FormatResult {
   if (input.trim() === "") return { canonical: "" };
   try {
@@ -43,13 +43,11 @@ function sqlCanonical(input: string, opts: FormatOptions): FormatResult {
   }
 }
 
-export const sqlAdapter: LanguageAdapter = makePrettierAdapter({
+export const sqlAdapter: LanguageAdapter = {
   id: "sql",
   label: "SQL",
-  parser: "sql",
-  plugins: ["prettier-plugin-sql"],
-  prettierOptions: { language: "sql", printWidth: 80, tabWidth: 2, useTabs: false },
-  robust: sqlCanonical,
+  fmtParser: "sql",
+  fmtOptions: { language: "sql", printWidth: 80, tabWidth: 2, useTabs: false },
   detect(input: string): number {
     return SQL_KEYWORDS.test(input.trimStart().toUpperCase()) ? 1 : 0;
   },
@@ -62,6 +60,7 @@ export const sqlAdapter: LanguageAdapter = makePrettierAdapter({
       default: "sql",
     },
     { id: "uppercaseKeywords", label: "Uppercase keywords", default: true },
-    ...codePrettierToggles,
+    ...codeFmtToggles,
   ],
-});
+  format: sqlCanonical,
+};

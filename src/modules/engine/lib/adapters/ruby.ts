@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, whitespaceCanonicalize } from "./code-format";
+import { whitespaceCanonicalize } from "./code-format";
 
 function detectRuby(input: string): number {
   const t = input.trimStart();
@@ -9,13 +9,15 @@ function detectRuby(input: string): number {
   return 0;
 }
 
-// Format-disabled: the Ruby Prettier plugin shells out to the Ruby binary, which
-// is unavailable in a browser/worker. The diff uses whitespace-only canonical.
-export const rubyAdapter: LanguageAdapter = makePrettierAdapter({
+// Format-disabled: the Ruby formatter plugin shells out to the Ruby binary,
+// which is unavailable in a browser/worker. The diff uses whitespace-only
+// canonical.
+export const rubyAdapter: LanguageAdapter = {
   id: "ruby",
   label: "Ruby",
-  parser: "ruby",
+  fmtParser: "ruby",
   formatterDisabled: true,
-  robust: (input, opts) => whitespaceCanonicalize(input, opts),
   detect: detectRuby,
-});
+  toggles: [],
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

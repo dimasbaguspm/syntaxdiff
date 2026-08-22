@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { getWorkerAdapter } from "@/core/worker/prettier-adapters";
 import { jsAdapter } from "@/modules/engine/lib/adapters/js";
 
 describe("jsAdapter", () => {
@@ -39,7 +40,7 @@ export { greet };`;
     });
   });
 
-  it("exposes the expected Prettier toggles", () => {
+  it("exposes the expected formatting toggles", () => {
     expect(jsAdapter.toggles.map((t) => t.id)).toEqual([
       "printWidth",
       "tabWidth",
@@ -52,14 +53,15 @@ export { greet };`;
     ]);
   });
 
-  it("formatAsync applies real Prettier formatting (JS)", async () => {
-    const out = await jsAdapter.formatAsync!("const x=1;function f(){return 2}", {});
-    // Prettier adds spaces, semicolons and reindents — whitespace-reindent alone does not.
+  it("worker formatAsync applies real formatting (JS)", async () => {
+    const out = await getWorkerAdapter("js").formatAsync!("const x=1;function f(){return 2}", {});
+    // The formatter adds spaces, semicolons and reindents — whitespace-reindent
+    // alone does not.
     expect(out.canonical).toBe("const x = 1;\nfunction f() {\n  return 2;\n}\n");
   });
 
-  it("formatAsync never throws and falls back on invalid syntax", async () => {
-    const out = await jsAdapter.formatAsync!("const x = ;;;", {});
+  it("worker formatAsync never throws and falls back on invalid syntax", async () => {
+    const out = await getWorkerAdapter("js").formatAsync!("const x = ;;;", {});
     expect(typeof out.canonical).toBe("string");
   });
 });

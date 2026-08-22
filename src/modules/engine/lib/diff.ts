@@ -47,10 +47,10 @@ export function computeDiff(
 }
 
 /**
- * Diff two already-canonicalized texts (the async `format()`/`formatAsync()`
- * pass having already run in the engine worker). Builds the unified patch and
- * structured line rows. Kept separate from `computeDiff` so the worker can
- * feed it Prettier-formatted canonical text without re-running `format()`.
+ * Diff two already-canonicalized texts (the async formatting pass having
+ * already run in the engine worker). Builds the unified patch and structured
+ * line rows. Kept separate from `computeDiff` so the worker can feed it
+ * fully-formatted canonical text without re-running `format()`.
  */
 export function computeDiffCanonical(
   canonicalA: string,

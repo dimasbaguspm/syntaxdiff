@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { codePrettierToggles, makePrettierAdapter } from "./code-format";
+import { codeFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectSh(input: string): number {
   const t = input.trimStart();
@@ -10,12 +10,12 @@ function detectSh(input: string): number {
   return 0;
 }
 
-export const shAdapter: LanguageAdapter = makePrettierAdapter({
+export const shAdapter: LanguageAdapter = {
   id: "sh",
   label: "Shell",
-  parser: "sh",
-  plugins: ["prettier-plugin-sh"],
-  prettierOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
-  toggles: codePrettierToggles,
+  fmtParser: "sh",
+  fmtOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
   detect: detectSh,
-});
+  toggles: codeFmtToggles,
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

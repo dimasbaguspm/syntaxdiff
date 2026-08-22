@@ -1,8 +1,10 @@
-import { runDiff } from "@/core/worker/diff-runner";
+import { canonicalize, runDiff } from "@/core/worker/diff-runner";
+import { getWorkerAdapter } from "@/core/worker/prettier-adapters";
 import type { DiffResult, FormatOptions, LanguageId } from "@/modules/engine/lib/types";
 
 export interface DiffRequest {
   id: number;
+  kind: "diff";
   a: string;
   b: string;
   lang: LanguageId;
@@ -10,21 +12,55 @@ export interface DiffRequest {
   optsB: FormatOptions;
 }
 
-export type DiffResponse = { id: number; result: DiffResult } | { id: number; error: string };
+export interface FormatRequest {
+  id: number;
+  kind: "format";
+  text: string;
+  lang: LanguageId;
+  opts: FormatOptions;
+}
 
-// The engine worker offloads the (async, Prettier-based) canonicalization off
-// the main thread. Prettier is dynamically imported only inside `formatAsync`,
-// so it never bloats the cold-start of the synchronous `format()` path and is
-// code-split into lazy chunks.
-self.onmessage = async (e: MessageEvent<DiffRequest>) => {
-  const { id, a, b, lang, optsA, optsB } = e.data;
+export type WorkerRequest = DiffRequest | FormatRequest;
+
+export interface FormatResponse {
+  id: number;
+  kind: "format";
+  text: string;
+}
+
+export type WorkerResponse =
+  | { id: number; kind: "diff"; result: DiffResult }
+  | { id: number; kind: "diff"; error: string }
+  | FormatResponse
+  | { id: number; kind: "format"; error: string };
+
+// The engine worker offloads the (async, heavy-formatter) canonicalization off
+// the main thread. The formatter runtime lives entirely in this worker graph —
+// the main entry never imports it (see `prettier-runtime.ts` /
+// `prettier-adapters.ts`).
+self.onmessage = async (e: MessageEvent<WorkerRequest>) => {
+  const msg = e.data;
   try {
-    const result = await runDiff({ a, b, lang, optsA, optsB });
-    self.postMessage({ id, result } satisfies DiffResponse);
+    if (msg.kind === "format") {
+      const adapter = getWorkerAdapter(msg.lang);
+      const text = await canonicalize(msg.text, adapter, msg.opts);
+      self.postMessage({ id: msg.id, kind: "format", text } satisfies FormatResponse);
+      return;
+    }
+    const result = await runDiff({
+      a: msg.a,
+      b: msg.b,
+      lang: msg.lang,
+      optsA: msg.optsA,
+      optsB: msg.optsB,
+    });
+    self.postMessage({ id: msg.id, kind: "diff", result } satisfies WorkerResponse);
   } catch (err) {
-    self.postMessage({
-      id,
-      error: (err as Error).message ?? String(err),
-    } satisfies DiffResponse);
+    const message = (err as Error).message ?? String(err);
+    const response: WorkerResponse =
+      msg.kind === "format"
+        ? { id: msg.id, kind: "format", error: message }
+        : { id: msg.id, kind: "diff", error: message };
+    self.postMessage(response);
   }
 };

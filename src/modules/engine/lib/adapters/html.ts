@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, markupPrettierToggles } from "./code-format";
+import { markupFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectHtml(input: string): number {
   const t = input.trimStart();
@@ -9,11 +9,12 @@ function detectHtml(input: string): number {
   return 0;
 }
 
-export const htmlAdapter: LanguageAdapter = makePrettierAdapter({
+export const htmlAdapter: LanguageAdapter = {
   id: "html",
   label: "HTML",
-  parser: "html",
-  prettierOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
-  toggles: markupPrettierToggles,
+  fmtParser: "html",
+  fmtOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
   detect: detectHtml,
-});
+  toggles: markupFmtToggles,
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

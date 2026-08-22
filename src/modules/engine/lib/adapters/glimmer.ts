@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, whitespaceCanonicalize } from "./code-format";
+import { whitespaceCanonicalize } from "./code-format";
 
 function detectGlimmer(input: string): number {
   const t = input.trimStart();
@@ -10,13 +10,14 @@ function detectGlimmer(input: string): number {
   return 0;
 }
 
-// Format-disabled: no npm Glimmer/Handlebars-template Prettier package exists.
+// Format-disabled: no npm Glimmer/Handlebars-template formatter package exists.
 // The diff uses whitespace-only canonical.
-export const glimmerAdapter: LanguageAdapter = makePrettierAdapter({
+export const glimmerAdapter: LanguageAdapter = {
   id: "glimmer",
   label: "Glimmer",
-  parser: "glimmer",
+  fmtParser: "glimmer",
   formatterDisabled: true,
-  robust: (input, opts) => whitespaceCanonicalize(input, opts),
   detect: detectGlimmer,
-});
+  toggles: [],
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

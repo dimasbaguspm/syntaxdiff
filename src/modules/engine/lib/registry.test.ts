@@ -47,7 +47,7 @@ describe("adapters", () => {
   it("every adapter declares a parser or is formatter-disabled", () => {
     for (const a of adapters) {
       if (a.id === "plain") continue;
-      expect(a.prettierParser !== undefined || a.formatterDisabled === true).toBe(true);
+      expect(a.fmtParser !== undefined || a.formatterDisabled === true).toBe(true);
     }
   });
 });

@@ -2,10 +2,14 @@ import type { AstPath, Doc, ParserOptions, Plugin } from "prettier";
 import { parseCsv } from "@/modules/engine/lib/adapters/csv-core";
 
 /**
- * In-repo Prettier plugin for CSV (no npm CSV plugin exists). It re-serializes
+ * In-repo formatter plugin for CSV (no npm CSV plugin exists). It re-serializes
  * rows with a normalized delimiter, consistent quoting, trimmed cells, `\n`
- * line endings, and optional column alignment. Prettier is the single
- * formatter, so this plugin owns CSV "formatting" end-to-end.
+ * line endings, and optional column alignment.
+ *
+ * WORKER-ONLY: this module is part of the engine Web Worker graph
+ * (`core/worker/*`). Nothing on the main thread may import it — it pulls in
+ * the heavy formatter runtime via its `prettier` type dependency and must stay
+ * out of the main entry chunk.
  */
 
 interface CsvAst {

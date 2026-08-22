@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { codePrettierToggles, formatCode, makePrettierAdapter } from "./code-format";
+import { codeFmtToggles, formatCode } from "./code-format";
 
 /** Heuristic confidence that `input` is JavaScript (not TypeScript). */
 function detectJs(input: string): number {
@@ -16,12 +16,12 @@ function detectJs(input: string): number {
   return Math.min(1, Math.max(0, score));
 }
 
-export const jsAdapter: LanguageAdapter = makePrettierAdapter({
+export const jsAdapter: LanguageAdapter = {
   id: "js",
   label: "JavaScript",
-  parser: "babel",
-  prettierOptions: { semi: true, singleQuote: false, printWidth: 80, tabWidth: 2 },
-  toggles: codePrettierToggles,
-  robust: (input, opts) => formatCode(input, opts),
+  fmtParser: "babel",
+  fmtOptions: { semi: true, singleQuote: false, printWidth: 80, tabWidth: 2 },
   detect: detectJs,
-});
+  toggles: codeFmtToggles,
+  format: (input, opts) => formatCode(input, opts),
+};

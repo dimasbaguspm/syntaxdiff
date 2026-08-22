@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, markupPrettierToggles } from "./code-format";
+import { markupFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectPug(input: string): number {
   const t = input.trimStart();
@@ -10,12 +10,12 @@ function detectPug(input: string): number {
   return 0;
 }
 
-export const pugAdapter: LanguageAdapter = makePrettierAdapter({
+export const pugAdapter: LanguageAdapter = {
   id: "pug",
   label: "Pug",
-  parser: "pug",
-  plugins: ["@prettier/plugin-pug"],
-  prettierOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
-  toggles: markupPrettierToggles,
+  fmtParser: "pug",
+  fmtOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
   detect: detectPug,
-});
+  toggles: markupFmtToggles,
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

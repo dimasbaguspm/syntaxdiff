@@ -1,7 +1,7 @@
 import { dump, load } from "js-yaml";
 import { ParseError } from "@/modules/engine/lib/types";
 import type { FormatOptions, FormatResult, LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, markupPrettierToggles } from "./code-format";
+import { markupFmtToggles } from "./code-format";
 
 /** Parse + re-serialize WITHOUT key-sort (key order preserved). Throws on
  *  invalid YAML. */
@@ -34,14 +34,14 @@ function detectYaml(input: string): number {
   return 0;
 }
 
-export const yamlAdapter: LanguageAdapter = makePrettierAdapter({
+export const yamlAdapter: LanguageAdapter = {
   id: "yaml",
   label: "YAML",
-  parser: "yaml",
-  prettierOptions: { tabWidth: 2, printWidth: 80 },
-  robust: yamlCanonical,
-  toggles: markupPrettierToggles,
+  fmtParser: "yaml",
+  fmtOptions: { tabWidth: 2, printWidth: 80 },
   detect: detectYaml,
-});
+  toggles: markupFmtToggles,
+  format: yamlCanonical,
+};
 
 export { load as parseYaml };

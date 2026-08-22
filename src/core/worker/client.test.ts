@@ -3,9 +3,10 @@ import { createDiffClient } from "@/core/worker/client";
 import { runDiff } from "@/core/worker/diff-runner";
 
 describe("createDiffClient", () => {
-  it("returns an object with diff and dispose", () => {
+  it("returns an object with diff, format and dispose", () => {
     const client = createDiffClient();
     expect(typeof client.diff).toBe("function");
+    expect(typeof client.format).toBe("function");
     expect(typeof client.dispose).toBe("function");
     client.dispose();
   });
@@ -45,10 +46,28 @@ describe("createDiffClient", () => {
     await client.diff({ a: "a\n", b: "b\n", lang: "plain", opts: {} });
     expect(() => client.dispose()).not.toThrow();
   });
+
+  it("format() falls back to the robust sync canonicalizer without a Worker", async () => {
+    const client = createDiffClient();
+    const out = await client.format({
+      text: "const x = 1;   \nlet y = 2;\t",
+      lang: "js",
+      opts: {},
+    });
+    // Sync baseline only — no heavy formatter on the main thread.
+    expect(out).toBe("const x = 1;\nlet y = 2;");
+  });
+
+  it("format() surfaces parse failures for invalid data langs", async () => {
+    const client = createDiffClient();
+    await expect(client.format({ text: "{oops", lang: "json", opts: {} })).rejects.toThrow(
+      /Invalid JSON/,
+    );
+  });
 });
 
-describe("runDiff (async Prettier pipeline)", () => {
-  it("offloads canonicalization to Prettier and returns a formatted diff", async () => {
+describe("runDiff (async formatter pipeline, worker graph)", () => {
+  it("offloads canonicalization to the formatter and returns a formatted diff", async () => {
     const res = await runDiff({
       a: "const x=1;function f(){return 2}",
       b: "const y=2;function g(){return 3}",
@@ -57,7 +76,7 @@ describe("runDiff (async Prettier pipeline)", () => {
       optsB: {},
     });
     expect(res.language).toBe("js");
-    // Prettier-applied spacing/semicolons should appear in the canonical text.
+    // Formatter-applied spacing/semicolons should appear in the canonical text.
     expect(res.patch).toContain("const x = 1;");
     expect(res.patch).toContain("function f() {");
   });
@@ -68,7 +87,7 @@ describe("runDiff (async Prettier pipeline)", () => {
     expect(res.counts.added + res.counts.removed).toBe(0);
   });
 
-  it("falls back to the robust canonical text when Prettier rejects (invalid syntax)", async () => {
+  it("falls back to the robust canonical text when the formatter rejects (invalid syntax)", async () => {
     const res = await runDiff({
       a: "const x = ;;;",
       b: "const x = ;;;",

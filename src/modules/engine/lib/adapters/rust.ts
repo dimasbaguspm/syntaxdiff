@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, whitespaceCanonicalize } from "./code-format";
+import { whitespaceCanonicalize } from "./code-format";
 
 function detectRust(input: string): number {
   const t = input.trimStart();
@@ -9,13 +9,15 @@ function detectRust(input: string): number {
   return 0;
 }
 
-// Format-disabled: prettier-plugin-rust crashes against prettier 3.6.2
-// ("Unexpected doc.type 'concat'"). The diff uses whitespace-only canonical.
-export const rustAdapter: LanguageAdapter = makePrettierAdapter({
+// Format-disabled: the Rust formatter plugin crashes against the current
+// engine version ("Unexpected doc.type 'concat'"). The diff uses
+// whitespace-only canonical.
+export const rustAdapter: LanguageAdapter = {
   id: "rust",
   label: "Rust",
-  parser: "rust",
+  fmtParser: "rust",
   formatterDisabled: true,
-  robust: (input, opts) => whitespaceCanonicalize(input, opts),
   detect: detectRust,
-});
+  toggles: [],
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};

@@ -1,5 +1,6 @@
-import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, markupPrettierToggles } from "./code-format";
+import { ParseError } from "@/modules/engine/lib/types";
+import type { FormatOptions, FormatResult, LanguageAdapter } from "@/modules/engine/lib/types";
+import { markupFmtToggles } from "./code-format";
 
 function detectJson5(input: string): number {
   const t = input.trimStart();
@@ -15,12 +16,23 @@ function detectJson5(input: string): number {
   return 0;
 }
 
-export const json5Adapter: LanguageAdapter = makePrettierAdapter({
+/** Parse + re-serialize (2-space). Throws `ParseError` on invalid input. */
+function json5Canonical(input: string, _opts: FormatOptions): FormatResult {
+  let value: unknown;
+  try {
+    value = JSON.parse(input) as unknown;
+  } catch (e) {
+    throw new ParseError(`Invalid JSON5: ${(e as Error).message}`);
+  }
+  return { canonical: JSON.stringify(value, null, 2) };
+}
+
+export const json5Adapter: LanguageAdapter = {
   id: "json5",
   label: "JSON5",
-  parser: "json5",
-  prettierOptions: { tabWidth: 2, printWidth: 80 },
-  robust: (input, _opts) => ({ canonical: JSON.stringify(JSON.parse(input), null, 2) }),
-  toggles: markupPrettierToggles,
+  fmtParser: "json5",
+  fmtOptions: { tabWidth: 2, printWidth: 80 },
   detect: detectJson5,
-});
+  toggles: markupFmtToggles,
+  format: json5Canonical,
+};

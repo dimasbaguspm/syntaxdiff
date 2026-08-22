@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { getWorkerAdapter } from "@/core/worker/prettier-adapters";
 import { jsonAdapter } from "@/modules/engine/lib/adapters/json";
 
 describe("jsonAdapter", () => {
@@ -31,15 +32,15 @@ describe("jsonAdapter", () => {
     expect(() => jsonAdapter.format("{oops", {})).toThrow(/Invalid JSON/);
   });
 
-  it("formatAsync applies Prettier formatting, preserving key order", async () => {
-    const out = await jsonAdapter.formatAsync!('{"b":1,"a":2}', {});
-    // Prettier keeps short JSON on one line (fits printWidth); key order is
-    // preserved (no sorting).
+  it("worker formatAsync applies formatting, preserving key order", async () => {
+    const out = await getWorkerAdapter("json").formatAsync!('{"b":1,"a":2}', {});
+    // The formatter keeps short JSON on one line (fits printWidth); key order
+    // is preserved (no sorting).
     expect(out.canonical).toBe('{ "b": 1, "a": 2 }\n');
   });
 
-  it("formatAsync never throws and falls back on invalid syntax", async () => {
-    const out = await jsonAdapter.formatAsync!("{not json", {});
+  it("worker formatAsync never throws and falls back on invalid syntax", async () => {
+    const out = await getWorkerAdapter("json").formatAsync!("{not json", {});
     expect(typeof out.canonical).toBe("string");
   });
 });

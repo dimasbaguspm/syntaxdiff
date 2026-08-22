@@ -1,5 +1,5 @@
-import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, markupPrettierToggles } from "./code-format";
+import type { FormatOptions, FormatResult, LanguageAdapter } from "@/modules/engine/lib/types";
+import { markupFmtToggles } from "./code-format";
 
 function detectJsonc(input: string): number {
   const t = input.trimStart();
@@ -12,12 +12,17 @@ function detectJsonc(input: string): number {
   return 0;
 }
 
-export const jsoncAdapter: LanguageAdapter = makePrettierAdapter({
+/** Lenient canonicalization: trim only (comments/trailing commas allowed). */
+function jsoncCanonical(input: string, _opts: FormatOptions): FormatResult {
+  return { canonical: input.trim() };
+}
+
+export const jsoncAdapter: LanguageAdapter = {
   id: "jsonc",
   label: "JSONC",
-  parser: "jsonc",
-  prettierOptions: { tabWidth: 2, printWidth: 80 },
-  robust: (input, _opts) => ({ canonical: input.trim() }),
-  toggles: markupPrettierToggles,
+  fmtParser: "jsonc",
+  fmtOptions: { tabWidth: 2, printWidth: 80 },
   detect: detectJsonc,
-});
+  toggles: markupFmtToggles,
+  format: jsoncCanonical,
+};

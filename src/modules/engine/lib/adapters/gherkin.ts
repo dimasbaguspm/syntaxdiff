@@ -1,5 +1,5 @@
 import type { LanguageAdapter } from "@/modules/engine/lib/types";
-import { makePrettierAdapter, markupPrettierToggles } from "./code-format";
+import { markupFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectGherkin(input: string): number {
   const t = input.trimStart();
@@ -9,12 +9,12 @@ function detectGherkin(input: string): number {
   return 0;
 }
 
-export const gherkinAdapter: LanguageAdapter = makePrettierAdapter({
+export const gherkinAdapter: LanguageAdapter = {
   id: "gherkin",
   label: "Gherkin",
-  parser: "gherkin",
-  plugins: ["prettier-plugin-gherkin"],
-  prettierOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
-  toggles: markupPrettierToggles,
+  fmtParser: "gherkin",
+  fmtOptions: { printWidth: 80, tabWidth: 2, useTabs: false },
   detect: detectGherkin,
-});
+  toggles: markupFmtToggles,
+  format: (input, opts) => whitespaceCanonicalize(input, opts),
+};
