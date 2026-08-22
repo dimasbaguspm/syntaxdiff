@@ -15,9 +15,29 @@ export function Modal({
 }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    // scrim: same on every breakpoint, closes on tap
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-lg rounded-xl border border-edge-strong bg-surface p-5 shadow-[var(--shadow)]">
+      {/*
+        Responsive shell:
+        - mobile (< md): bottom sheet — full width, anchored to the bottom,
+          rounded top corners, slides up via the sheet-in keyframes.
+        - desktop (md+): centered dialog card (original look), fades/scales in.
+        Switching a quick DevTools responsive flip keeps the right one because
+        the layout is driven purely by the md: breakpoint classes.
+      */}
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        className={[
+          "relative w-full max-w-lg border border-edge-strong bg-surface shadow-[var(--shadow)]",
+          // mobile bottom sheet
+          "fixed inset-x-0 bottom-0 max-h-[90vh] overflow-auto rounded-t-2xl border-b-0 p-5 animate-sheet-in",
+          // desktop centered modal
+          "md:inset-auto md:static md:max-h-none md:rounded-xl md:border-b md:p-5 md:animate-modal-in",
+        ].join(" ")}
+      >
         <div className="mb-4 flex items-center justify-between border-b border-edge pb-3">
           <h2 className="text-base font-semibold text-ink">{title}</h2>
           <Button variant="ghost" onClick={onClose} aria-label="Close" className="p-1.5">
