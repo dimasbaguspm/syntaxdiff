@@ -42,12 +42,6 @@ export function LineNumberedTextarea({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onScroll={syncScroll}
-        // Allow file drops over the textarea to bubble to the parent Pane's
-        // onDrop handler. onDragOver prevents the browser from rejecting the
-        // drop; onDrop preventDefault stops the textarea's native file action
-        // (insert path / open file) so the event reaches the parent reader.
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={(e) => e.preventDefault()}
         placeholder={placeholder}
         spellCheck={false}
         className={`min-h-0 w-full flex-1 resize-none bg-transparent py-0 pl-3 pr-4 font-mono text-xs leading-[1.5] text-ink placeholder-faint focus:outline-none ${
