@@ -1,7 +1,7 @@
 {
   "name": "syntaxdiff",
   "private": false,
-  "version": "1.5.21",
+  "version": "1.5.22",
   "packageManager": "pnpm@10.34.5",
   "type": "module",
   "description": "Privacy-first, client-side syntax-aware diff tool (JSON, YAML, SQL, TOML, XML). Diffs structure, not bytes.",
