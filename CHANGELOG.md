@@ -1,3 +1,5 @@
+## [1.5.15](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.14...syntaxdiff_v1.5.15) (2026-08-22)
+
 ## [1.5.14](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.13...syntaxdiff_v1.5.14) (2026-08-22)
 
 ## [1.5.13](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.12...syntaxdiff_v1.5.13) (2026-08-22)
