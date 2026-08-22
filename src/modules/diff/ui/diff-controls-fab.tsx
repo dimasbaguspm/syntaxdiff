@@ -24,7 +24,7 @@ export function DiffControlsFab({ groupIdx, changeGroupsLen, goToGroup }: DiffCo
     <div
       role="group"
       aria-label={`Change navigation (${(groupIdx ?? 0) + 1} of ${changeGroupsLen})`}
-      className="fixed right-4 bottom-20 z-30 flex w-12 flex-col items-stretch gap-1 rounded-3xl border border-edge bg-surface/90 shadow-[var(--shadow)] backdrop-blur"
+      className="fixed right-4 bottom-20 z-30 flex flex-col items-stretch gap-1 rounded-3xl border border-edge bg-surface/90 shadow-[var(--shadow)] backdrop-blur"
     >
       <Tooltip label="Previous change">
         <Button
