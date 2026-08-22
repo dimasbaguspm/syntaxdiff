@@ -67,7 +67,8 @@ export function CompareView() {
         </div>
       </div>
 
-      <SplitPanes orientation="vertical" left={<Pane side="a" />} right={<Pane side="b" />} />
+      {/* Side-by-side on desktop; SplitPanes auto-stacks below 768px. */}
+      <SplitPanes orientation="horizontal" left={<Pane side="a" />} right={<Pane side="b" />} />
 
       <OptionsModal open={optionsOpen} onClose={closeOptions} adapter={adapter} />
     </div>

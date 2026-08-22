@@ -7,9 +7,9 @@ export type Orientation = "horizontal" | "vertical";
  *
  * - `orientation="horizontal"` (default): desktop is a horizontal split
  *   (drag left/right); on mobile (window.innerWidth < 768) it auto-stacks
- *   vertically for touch ergonomics.
- * - `orientation="vertical"`: always a vertical stack (drag up/down); used by
- *   the entry/compare page so Source A sits above Source B.
+ *   vertically for touch ergonomics. Used by both the diff page and the
+ *   entry/compare page (Source A beside Source B on desktop).
+ * - `orientation="vertical"`: always a vertical stack (drag up/down).
  */
 export function SplitPanes({
   left,
@@ -48,7 +48,8 @@ export function SplitPanes({
     const size = vertical ? rect.height : rect.width;
     if (size === 0) return;
     const pos = vertical ? e.clientY - rect.top : e.clientX - rect.left;
-    setRatio(Math.min(0.8, Math.max(0.2, pos / size)));
+    // Clamp lets a pane shrink to roughly its header-only size (~5%).
+    setRatio(Math.min(0.95, Math.max(0.05, pos / size)));
   };
 
   const stopDrag = (e: React.PointerEvent) => {

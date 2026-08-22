@@ -58,20 +58,32 @@ describe("SplitPanes", () => {
       y: 0,
       toJSON: () => ({}),
     } as DOMRect);
-    const { container } = render(<SplitPanes left={<div>l</div>} right={<div>r</div>} />);
-    const separator = container.querySelector('[role="separator"]')!;
-    const leftPane = container.firstElementChild!.children[0] as HTMLElement;
 
-    fireEvent.pointerDown(separator, { pointerId: 7 });
-    // A second finger lifting must NOT end the drag...
-    fireEvent.pointerUp(container.firstElementChild!, { pointerId: 99 });
-    expect(container.querySelector(".fixed.inset-0.touch-none")).not.toBeNull();
-    // ...and its moves must not resize panes.
-    fireEvent.pointerMove(container.firstElementChild!, { pointerId: 99, clientY: 40 });
-    expect(leftPane.style.flexBasis).toBe("50%");
+    const drive = (orientation: "horizontal" | "vertical", pointerId: number, coord: number) => {
+      const { container } = render(
+        <SplitPanes orientation={orientation} left={<div>l</div>} right={<div>r</div>} />,
+      );
+      const separator = container.querySelector('[role="separator"]')!;
+      const leftPane = container.firstElementChild!.children[0] as HTMLElement;
+      fireEvent.pointerDown(separator, { pointerId });
+      // A second finger lifting must NOT end the drag...
+      fireEvent.pointerUp(container.firstElementChild!, { pointerId: 99 });
+      expect(container.querySelector(".fixed.inset-0.touch-none")).not.toBeNull();
+      // ...and its moves must not resize panes.
+      const foreign = { pointerId: 99, clientX: coord, clientY: coord };
+      fireEvent.pointerMove(container.firstElementChild!, foreign);
+      expect(leftPane.style.flexBasis).toBe("50%");
+      // The initiating pointer still drives the ratio on the correct axis.
+      const own = { pointerId, clientX: coord, clientY: coord };
+      fireEvent.pointerMove(container.firstElementChild!, own);
+      return leftPane.style.flexBasis;
+    };
 
-    // The initiating pointer still drives the ratio (vertical: 40/200 = 20%).
-    fireEvent.pointerMove(container.firstElementChild!, { pointerId: 7, clientY: 40 });
-    expect(leftPane.style.flexBasis).toBe("20%");
+    // Horizontal: 40/100 = 40% (clamp is 5–95%, so the value passes through).
+    expect(drive("horizontal", 7, 40)).toBe("40%");
+    // Vertical: 40/200 = 20% (no longer floored at 20% — the old 0.2 floor is gone).
+    expect(drive("vertical", 7, 40)).toBe("20%");
+    // Horizontal dragged near the edge clamps at the new 5% lower bound.
+    expect(drive("horizontal", 7, 2)).toBe("5%");
   });
 });

@@ -1,10 +1,12 @@
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Columns2, FileDiff, Rows3 } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronUp, Columns2, FileDiff, Rows3 } from "lucide-react";
 import { getAdapter } from "@/modules/engine/lib";
 import { useStore } from "@/core/store";
 import { Icon } from "@/modules/engine/ui/language-icon";
 import { DiffView } from "@/modules/diff/ui/diff-view";
 import { useDiff } from "@/modules/diff/providers/context";
+import { computeChangeGroups } from "@/modules/diff/lib/change-groups";
 import { Button } from "@/components/button";
 import { Tooltip } from "@/components/tooltip";
 import { trackEvent } from "@/modules/analytics/lib/track";
@@ -16,6 +18,24 @@ export function DiffPageView() {
   const navigate = useNavigate();
   const mode = useStore((s) => s.mode);
   const setMode = useStore((s) => s.setMode);
+
+  // Line-by-line change navigation: groups of contiguous changed lines.
+  // null = nothing selected yet (view starts at the top, no auto-scroll).
+  const changeGroups = useMemo(() => (rec ? computeChangeGroups(rec.lines) : []), [rec]);
+  const [groupIdx, setGroupIdx] = useState<number | null>(null);
+
+  const goToGroup = (dir: -1 | 1) => {
+    const total = changeGroups.length;
+    if (total === 0) return;
+    // null means "before the first change" — first press lands on group 0.
+    const next = Math.min(total - 1, Math.max(0, (groupIdx ?? -1) + dir));
+    setGroupIdx(next);
+    trackEvent("diff_nav", {
+      dir: dir === -1 ? "prev" : "next",
+      group: next + 1,
+      total,
+    });
+  };
 
   if (rec === undefined) {
     return (
@@ -56,12 +76,49 @@ export function DiffPageView() {
           </Button>
         </Tooltip>
 
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-edge bg-surface-2 px-2.5 py-0.5 text-xs font-medium text-dim">
-          <Icon name={rec.lang} className="size-3.5" />
-          {adapter.label}
+        <span className="inline-flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-edge bg-surface-2 px-2.5 py-0.5 text-xs font-medium text-dim">
+            <Icon name={rec.lang} className="size-5" />
+            {adapter.label}
+          </span>
+          {/* Addition/deletion tally — reflows with the header on narrow screens. */}
+          <span className="text-xs tabular-nums">
+            <span className="text-[var(--tint-emerald-fg)]">+{rec.added}</span>{" "}
+            <span className="text-[var(--tint-rose-fg)]">−{rec.removed}</span>
+          </span>
         </span>
 
-        <div className="ml-auto flex items-center gap-1">
+        {changeGroups.length > 0 && (
+          <div className="ml-auto flex items-center gap-1">
+            <Tooltip label="Previous change">
+              <Button
+                variant="ghost"
+                onClick={() => goToGroup(-1)}
+                disabled={(groupIdx ?? 0) === 0}
+                aria-label="Previous change"
+                className="size-10 justify-center p-0"
+              >
+                <ChevronUp className="size-4" aria-hidden="true" />
+              </Button>
+            </Tooltip>
+            <span className="min-w-12 text-center text-xs text-dim tabular-nums" aria-live="polite">
+              {(groupIdx ?? 0) + 1} / {changeGroups.length}
+            </span>
+            <Tooltip label="Next change">
+              <Button
+                variant="ghost"
+                onClick={() => goToGroup(1)}
+                disabled={(groupIdx ?? 0) >= changeGroups.length - 1}
+                aria-label="Next change"
+                className="size-10 justify-center p-0"
+              >
+                <ChevronDown className="size-4" aria-hidden="true" />
+              </Button>
+            </Tooltip>
+          </div>
+        )}
+
+        <div className={`flex items-center gap-1 ${changeGroups.length > 0 ? "" : "ml-auto"}`}>
           <div className="flex items-center gap-0.5 rounded-lg border border-edge bg-surface-2/50 p-0.5">
             <Tooltip label="Split (side-by-side)">
               <Button
@@ -100,6 +157,8 @@ export function DiffPageView() {
           labelA={rec.labelA ?? "Source A"}
           labelB={rec.labelB ?? "Source B"}
           icon={rec.lang}
+          navIndex={groupIdx}
+          navStarts={changeGroups}
         />
       </div>
     </div>

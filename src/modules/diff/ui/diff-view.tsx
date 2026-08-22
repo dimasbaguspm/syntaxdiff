@@ -1,11 +1,11 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Braces } from "lucide-react";
 import type { DiffLine, LanguageId } from "@/modules/engine/lib/types";
 import type { ViewMode } from "@/core/store";
 import { useGutterWidth } from "@/hooks/use-gutter-width";
 import { Icon } from "@/modules/engine/ui/language-icon";
 import { SplitPanes } from "@/components/split-panes";
-import { useViewportHeight, windowSlice } from "@/modules/diff/lib/windowing";
+import { ROW_H, useViewportHeight, windowSlice } from "@/modules/diff/lib/windowing";
 
 function Pane({
   label,
@@ -85,11 +85,15 @@ function SplitView({
   labelA,
   labelB,
   icon,
+  navIndex,
+  navStarts,
 }: {
   lines: DiffLine[];
   labelA: string;
   labelB: string;
   icon?: LanguageId;
+  navIndex?: number | null;
+  navStarts?: readonly number[];
 }) {
   const aRef = useRef<HTMLDivElement>(null);
   const bRef = useRef<HTMLDivElement>(null);
@@ -106,6 +110,17 @@ function SplitView({
       setScrollTop(src.scrollTop);
     }
   };
+
+  // Change navigation: scroll BOTH pane containers to the active group's
+  // first line (fixed ROW_H keeps the mapping exact). Also runs on mount
+  // after a view toggle so the selection carries across split/unified.
+  useEffect(() => {
+    if (navIndex === null || navIndex === undefined) return;
+    const top = (navStarts?.[navIndex] ?? 0) * ROW_H;
+    for (const el of [aRef.current, bRef.current]) {
+      if (el) el.scrollTop = top;
+    }
+  }, [navIndex, navStarts]);
 
   return (
     <SplitPanes
@@ -141,13 +156,27 @@ function SplitView({
   );
 }
 
-function UnifiedView({ lines }: { lines: DiffLine[] }) {
+function UnifiedView({
+  lines,
+  navIndex,
+  navStarts,
+}: {
+  lines: DiffLine[];
+  navIndex?: number | null;
+  navStarts?: readonly number[];
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
   const viewportH = useViewportHeight(ref);
   useGutterWidth(ref, ".dv-gutter");
   const { start, end, padTop, padBottom } = windowSlice(lines.length, scrollTop, viewportH);
   const slice = lines.slice(start, end);
+
+  // Change navigation (single container — see SplitView note).
+  useEffect(() => {
+    if (navIndex === null || navIndex === undefined || !ref.current) return;
+    ref.current.scrollTop = (navStarts?.[navIndex] ?? 0) * ROW_H;
+  }, [navIndex, navStarts]);
 
   return (
     <div
@@ -188,6 +217,8 @@ export function DiffView({
   labelA = "Source A",
   labelB = "Source B",
   icon,
+  navIndex = null,
+  navStarts,
 }: {
   lines: DiffLine[];
   mode: ViewMode;
@@ -195,13 +226,24 @@ export function DiffView({
   labelB?: string;
   /** Optional language id for the Material Symbols pane icon. */
   icon?: LanguageId;
+  /** Active change-group index to scroll to; null = no navigation yet. */
+  navIndex?: number | null;
+  /** Start line index of each change group (see computeChangeGroups). */
+  navStarts?: readonly number[];
 }) {
   return (
     <div className="diff-view flex min-h-0 min-w-0 flex-1 flex-col bg-well">
       {mode === "split" ? (
-        <SplitView lines={lines} labelA={labelA} labelB={labelB} icon={icon} />
+        <SplitView
+          lines={lines}
+          labelA={labelA}
+          labelB={labelB}
+          icon={icon}
+          navIndex={navIndex}
+          navStarts={navStarts}
+        />
       ) : (
-        <UnifiedView lines={lines} />
+        <UnifiedView lines={lines} navIndex={navIndex} navStarts={navStarts} />
       )}
     </div>
   );
