@@ -33,7 +33,6 @@ export function DiffControlsFab({ groupIdx, changeGroupsLen, goToGroup }: DiffCo
             trackEvent("diff_prev_change");
             goToGroup(-1);
           }}
-          disabled={(groupIdx ?? 0) === 0}
           aria-label="Previous change"
           className="flex size-9 items-center justify-center rounded-2xl p-0"
         >
@@ -50,7 +49,6 @@ export function DiffControlsFab({ groupIdx, changeGroupsLen, goToGroup }: DiffCo
             trackEvent("diff_next_change");
             goToGroup(1);
           }}
-          disabled={(groupIdx ?? 0) >= changeGroupsLen - 1}
           aria-label="Next change"
           className="flex size-9 items-center justify-center rounded-2xl p-0"
         >

@@ -28,8 +28,9 @@ export function DiffPageView() {
   const goToGroup = (dir: -1 | 1) => {
     const total = changeGroups.length;
     if (total === 0) return;
-    // null means "before the first change" — first press lands on group 0.
-    const next = Math.min(total - 1, Math.max(0, (groupIdx ?? -1) + dir));
+    // Wrap around: 1 -> … -> n -> 1 (and backward n -> 1 -> n). For a single
+    // change this keeps the chevrons focused on that one diff (both land on 0).
+    const next = ((groupIdx ?? (dir === -1 ? total : -1)) + dir + total) % total;
     setGroupIdx(next);
     trackEvent("diff_nav", {
       dir: dir === -1 ? "prev" : "next",
