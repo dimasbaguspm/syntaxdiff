@@ -32,7 +32,7 @@ interface AppState {
   setLabelA(v: string): void;
   setLabelB(v: string): void;
   setLang(l: LangChoice): void;
-  setOpt(id: string, val: boolean | string): void;
+  setOpt(id: string, val: boolean | string | number): void;
   setMode(m: ViewMode): void;
   runStart(): void;
   runSuccess(r: DiffResult): void;

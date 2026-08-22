@@ -39,8 +39,17 @@ export { greet };`;
     });
   });
 
-  it("exposes the expected toggles", () => {
-    expect(jsAdapter.toggles.map((t) => t.id)).toEqual(["trimTrailing", "normalizeIndent"]);
+  it("exposes the expected Prettier toggles", () => {
+    expect(jsAdapter.toggles.map((t) => t.id)).toEqual([
+      "printWidth",
+      "tabWidth",
+      "useTabs",
+      "semi",
+      "singleQuote",
+      "trailingComma",
+      "bracketSpacing",
+      "arrowParens",
+    ]);
   });
 
   it("formatAsync applies real Prettier formatting (JS)", async () => {

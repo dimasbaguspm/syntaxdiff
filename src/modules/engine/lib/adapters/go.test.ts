@@ -7,6 +7,11 @@ describe("goAdapter", () => {
     expect(goAdapter.label).toBe("Go");
   });
 
+  it("is formatter-disabled (no pure-JS gofmt)", () => {
+    expect(goAdapter.formatterDisabled).toBe(true);
+    expect(goAdapter.formatAsync).toBeUndefined();
+  });
+
   it("detects Go with high confidence", () => {
     const sample = `package main
 
@@ -27,17 +32,5 @@ func main() {
     expect(goAdapter.format("package main\r\nfunc main() {}\t", {})).toEqual({
       canonical: "package main\nfunc main() {}",
     });
-  });
-
-  it("exposes the expected toggles", () => {
-    expect(goAdapter.toggles.map((t) => t.id)).toEqual(["trimTrailing", "normalizeIndent"]);
-  });
-
-  it("formatAsync canonicalizes Go (best-effort; no pure-JS gofmt)", async () => {
-    const out = await goAdapter.formatAsync!(
-      'package main\nfunc main(){\nfmt.Println("hi")\n}\n',
-      {},
-    );
-    expect(out.canonical).toBe('package main\nfunc main(){\n  fmt.Println("hi")\n}\n');
   });
 });

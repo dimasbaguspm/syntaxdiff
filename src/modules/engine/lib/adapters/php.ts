@@ -1,5 +1,5 @@
-import type { FormatOptions, LanguageAdapter } from "@/modules/engine/lib/types";
-import { codeToggles, formatCode, formatCodeAsync } from "./code-format";
+import type { LanguageAdapter } from "@/modules/engine/lib/types";
+import { codePrettierToggles, formatCode, makePrettierAdapter } from "./code-format";
 
 /** Heuristic confidence that `input` is PHP. */
 function detectPhp(input: string): number {
@@ -12,20 +12,18 @@ function detectPhp(input: string): number {
   return Math.min(1, Math.max(0, score));
 }
 
-export const phpAdapter: LanguageAdapter = {
+// NOTE (FE #12): `@prettier/plugin-php` needs the PHP binary at runtime. In a
+// browser/worker there is no PHP runtime, so `formatAsync` falls back to the
+// robust whitespace canonical text — documented best-effort rather than a
+// fabricated result. Enabled (not formatterDisabled) so the Format button stays
+// available; it simply no-ops the real formatter when the binary is absent.
+export const phpAdapter: LanguageAdapter = makePrettierAdapter({
   id: "php",
   label: "PHP",
-  detect(input: string): number {
-    return detectPhp(input);
-  },
-  toggles: [...codeToggles],
-  format(input: string, opts: FormatOptions) {
-    return formatCode(input, opts);
-  },
-  // NOTE (FE #12): `@prettier/plugin-php` requires the PHP binary at runtime
-  // (not worker/browser-friendly), so PHP uses the best-effort whitespace
-  // canonicalizer. `formatAsync` still resolves to the canonical text.
-  async formatAsync(input: string, opts: FormatOptions) {
-    return formatCodeAsync(input, opts, "php");
-  },
-};
+  parser: "php",
+  plugins: ["@prettier/plugin-php"],
+  prettierOptions: { printWidth: 80, tabWidth: 2 },
+  toggles: codePrettierToggles,
+  robust: (input, opts) => formatCode(input, opts),
+  detect: detectPhp,
+});

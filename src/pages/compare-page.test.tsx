@@ -122,4 +122,25 @@ describe("ComparePage", () => {
     expect(useStore.getState().snack?.type).toBe("success");
     expect(useStore.getState().snack?.message).toContain("Valid JSON");
   });
+
+  it("disables Format for formatter-disabled languages (ruby/kotlin/rust/glimmer)", () => {
+    for (const lang of ["ruby", "kotlin", "rust", "glimmer"] as const) {
+      useStore.setState({ a: "x", b: "y", lang });
+      renderCompare();
+      const formatButtons = screen.getAllByRole("button", { name: /Format/i });
+      expect(formatButtons.length).toBe(2);
+      formatButtons.forEach((btn) => expect(btn).toBeDisabled());
+      cleanup();
+    }
+  });
+
+  it("formats JSON via the async formatter and shows a success snack", async () => {
+    useStore.setState({ a: '{"b":1,"a":2}', lang: "json" });
+    renderCompare();
+    const [formatButton] = screen.getAllByRole("button", { name: /Format/i });
+    fireEvent.click(formatButton);
+    await waitFor(() => {
+      expect(useStore.getState().snack?.message).toContain("Formatted as JSON");
+    });
+  });
 });

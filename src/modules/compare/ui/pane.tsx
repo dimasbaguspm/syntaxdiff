@@ -1,9 +1,10 @@
 import { useRef, useState, type ReactNode } from "react";
-import { AlignLeft, CheckCircle2, ScrollText, Upload, XCircle } from "lucide-react";
+import { AlignLeft, CheckCircle2, Loader2, ScrollText, Upload, XCircle } from "lucide-react";
 import { useCompare, type Side } from "@/modules/compare/providers/context";
 import { Icon } from "@/modules/engine/ui/language-icon";
 import { Button } from "@/components/button";
 import { Tooltip } from "@/components/tooltip";
+import { Spinner } from "@/components/ui";
 import { LineNumberedTextarea } from "@/components/line-numbered-textarea";
 import { TextInput, HiddenInput } from "@/components/inputs";
 
@@ -14,7 +15,7 @@ const PLACEHOLDER: Record<Side, string> = {
 
 /** Presentational source pane — all behaviour comes from the compare context. */
 export function Pane({ side, children }: { side: Side; children?: ReactNode }) {
-  const { getPane, validateSide, formatSide } = useCompare();
+  const { getPane, validateSide, formatSide, adapter, formatting, validating } = useCompare();
   const pane = getPane(side);
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -62,6 +63,9 @@ export function Pane({ side, children }: { side: Side; children?: ReactNode }) {
           {pane.status === "invalid" && (
             <XCircle className="size-3 text-[var(--tint-rose-fg)]" aria-hidden />
           )}
+          {pane.status === "loading" && (
+            <Loader2 className="size-3 animate-spin text-accent" aria-hidden />
+          )}
         </span>
         <div className="ml-auto flex items-center gap-0.5">
           <Tooltip label="Upload / drop a file">
@@ -80,18 +84,20 @@ export function Pane({ side, children }: { side: Side; children?: ReactNode }) {
               onClick={() => validateSide(side)}
               aria-label="Validate syntax"
               className="p-1"
+              disabled={validating[side]}
             >
-              <ScrollText className="size-4" aria-hidden />
+              {validating[side] ? <Spinner /> : <ScrollText className="size-4" aria-hidden />}
             </Button>
           </Tooltip>
-          <Tooltip label="Format">
+          <Tooltip label={adapter.formatterDisabled ? "Formatting unavailable" : "Format"}>
             <Button
               variant="ghost"
               onClick={() => formatSide(side)}
               aria-label="Format"
               className="p-1"
+              disabled={adapter.formatterDisabled || formatting[side]}
             >
-              <AlignLeft className="size-4" aria-hidden />
+              {formatting[side] ? <Spinner /> : <AlignLeft className="size-4" aria-hidden />}
             </Button>
           </Tooltip>
           {children}

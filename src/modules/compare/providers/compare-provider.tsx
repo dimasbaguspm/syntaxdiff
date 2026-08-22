@@ -40,6 +40,8 @@ export function CompareProvider({ children }: { children: ReactNode }) {
   const showSnack = useStore((s) => s.showSnack);
 
   const [optionsOpen, setOptionsOpen] = useState(false);
+  const [formatting, setFormatting] = useState<Record<Side, boolean>>({ a: false, b: false });
+  const [validating, setValidating] = useState<Record<Side, boolean>>({ a: false, b: false });
 
   const adapter = useMemo(
     () => (lang === "auto" ? autoDetect(a || b) : getAdapter(lang as LanguageId)),
@@ -92,8 +94,9 @@ export function CompareProvider({ children }: { children: ReactNode }) {
       });
   };
 
-  const validate = (side: Side) => {
+  const validate = async (side: Side) => {
     const value = sides[side].value;
+    setValidating((s) => ({ ...s, [side]: true }));
     try {
       adapter.format(value, eOpts);
       showSnack(`Valid ${adapter.label}`, "success");
@@ -102,19 +105,29 @@ export function CompareProvider({ children }: { children: ReactNode }) {
       showSnack(`Invalid ${adapter.label}: ${(e as Error).message}`, "error");
       logError(e, "validate failed", { lang: adapter.id });
       trackEvent("validate", { lang: adapter.id, ok: "false" });
+    } finally {
+      setValidating((s) => ({ ...s, [side]: false }));
     }
   };
 
-  const formatPane = (side: Side) => {
+  const formatPane = async (side: Side) => {
     const { value, set } = sides[side];
+    setFormatting((s) => ({ ...s, [side]: true }));
     try {
-      set(adapter.format(value, eOpts).canonical);
+      // Real (Prettier) formatting when available; otherwise the robust
+      // whitespace canonicalizer. Both run async so the UI can show a spinner.
+      const out = await (adapter.formatAsync
+        ? adapter.formatAsync(value, eOpts)
+        : Promise.resolve(adapter.format(value, eOpts)));
+      set(out.canonical);
       showSnack(`Formatted as ${adapter.label}`, "success");
       trackEvent("format", { lang: adapter.id, ok: "true" });
     } catch (e) {
       showSnack((e as Error).message, "error");
       logError(e, "format failed", { lang: adapter.id });
       trackEvent("format", { lang: adapter.id, ok: "false" });
+    } finally {
+      setFormatting((s) => ({ ...s, [side]: false }));
     }
   };
 
@@ -182,6 +195,8 @@ export function CompareProvider({ children }: { children: ReactNode }) {
     compare: onCompare,
     validateSide: validate,
     formatSide: formatPane,
+    formatting,
+    validating,
   };
 
   return <CompareContext.Provider value={value}>{children}</CompareContext.Provider>;

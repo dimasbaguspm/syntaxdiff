@@ -5,6 +5,8 @@ export function languageFromExtension(name: string): LanguageId | undefined {
   const ext = name.split(".").pop()?.toLowerCase();
   switch (ext) {
     case "json":
+    case "json5":
+    case "jsonc":
       return "json";
     case "yaml":
     case "yml":
@@ -16,7 +18,32 @@ export function languageFromExtension(name: string): LanguageId | undefined {
     case "toml":
       return "toml";
     case "xml":
-      return "xml";
+    case "html":
+    case "htm":
+    case "css":
+    case "scss":
+    case "less":
+    case "md":
+    case "markdown":
+    case "mdx":
+    case "vue":
+    case "svelte":
+    case "astro":
+    case "graphql":
+    case "gql":
+    case "go":
+    case "php":
+    case "rb":
+    case "rs":
+    case "kt":
+    case "java":
+    case "ts":
+    case "jsx":
+    case "tsx":
+    case "sh":
+    case "bash":
+    case "conf":
+      return undefined;
     default:
       return undefined;
   }

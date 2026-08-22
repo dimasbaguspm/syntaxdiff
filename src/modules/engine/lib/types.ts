@@ -5,7 +5,10 @@
 
 export type LanguageId =
   | "json"
+  | "json5"
+  | "jsonc"
   | "yaml"
+  | "yml"
   | "sql"
   | "csv"
   | "toml"
@@ -14,20 +17,42 @@ export type LanguageId =
   | "ts"
   | "go"
   | "php"
+  | "ruby"
+  | "rust"
+  | "kotlin"
+  | "java"
+  | "html"
+  | "css"
+  | "less"
+  | "scss"
+  | "markdown"
+  | "mdx"
+  | "vue"
+  | "angular"
+  | "svelte"
+  | "astro"
+  | "graphql"
+  | "gherkin"
+  | "handlebars"
+  | "pug"
+  | "go-template"
+  | "nginx"
+  | "sh"
+  | "glimmer"
   | "plain";
 
 /** A language-specific UI option, rendered from the adapter itself. */
 export interface ToggleDef {
   id: string;
   label: string;
-  /** "boolean" renders a switch (default); "select" renders a dropdown. */
-  type?: "boolean" | "select";
+  /** "boolean" renders a switch (default); "select" a dropdown; "number" a number input. */
+  type?: "boolean" | "select" | "number";
   /** Choices for type === "select". */
   options?: string[];
-  default?: boolean | string;
+  default?: boolean | string | number;
 }
 
-export type FormatOptions = Record<string, boolean | string | undefined>;
+export type FormatOptions = Record<string, boolean | string | number | undefined>;
 
 export interface FormatResult {
   /** Canonical, normalized text used for diffing (and display). */
@@ -43,12 +68,32 @@ export interface LanguageAdapter {
   /** Parse + canonicalize `input`. Throws `ParseError` on invalid input. */
   format(input: string, opts: FormatOptions): FormatResult;
   /**
-   * Async canonicalization that may apply a real, heavy formatter (e.g.
-   * Prettier for JS/TS) with worker offload for large inputs. Optional; when
-   * present it complements the synchronous `format()` (which is robust,
-   * never-throwing, and always available for the diff pipeline).
+   * Async canonicalization that applies a real, heavy formatter (Prettier,
+   * run inside the engine Web Worker) on top of the robust synchronous
+   * `format()`. Optional; when present it complements `format()` and is what
+   * actually makes trivial style diffs vanish. When absent (e.g. for
+   * `formatterDisabled` languages) the diff uses the robust canonical text.
    */
   formatAsync?(input: string, opts: FormatOptions): Promise<FormatResult>;
+  /**
+   * Prettier parser name (e.g. "babel", "json", "xml"). When set, the engine
+   * applies Prettier via `formatAsync` instead of the sync-only canonicalizer.
+   */
+  prettierParser?: string;
+  /**
+   * Prettier plugin module specifiers (npm ids) or already-resolved plugin
+   * objects, dynamically imported only inside `formatAsync` (lazy, code-split).
+   */
+  prettierPlugins?: Array<string | import("prettier").Plugin>;
+  /** Default Prettier options, overridden per-key by matching `opts` entries. */
+  prettierOptions?: Record<string, unknown>;
+  /**
+   * True when no robust, browser/worker-friendly formatter exists (e.g. Ruby
+   * needs its runtime binary, Kotlin/Rust plugins crash vs prettier 3.6.2,
+   * Glimmer has no npm package). The Format button is disabled; the diff uses
+   * the whitespace-only canonical text.
+   */
+  formatterDisabled?: boolean;
 }
 
 export class ParseError extends Error {

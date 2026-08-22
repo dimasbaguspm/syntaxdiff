@@ -30,6 +30,9 @@ export interface CompareContextValue {
   compare: () => void;
   validateSide: (side: Side) => void;
   formatSide: (side: Side) => void;
+  /** True while a pane is being formatted / validated (async spinner). */
+  formatting: Record<Side, boolean>;
+  validating: Record<Side, boolean>;
 }
 
 export const CompareContext = createContext<CompareContextValue | null>(null);

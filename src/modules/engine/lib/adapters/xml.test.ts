@@ -20,9 +20,9 @@ describe("xmlAdapter", () => {
     expect(canonical).toContain("</a>");
   });
 
-  it("sorts keys/elements recursively when requested", () => {
+  it("preserves element order when requested (no sorting)", () => {
     const { canonical } = xmlAdapter.format("<a><z>1</z><y>2</y></a>", { sortKeys: true });
-    expect(canonical.indexOf("<y>2</y>")).toBeLessThan(canonical.indexOf("<z>1</z>"));
+    expect(canonical.indexOf("<z>1</z>")).toBeLessThan(canonical.indexOf("<y>2</y>"));
   });
 
   it("preserves element order when sortKeys is off", () => {

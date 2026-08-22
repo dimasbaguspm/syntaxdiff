@@ -1,5 +1,5 @@
-import type { FormatOptions, LanguageAdapter } from "@/modules/engine/lib/types";
-import { codeToggles, formatCode, formatCodeAsync } from "./code-format";
+import type { LanguageAdapter } from "@/modules/engine/lib/types";
+import { codePrettierToggles, formatCode, makePrettierAdapter } from "./code-format";
 
 /** Heuristic confidence that `input` is JavaScript (not TypeScript). */
 function detectJs(input: string): number {
@@ -16,18 +16,12 @@ function detectJs(input: string): number {
   return Math.min(1, Math.max(0, score));
 }
 
-export const jsAdapter: LanguageAdapter = {
+export const jsAdapter: LanguageAdapter = makePrettierAdapter({
   id: "js",
   label: "JavaScript",
-  detect(input: string): number {
-    return detectJs(input);
-  },
-  toggles: [...codeToggles],
-  format(input: string, opts: FormatOptions) {
-    return formatCode(input, opts);
-  },
-  // Real formatter pass (Prettier `babel`); see `formatCodeAsync`.
-  async formatAsync(input: string, opts: FormatOptions) {
-    return formatCodeAsync(input, opts, "js");
-  },
-};
+  parser: "babel",
+  prettierOptions: { semi: true, singleQuote: false, printWidth: 80, tabWidth: 2 },
+  toggles: codePrettierToggles,
+  robust: (input, opts) => formatCode(input, opts),
+  detect: detectJs,
+});

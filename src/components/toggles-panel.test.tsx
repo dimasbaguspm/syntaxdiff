@@ -14,7 +14,7 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 describe("TogglesPanel", () => {
-  it("renders a checkbox per adapter toggle", () => {
+  it("renders a control per adapter toggle", () => {
     useStore.setState({ opts: {} });
     render(<TogglesPanel adapter={jsonAdapter} />);
     expect(jsonAdapter.toggles.length).toBeGreaterThan(0);
@@ -23,29 +23,28 @@ describe("TogglesPanel", () => {
     }
   });
 
-  it("reflects the store opts value on the checkbox", () => {
-    useStore.setState({ opts: { prettify: false, minify: true } });
+  it("reflects the store opts value on the control", () => {
+    useStore.setState({ opts: { minify: true, useTabs: true } });
     render(<TogglesPanel adapter={jsonAdapter} />);
-    expect(screen.getByLabelText("Prettify")).not.toBeChecked();
     expect(screen.getByLabelText("Minify")).toBeChecked();
-    // not in opts -> falls back to default (sortKeys now defaults true)
-    expect(screen.getByLabelText("Alphabetize keys (recursive)")).toBeChecked();
+    expect(screen.getByLabelText("Indent with tabs")).toBeChecked();
   });
 
   it("falls back to the toggle default when opts has no entry", () => {
     useStore.setState({ opts: {} });
     render(<TogglesPanel adapter={jsonAdapter} />);
-    // prettify defaults to true
-    expect(screen.getByLabelText("Prettify")).toBeChecked();
+    // `minify` has no default and `useTabs` defaults to false.
+    expect(screen.getByLabelText("Minify")).not.toBeChecked();
+    expect(screen.getByLabelText("Indent with tabs")).not.toBeChecked();
   });
 
   it("calls setOpt on change and updates the store", () => {
-    useStore.setState({ opts: { prettify: false } });
+    useStore.setState({ opts: { minify: false } });
     render(<TogglesPanel adapter={jsonAdapter} />);
-    const prettify = screen.getByLabelText("Prettify");
-    expect(prettify).not.toBeChecked();
-    fireEvent.click(prettify);
-    expect(useStore.getState().opts.prettify).toBe(true);
+    const minify = screen.getByLabelText("Minify");
+    expect(minify).not.toBeChecked();
+    fireEvent.click(minify);
+    expect(useStore.getState().opts.minify).toBe(true);
   });
 
   it("renders a dialect dropdown for SQL and updates the store", () => {
@@ -54,7 +53,7 @@ describe("TogglesPanel", () => {
     const select = screen.getByLabelText("Dialect");
     expect(select.tagName).toBe("SELECT");
     fireEvent.change(select, { target: { value: "postgresql" } });
-    expect(useStore.getState().opts.dialect).toBe("postgresql");
+    expect(useStore.getState().opts.language).toBe("postgresql");
   });
 
   it("shows a no-options message when the adapter has no toggles", () => {

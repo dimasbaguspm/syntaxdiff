@@ -29,8 +29,17 @@ function getUser<T>(id: T): Promise<User> {
     });
   });
 
-  it("exposes the expected toggles", () => {
-    expect(tsAdapter.toggles.map((t) => t.id)).toEqual(["trimTrailing", "normalizeIndent"]);
+  it("exposes the expected Prettier toggles", () => {
+    expect(tsAdapter.toggles.map((t) => t.id)).toEqual([
+      "printWidth",
+      "tabWidth",
+      "useTabs",
+      "semi",
+      "singleQuote",
+      "trailingComma",
+      "bracketSpacing",
+      "arrowParens",
+    ]);
   });
 
   it("formatAsync applies real Prettier formatting (TS)", async () => {

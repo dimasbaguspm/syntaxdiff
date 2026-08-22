@@ -1,7 +1,7 @@
 import type { LanguageAdapter } from "@/modules/engine/lib";
 import { useStore } from "@/core/store";
 import { trackEvent } from "@/modules/analytics/lib/track";
-import { SelectInput, SwitchInput } from "@/components/inputs";
+import { NumberInput, SelectInput, SwitchInput } from "@/components/inputs";
 
 export function TogglesPanel({ adapter }: { adapter: LanguageAdapter }) {
   const opts = useStore((s) => s.opts);
@@ -13,6 +13,29 @@ export function TogglesPanel({ adapter }: { adapter: LanguageAdapter }) {
         <span className="text-xs text-faint">No options for {adapter.label}.</span>
       ) : (
         adapter.toggles.map((t) => {
+          if (t.type === "number") {
+            const raw = opts[t.id];
+            const value = typeof raw === "number" ? raw : Number(t.default ?? 0);
+            return (
+              <label
+                key={t.id}
+                className="flex items-center justify-between gap-3"
+                htmlFor={`opt-${t.id}`}
+              >
+                <span className="text-sm text-ink">{t.label}</span>
+                <NumberInput
+                  id={`opt-${t.id}`}
+                  value={value}
+                  min={0}
+                  onChange={(e) => {
+                    const v = e.target.value === "" ? (t.default ?? 0) : Number(e.target.value);
+                    setOpt(t.id, v);
+                    trackEvent("option_change", { id: t.id, value: String(v) });
+                  }}
+                />
+              </label>
+            );
+          }
           if (t.type === "select") {
             const value = (opts[t.id] as string) ?? t.default ?? t.options?.[0] ?? "";
             return (
