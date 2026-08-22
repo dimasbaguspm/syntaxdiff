@@ -259,11 +259,6 @@ mark {
 .dv-row.empty {
   background: var(--well);
 }
-/* Placeholder glyph for the opposite side of a del/add so the gap row is
-   never a blank void (keeps it aligned with the changed line). */
-.dv-row.empty .dv-line {
-  color: var(--faint);
-}
 /* Unified view: single column with marker */
 .u-row {
   display: flex;

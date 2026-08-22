@@ -78,17 +78,18 @@ describe("DiffPage", () => {
     expect(screen.getByText("−7")).toBeInTheDocument();
   });
 
-  it("starts change navigation at group 1 of N with Prev disabled", async () => {
+  it("starts change navigation at group 1 of N with both chevrons enabled", async () => {
     const id = await saveDiff(makeRecord({ lines: CHANGED_LINES }));
     renderDiff(`/diff/${id}`);
     const prev = await screen.findByRole("button", { name: "Previous change" });
     const next = screen.getByRole("button", { name: "Next change" });
-    expect(prev).toBeDisabled();
+    // Chevrons are always enabled (wrap-around), even at the first group.
+    expect(prev).toBeEnabled();
     expect(next).toBeEnabled();
     expect(screen.getByText("1 / 2")).toBeInTheDocument();
   });
 
-  it("clamps Next at the last group and hides navigation without changes", async () => {
+  it("wraps change navigation around (no clamp, no disable) and hides without changes", async () => {
     const noChanges = await saveDiff(makeRecord({ lines: CHANGED_LINES.slice(0, 1) }));
     const { unmount } = renderDiff(`/diff/${noChanges}`);
     expect(await screen.findByText("JSON")).toBeInTheDocument();
@@ -97,10 +98,22 @@ describe("DiffPage", () => {
 
     const id = await saveDiff(makeRecord({ lines: CHANGED_LINES }));
     renderDiff(`/diff/${id}`);
-    fireEvent.click(await screen.findByRole("button", { name: "Next change" }));
-    fireEvent.click(screen.getByRole("button", { name: "Next change" })); // clamp at 2 / 2
+    const prev = await screen.findByRole("button", { name: "Previous change" });
+    const next = screen.getByRole("button", { name: "Next change" });
+    // Both always enabled (wrap-around).
+    expect(prev).toBeEnabled();
+    expect(next).toBeEnabled();
+    // null start: first Next lands on group 1 (1/2).
+    fireEvent.click(next);
+    expect(screen.getByText("1 / 2")).toBeInTheDocument();
+    // Second Next -> 2/2.
+    fireEvent.click(next);
     expect(screen.getByText("2 / 2")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Next change" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Previous change" })).toBeEnabled();
+    // Third Next wraps back to 1/2.
+    fireEvent.click(next);
+    expect(screen.getByText("1 / 2")).toBeInTheDocument();
+    // Prev from 1/2 wraps to 2/2.
+    fireEvent.click(prev);
+    expect(screen.getByText("2 / 2")).toBeInTheDocument();
   });
 });
