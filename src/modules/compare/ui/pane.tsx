@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AlignLeft, CheckCircle2, Loader2, Upload, XCircle } from "lucide-react";
 import { useCompare, type Side } from "@/modules/compare/providers/context";
 import { Icon } from "@/modules/engine/ui/language-icon";
+import { trackEvent } from "@/modules/analytics/lib/track";
 import { Button } from "@/components/button";
 import { Tooltip } from "@/components/tooltip";
 import { Spinner } from "@/components/ui";
@@ -24,6 +25,9 @@ export function Pane({ side, children }: { side: Side; children?: ReactNode }) {
 
   const read = (file: File | undefined, method: "drop" | "button") => {
     if (!file) return;
+    // Guarantee the source's zustand state updates for this side on import.
+    if (method === "drop") trackEvent("compare_file_drop", { name: file.name, size: file.size });
+    else trackEvent("compare_file_upload", { name: file.name, size: file.size });
     pane.onImportFile(file, method);
   };
 
