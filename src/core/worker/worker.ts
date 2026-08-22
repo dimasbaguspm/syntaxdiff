@@ -1,6 +1,11 @@
+import { installWebWorkerShims } from "./web-worker-shims";
 import { canonicalize, runDiff } from "@/core/worker/diff-runner";
 import { getWorkerAdapter } from "@/core/worker/prettier-adapters";
 import type { DiffResult, FormatOptions, LanguageId } from "@/modules/engine/lib/types";
+
+// Install the minimal Node-global shims (notably `process`) the formatter
+// plugins expect before any plugin is dynamically imported.
+installWebWorkerShims();
 
 export interface DiffRequest {
   id: number;
