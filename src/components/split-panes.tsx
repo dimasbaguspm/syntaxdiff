@@ -72,9 +72,11 @@ export function SplitPanes({
     ? "flex min-h-0 flex-1 flex-col"
     : "flex min-h-0 flex-1 flex-col md:flex-row";
   // A vertical split is resized up/down, so the separator is a horizontal bar.
+  // Mobile touch target is enlarged (h-7 = 28px) so it's easy to grab; desktop
+  // stays the slim 8px divider with a column cursor.
   const dividerClassName = isVertical
-    ? "relative z-10 flex h-4 w-full shrink-0 cursor-row-resize touch-none select-none items-center justify-center bg-edge transition-colors hover:bg-edge-strong"
-    : "relative z-10 flex h-4 shrink-0 cursor-row-resize touch-none select-none items-center justify-center bg-edge transition-colors hover:bg-edge-strong md:h-auto md:w-2 md:cursor-col-resize";
+    ? "relative z-10 flex h-7 w-full shrink-0 cursor-row-resize touch-none select-none items-center justify-center bg-edge transition-colors hover:bg-edge-strong"
+    : "relative z-10 flex h-7 shrink-0 cursor-row-resize touch-none select-none items-center justify-center bg-edge transition-colors hover:bg-edge-strong md:h-2 md:w-2 md:cursor-col-resize";
   const dividerHandleClassName = isVertical
     ? "h-0.5 w-10 rounded-full bg-edge-strong"
     : "h-0.5 w-10 rounded-full bg-edge-strong md:h-10 md:w-0.5";
