@@ -1,3 +1,15 @@
+## [1.5.25](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.24...syntaxdiff_v1.5.25) (2026-08-22)
+
+
+### Bug Fixes
+
+* **ui:** enlarge mobile split-pane divider touch target ([#29](https://github.com/dimasbaguspm/syntaxdiff/issues/29)) ([bfd35a7](https://github.com/dimasbaguspm/syntaxdiff/commit/bfd35a7196f526d9b60f2e7654d782d5d7a9ab26))
+
+
+### Features
+
+* **ui:** responsive Modal — bottom sheet on mobile, centered dialog on desktop ([#28](https://github.com/dimasbaguspm/syntaxdiff/issues/28)) ([b38da1d](https://github.com/dimasbaguspm/syntaxdiff/commit/b38da1d85b653494700b1176af0d63a512bbf117))
+
 ## [1.5.24](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.23...syntaxdiff_v1.5.24) (2026-08-22)
 
 
