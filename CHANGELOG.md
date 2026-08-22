@@ -1,3 +1,10 @@
+## [1.5.24](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.23...syntaxdiff_v1.5.24) (2026-08-22)
+
+
+### Bug Fixes
+
+* **engine:** restore SqlLanguage return type + CI PR verify gate ([#26](https://github.com/dimasbaguspm/syntaxdiff/issues/26)) ([55ce89e](https://github.com/dimasbaguspm/syntaxdiff/commit/55ce89ed873fbded582f9ca5df567aae1ad9980d)), closes [#24](https://github.com/dimasbaguspm/syntaxdiff/issues/24) [#24-class](https://github.com/dimasbaguspm/syntaxdiff/issues/24-class)
+
 ## [1.5.23](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.22...syntaxdiff_v1.5.23) (2026-08-22)
 
 
