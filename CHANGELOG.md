@@ -1,3 +1,10 @@
+## [1.5.23](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.22...syntaxdiff_v1.5.23) (2026-08-22)
+
+
+### Bug Fixes
+
+* **release:** drop conventionalcommits preset from notes/changelog writers ([#25](https://github.com/dimasbaguspm/syntaxdiff/issues/25)) ([0bb51ab](https://github.com/dimasbaguspm/syntaxdiff/commit/0bb51ab958f1a67c7bb0e4865aba4b685901b3d1))
+
 ## [1.5.22](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.21...syntaxdiff_v1.5.22) (2026-08-22)
 
 ### Features
