@@ -13,17 +13,23 @@ import { CompareView } from "@/modules/compare/ui/compare-view";
  */
 export function ComparePage() {
   useEffect(() => {
+    // CRITICAL: preventDefault on BOTH dragover and drop, unconditionally.
+    // The browser only allows a drop when dragover.preventDefault() ran —
+    // if we gate it behind a `types.includes("Files")` check, that check can
+    // be empty/null during dragover and the prevent never happens, so the
+    // browser opens the file and our pane handlers never fire (no logs, no
+    // network, no store update). Unconditional preventDefault is the
+    // bulletproof pattern for file-drop zones.
     const prevent = (e: DragEvent) => {
-      // Only block drops that carry files — leave text/link drags alone.
-      if (e.dataTransfer?.types?.includes("Files")) {
-        e.preventDefault();
-      }
+      e.preventDefault();
     };
-    window.addEventListener("dragover", prevent);
-    window.addEventListener("drop", prevent);
+    // Capture phase so it beats any other listener and runs before the
+    // browser's default file-open.
+    window.addEventListener("dragover", prevent, { capture: true });
+    window.addEventListener("drop", prevent, { capture: true });
     return () => {
-      window.removeEventListener("dragover", prevent);
-      window.removeEventListener("drop", prevent);
+      window.removeEventListener("dragover", prevent, { capture: true });
+      window.removeEventListener("drop", prevent, { capture: true });
     };
   }, []);
 
