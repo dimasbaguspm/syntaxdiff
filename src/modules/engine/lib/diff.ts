@@ -43,6 +43,21 @@ export function computeDiff(
   const oB = applyOptsDefaults(adapter, optsB);
   const canonicalA = adapter.format(a, oA).canonical;
   const canonicalB = adapter.format(b, oB).canonical;
+  return computeDiffCanonical(canonicalA, canonicalB, lang);
+}
+
+/**
+ * Diff two already-canonicalized texts (the async formatting pass having
+ * already run in the engine worker). Builds the unified patch and structured
+ * line rows. Kept separate from `computeDiff` so the worker can feed it
+ * fully-formatted canonical text without re-running `format()`.
+ */
+export function computeDiffCanonical(
+  canonicalA: string,
+  canonicalB: string,
+  lang: LanguageId,
+): DiffResult {
+  const adapter = getAdapter(lang);
   // Use the SAME file name for both sides so the patch has no rename.
   const patch = createTwoFilesPatch("diff", "diff", canonicalA, canonicalB, "", "", {
     context: 3,

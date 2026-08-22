@@ -1,9 +1,15 @@
-import { computeDiff } from "@/modules/engine/lib";
+import { installWebWorkerShims } from "./web-worker-shims";
+import { canonicalize, runDiff } from "@/core/worker/diff-runner";
+import { getWorkerAdapter } from "@/core/worker/prettier-adapters";
 import type { DiffResult, FormatOptions, LanguageId } from "@/modules/engine/lib/types";
-import { createFormatterClient } from "./formatter-client";
+
+// Install the minimal Node-global shims (notably `process`) the formatter
+// plugins expect before any plugin is dynamically imported.
+installWebWorkerShims();
 
 export interface DiffRequest {
   id: number;
+  kind: "diff";
   a: string;
   b: string;
   lang: LanguageId;
@@ -11,28 +17,55 @@ export interface DiffRequest {
   optsB: FormatOptions;
 }
 
-export type DiffResponse = { id: number; result: DiffResult } | { id: number; error: string };
-
-// Real formatter for JS/TS, offloaded to a dedicated worker for large inputs.
-// Created lazily (the nested worker is only built if the environment allows
-// it; otherwise `createFormatterClient` falls back to inline formatting).
-const formatter = createFormatterClient();
-
-async function preFormat(code: string, lang: LanguageId, opts: FormatOptions): Promise<string> {
-  if (lang !== "js" && lang !== "ts") return code;
-  if (opts.useFormatter === false) return code;
-  const parser = lang === "ts" ? "babel-ts" : "babel";
-  const out = await formatter.format(code, parser);
-  return out ?? code;
+export interface FormatRequest {
+  id: number;
+  kind: "format";
+  text: string;
+  lang: LanguageId;
+  opts: FormatOptions;
 }
 
-self.onmessage = async (e: MessageEvent<DiffRequest>) => {
-  const { id, a, b, lang, optsA, optsB } = e.data;
+export type WorkerRequest = DiffRequest | FormatRequest;
+
+export interface FormatResponse {
+  id: number;
+  kind: "format";
+  text: string;
+}
+
+export type WorkerResponse =
+  | { id: number; kind: "diff"; result: DiffResult }
+  | { id: number; kind: "diff"; error: string }
+  | FormatResponse
+  | { id: number; kind: "format"; error: string };
+
+// The engine worker offloads the (async, heavy-formatter) canonicalization off
+// the main thread. The formatter runtime lives entirely in this worker graph —
+// the main entry never imports it (see `prettier-runtime.ts` /
+// `prettier-adapters.ts`).
+self.onmessage = async (e: MessageEvent<WorkerRequest>) => {
+  const msg = e.data;
   try {
-    const [fa, fb] = await Promise.all([preFormat(a, lang, optsA), preFormat(b, lang, optsB)]);
-    const result = computeDiff(fa, fb, lang, optsA, optsB);
-    self.postMessage({ id, result } satisfies DiffResponse);
+    if (msg.kind === "format") {
+      const adapter = getWorkerAdapter(msg.lang);
+      const text = await canonicalize(msg.text, adapter, msg.opts);
+      self.postMessage({ id: msg.id, kind: "format", text } satisfies FormatResponse);
+      return;
+    }
+    const result = await runDiff({
+      a: msg.a,
+      b: msg.b,
+      lang: msg.lang,
+      optsA: msg.optsA,
+      optsB: msg.optsB,
+    });
+    self.postMessage({ id: msg.id, kind: "diff", result } satisfies WorkerResponse);
   } catch (err) {
-    self.postMessage({ id, error: (err as Error).message } satisfies DiffResponse);
+    const message = (err as Error).message ?? String(err);
+    const response: WorkerResponse =
+      msg.kind === "format"
+        ? { id: msg.id, kind: "format", error: message }
+        : { id: msg.id, kind: "diff", error: message };
+    self.postMessage(response);
   }
 };

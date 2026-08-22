@@ -14,10 +14,14 @@ import jsIcon from "@material-symbols/svg-400/outlined/javascript.svg";
 import tsIcon from "@material-symbols/svg-400/outlined/code.svg";
 import goIcon from "@material-symbols/svg-400/outlined/deployed_code.svg";
 import phpIcon from "@material-symbols/svg-400/outlined/code_blocks.svg";
+import codeIcon from "@material-symbols/svg-400/outlined/code.svg";
 
 const ICONS: Record<LanguageId, string> = {
   json: jsonIcon,
+  json5: jsonIcon,
+  jsonc: jsonIcon,
   yaml: yamlIcon,
+  yml: yamlIcon,
   sql: sqlIcon,
   csv: csvIcon,
   toml: tomlIcon,
@@ -27,6 +31,28 @@ const ICONS: Record<LanguageId, string> = {
   ts: tsIcon,
   go: goIcon,
   php: phpIcon,
+  ruby: codeIcon,
+  rust: codeIcon,
+  kotlin: codeIcon,
+  java: codeIcon,
+  html: codeIcon,
+  css: codeIcon,
+  less: codeIcon,
+  scss: codeIcon,
+  markdown: yamlIcon,
+  mdx: codeIcon,
+  vue: codeIcon,
+  angular: codeIcon,
+  svelte: codeIcon,
+  astro: codeIcon,
+  graphql: codeIcon,
+  gherkin: codeIcon,
+  handlebars: codeIcon,
+  pug: codeIcon,
+  "go-template": codeIcon,
+  nginx: codeIcon,
+  sh: codeIcon,
+  glimmer: codeIcon,
 };
 
 export interface IconProps extends React.ImgHTMLAttributes<HTMLImageElement> {

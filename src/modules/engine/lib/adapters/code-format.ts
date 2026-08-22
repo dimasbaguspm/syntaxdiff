@@ -1,17 +1,9 @@
-import type { FormatOptions, LanguageId } from "@/modules/engine/lib/types";
+import type { FormatOptions, FormatResult, ToggleDef } from "@/modules/engine/lib/types";
 
 export interface CodeFormatOpts {
   trimTrailing?: boolean;
   normalizeIndent?: boolean;
 }
-
-/** Inputs longer than this many lines are offloaded to a dedicated formatter
- *  Web Worker (see `src/core/worker/formatter-client.ts`); smaller inputs are
- *  formatted inline to avoid the worker round-trip. */
-export const FORMATTER_LINE_THRESHOLD = 200;
-
-/** Prettier parsers we support. `babel` for JS, `babel-ts` for TS. */
-export type PrettierParser = "babel" | "babel-ts";
 
 /** Normalize line endings to `\n` and (optionally) trim trailing whitespace. */
 export function normalizeWhitespace(input: string, opts: CodeFormatOpts): string {
@@ -53,9 +45,16 @@ export function reindent(input: string): string | null {
   return out.join("\n");
 }
 
-/** Default canonicalization for code languages: trim + optional reindent.
- *  This is the always-available, NEVER-throwing path used by `format()`. */
-export function formatCode(input: string, opts: FormatOptions): { canonical: string } {
+/**
+ * Default canonicalization for code languages: trim + optional reindent.
+ *
+ * This is the always-available, NEVER-throwing synchronous baseline that runs
+ * on the main thread (validation) and inside the worker (diff pipeline). The
+ * heavy async formatting pass is attached worker-side only — see the adapter
+ * wiring under `src/core/worker` — so nothing in the main-thread module
+ * graph pulls in a formatter runtime.
+ */
+export function formatCode(input: string, opts: FormatOptions): FormatResult {
   const trim = opts.trimTrailing !== false;
   const normalize = opts.normalizeIndent !== false;
   let canonical = normalizeWhitespace(input, { trimTrailing: trim });
@@ -71,72 +70,47 @@ export function formatCode(input: string, opts: FormatOptions): { canonical: str
 }
 
 /**
- * Real formatter pass via Prettier (loaded lazily so it never bloats the
- * cold-start of the synchronous `format()` path). Returns the formatted text,
- * or `null` when Prettier is unavailable or rejects (e.g. invalid syntax) so
- * callers can fall back to `formatCode`.
- *
- * NOTE: Prettier 3's `format` is async-only — there is no synchronous API. The
- * engine's canonicalization pipeline is intentionally synchronous (it runs
- * inside a Web Worker and in vitest, and `format()` must never throw), so the
- * real Prettier pass lives on the async `formatCodeAsync` path and is
- * offloaded to a dedicated formatter worker for large inputs. See the module
- * header in `src/core/worker/formatter-client.ts`.
+ * Whitespace-only canonicalization shared by data langs and formatter-disabled
+ * languages: normalize line endings + trim trailing whitespace. No parse, no
+ * reindent — never throws.
  */
-export async function formatWithPrettier(
-  code: string,
-  parser: PrettierParser,
-): Promise<string | null> {
-  try {
-    const prettier = await import("prettier");
-    return await prettier.format(code, {
-      parser,
-      semi: true,
-      singleQuote: false,
-      printWidth: 80,
-      tabWidth: 2,
-    });
-  } catch {
-    return null;
-  }
+export function whitespaceCanonicalize(input: string, opts: FormatOptions): FormatResult {
+  const canonical = normalizeWhitespace(input, { trimTrailing: opts.trimTrailing !== false });
+  return { canonical };
 }
 
-/**
- * Canonicalization that layers the real Prettier formatter on top of the
- * robust whitespace canonicalizer. `format()` stays synchronous & never
- * throws; this async variant is what actually applies Prettier so trivial
- * style diffs vanish.
- *
- * - JS/TS: Prettier (`babel` / `babel-ts`) — real formatting.
- * - Go/PHP: no robust, worker-friendly pure-JS formatter exists (gofmt has no
- *   reliable JS port; `@prettier/plugin-php` needs the PHP binary at runtime).
- *   We keep the best-effort whitespace canonicalizer and document the
- *   limitation rather than fabricate a result.
- *
- * Always resolves; on any failure it returns the robust canonical text.
- */
-export async function formatCodeAsync(
-  input: string,
-  opts: FormatOptions,
-  lang: LanguageId,
-): Promise<{ canonical: string }> {
-  // Robust, synchronous, never-throwing baseline.
-  const robust = formatCode(input, opts).canonical;
+/** Shared option toggles for code languages (applied by the worker-side pass). */
+export const codeFmtToggles: ToggleDef[] = [
+  { id: "printWidth", label: "Print width", type: "number", default: 80 },
+  { id: "tabWidth", label: "Tab width", type: "number", default: 2 },
+  { id: "useTabs", label: "Indent with tabs", default: false },
+  { id: "semi", label: "Semicolons", default: true },
+  { id: "singleQuote", label: "Single quotes", default: false },
+  {
+    id: "trailingComma",
+    label: "Trailing comma",
+    type: "select",
+    options: ["all", "es5", "none"],
+    default: "all",
+  },
+  { id: "bracketSpacing", label: "Bracket spacing", default: true },
+  {
+    id: "arrowParens",
+    label: "Arrow parens",
+    type: "select",
+    options: ["always", "avoid"],
+    default: "always",
+  },
+];
 
-  // `useFormatter` defaults to true; opt out via opts.useFormatter === false.
-  if (opts.useFormatter === false) return { canonical: robust };
+/** Option toggles for whitespace-sensitive markup (no quote/semicolon opts). */
+export const markupFmtToggles: ToggleDef[] = [
+  { id: "printWidth", label: "Print width", type: "number", default: 80 },
+  { id: "tabWidth", label: "Tab width", type: "number", default: 2 },
+  { id: "useTabs", label: "Indent with tabs", default: false },
+];
 
-  if (lang === "js" || lang === "ts") {
-    const parser: PrettierParser = lang === "ts" ? "babel-ts" : "babel";
-    const pretty = await formatWithPrettier(robust, parser);
-    return { canonical: pretty ?? robust };
-  }
-
-  // Go / PHP: best-effort only (documented limitation).
-  return { canonical: robust };
-}
-
-/** Shared toggle set for code-language adapters. */
+/** Shared toggle set for code-language adapters (kept for compatibility). */
 export const codeToggles = [
   { id: "trimTrailing", label: "Trim trailing whitespace", default: true },
   { id: "normalizeIndent", label: "Normalize indentation", default: true },

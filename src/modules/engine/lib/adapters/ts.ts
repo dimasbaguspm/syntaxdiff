@@ -1,5 +1,5 @@
-import type { FormatOptions, LanguageAdapter } from "@/modules/engine/lib/types";
-import { codeToggles, formatCode, formatCodeAsync } from "./code-format";
+import type { LanguageAdapter } from "@/modules/engine/lib/types";
+import { codeFmtToggles, formatCode } from "./code-format";
 
 /** Heuristic confidence that `input` is TypeScript. */
 function detectTs(input: string): number {
@@ -17,15 +17,9 @@ function detectTs(input: string): number {
 export const tsAdapter: LanguageAdapter = {
   id: "ts",
   label: "TypeScript",
-  detect(input: string): number {
-    return detectTs(input);
-  },
-  toggles: [...codeToggles],
-  format(input: string, opts: FormatOptions) {
-    return formatCode(input, opts);
-  },
-  // Real formatter pass (Prettier `babel-ts`); see `formatCodeAsync`.
-  async formatAsync(input: string, opts: FormatOptions) {
-    return formatCodeAsync(input, opts, "ts");
-  },
+  fmtParser: "babel-ts",
+  fmtOptions: { semi: true, singleQuote: false, printWidth: 80, tabWidth: 2 },
+  detect: detectTs,
+  toggles: codeFmtToggles,
+  format: (input, opts) => formatCode(input, opts),
 };

@@ -36,6 +36,7 @@ export function CompareView() {
           {adapters.map((ad) => (
             <option key={ad.id} value={ad.id}>
               {ad.label}
+              {ad.formatterDisabled ? " (no formatter)" : ""}
             </option>
           ))}
         </SelectInput>

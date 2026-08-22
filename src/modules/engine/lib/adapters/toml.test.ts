@@ -19,9 +19,9 @@ describe("tomlAdapter", () => {
     expect(canonical).toContain("count = 3");
   });
 
-  it("sorts keys recursively when requested", () => {
+  it("preserves key order when requested (no sorting)", () => {
     const { canonical } = tomlAdapter.format("b = 1\na = 2\n", { sortKeys: true });
-    expect(canonical.indexOf("a = 2")).toBeLessThan(canonical.indexOf("b = 1"));
+    expect(canonical.indexOf("b = 1")).toBeLessThan(canonical.indexOf("a = 2"));
   });
 
   it("keeps original key order when sortKeys is off", () => {

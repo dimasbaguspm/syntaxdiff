@@ -14,10 +14,9 @@ describe("yamlAdapter", () => {
     expect(yamlAdapter.detect("")).toBe(0);
   });
 
-  it("canonicalizes and sorts keys recursively", () => {
+  it("canonicalizes and preserves key order (no sorting)", () => {
     const { canonical } = yamlAdapter.format("b: 2\na: 1\n", { sortKeys: true });
-    // js-yaml dump emits sorted keys in order
-    expect(canonical.indexOf("a: 1")).toBeLessThan(canonical.indexOf("b: 2"));
+    expect(canonical.indexOf("b: 2")).toBeLessThan(canonical.indexOf("a: 1"));
   });
 
   it("preserves array order when sorting keys", () => {

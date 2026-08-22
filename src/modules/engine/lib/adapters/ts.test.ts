@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { getWorkerAdapter } from "@/core/worker/prettier-adapters";
 import { tsAdapter } from "@/modules/engine/lib/adapters/ts";
 
 describe("tsAdapter", () => {
@@ -29,17 +30,29 @@ function getUser<T>(id: T): Promise<User> {
     });
   });
 
-  it("exposes the expected toggles", () => {
-    expect(tsAdapter.toggles.map((t) => t.id)).toEqual(["trimTrailing", "normalizeIndent"]);
+  it("exposes the expected formatting toggles", () => {
+    expect(tsAdapter.toggles.map((t) => t.id)).toEqual([
+      "printWidth",
+      "tabWidth",
+      "useTabs",
+      "semi",
+      "singleQuote",
+      "trailingComma",
+      "bracketSpacing",
+      "arrowParens",
+    ]);
   });
 
-  it("formatAsync applies real Prettier formatting (TS)", async () => {
-    const out = await tsAdapter.formatAsync!("const x:number=1;interface A{b:string}", {});
+  it("worker formatAsync applies real formatting (TS)", async () => {
+    const out = await getWorkerAdapter("ts").formatAsync!(
+      "const x:number=1;interface A{b:string}",
+      {},
+    );
     expect(out.canonical).toBe("const x: number = 1;\ninterface A {\n  b: string;\n}\n");
   });
 
-  it("formatAsync reindents unformatted TS via Prettier", async () => {
-    const out = await tsAdapter.formatAsync!("if(x){\nconsole.log(x)\n}", {});
+  it("worker formatAsync reindents unformatted TS", async () => {
+    const out = await getWorkerAdapter("ts").formatAsync!("if(x){\nconsole.log(x)\n}", {});
     expect(out.canonical).toBe("if (x) {\n  console.log(x);\n}\n");
   });
 });

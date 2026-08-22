@@ -6,7 +6,10 @@ describe("adapters", () => {
     const ids = adapters.map((a) => a.id);
     expect(ids).toEqual([
       "json",
+      "json5",
+      "jsonc",
       "yaml",
+      "yml",
       "sql",
       "csv",
       "toml",
@@ -15,8 +18,37 @@ describe("adapters", () => {
       "ts",
       "go",
       "php",
+      "ruby",
+      "rust",
+      "kotlin",
+      "java",
+      "html",
+      "css",
+      "less",
+      "scss",
+      "markdown",
+      "mdx",
+      "vue",
+      "angular",
+      "svelte",
+      "astro",
+      "graphql",
+      "gherkin",
+      "handlebars",
+      "pug",
+      "go-template",
+      "nginx",
+      "sh",
+      "glimmer",
       "plain",
     ]);
+  });
+
+  it("every adapter declares a parser or is formatter-disabled", () => {
+    for (const a of adapters) {
+      if (a.id === "plain") continue;
+      expect(a.fmtParser !== undefined || a.formatterDisabled === true).toBe(true);
+    }
   });
 });
 

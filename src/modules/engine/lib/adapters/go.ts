@@ -1,5 +1,5 @@
-import type { FormatOptions, LanguageAdapter } from "@/modules/engine/lib/types";
-import { codeToggles, formatCode, formatCodeAsync } from "./code-format";
+import type { LanguageAdapter } from "@/modules/engine/lib/types";
+import { formatCode } from "./code-format";
 
 /** Heuristic confidence that `input` is Go. */
 function detectGo(input: string): number {
@@ -14,20 +14,16 @@ function detectGo(input: string): number {
   return Math.min(1, Math.max(0, score));
 }
 
+// NOTE (FE #12): gofmt has no robust, worker-friendly pure-JS port, so Go is
+// formatter-disabled — the diff uses the robust whitespace canonical text and
+// there is no user-facing async formatter.
 export const goAdapter: LanguageAdapter = {
   id: "go",
   label: "Go",
-  detect(input: string): number {
-    return detectGo(input);
-  },
-  toggles: [...codeToggles],
-  format(input: string, opts: FormatOptions) {
-    return formatCode(input, opts);
-  },
-  // NOTE (FE #12): gofmt has no robust, worker-friendly pure-JS port, so Go
-  // uses the best-effort whitespace canonicalizer rather than a fabricated
-  // "real" formatter. `formatAsync` still resolves to the canonical text.
-  async formatAsync(input: string, opts: FormatOptions) {
-    return formatCodeAsync(input, opts, "go");
-  },
+  // No built-in parser; formatterDisabled short-circuits the worker pass.
+  fmtParser: "go",
+  formatterDisabled: true,
+  detect: detectGo,
+  toggles: [],
+  format: (input, opts) => formatCode(input, opts),
 };

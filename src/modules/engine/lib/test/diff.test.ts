@@ -3,27 +3,26 @@ import { computeDiff } from "@/modules/engine/lib/diff";
 import { getAdapter } from "@/modules/engine/lib/registry";
 
 describe("computeDiff", () => {
-  it("key reorder with sortKeys is a zero-change structural diff", () => {
+  it("key reorder is now a real (structural) diff — key order is preserved", () => {
     const a = '{"name":"M","age":30,"roles":["a","b"]}';
     const b = '{"roles":["a","b"],"age":30,"name":"M"}';
     const r = computeDiff(a, b, "json", { sortKeys: true }, { sortKeys: true });
     expect(r.language).toBe("json");
-    expect(r.counts.added).toBe(0);
-    expect(r.counts.removed).toBe(0);
+    expect(r.counts.added + r.counts.removed).toBeGreaterThan(0);
   });
 
-  it("applies adapter defaults so key reorder is a zero-change diff by default", () => {
+  it("key reorder with no sort option is a real diff by default", () => {
     const a = '{"name":"M","age":30}';
     const b = '{"age":30,"name":"M"}'; // reordered keys, same structure
     const r = computeDiff(a, b, "json", {}, {});
-    expect(r.counts.added + r.counts.removed).toBe(0);
+    expect(r.counts.added + r.counts.removed).toBeGreaterThan(0);
   });
 
-  it("applies defaults so TOML key reorder is a zero-change diff by default", () => {
+  it("TOML key reorder is a real diff (key order preserved)", () => {
     const a = `[database]\nserver = "192.168.1.1"\nports = [8000, 8001, 8002]\nconnection_max = 5000\n`;
     const b = `[database]\nconnection_max = 5000\nports = [8000, 8001, 8002]\nserver = "192.168.1.1"\n`;
     const r = computeDiff(a, b, "toml", {}, {});
-    expect(r.counts.added + r.counts.removed).toBe(0);
+    expect(r.counts.added + r.counts.removed).toBeGreaterThan(0);
   });
 
   it("reports only inline TOML changes, not whole-block noise", () => {
