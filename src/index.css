@@ -350,3 +350,34 @@ mark {
 .u-scroll .dv-gutter {
   border-right: none;
 }
+
+/* ------------------------------------------------------------------ */
+/* Responsive modal — mobile bottom sheet + desktop centered dialog   */
+/* ------------------------------------------------------------------ */
+
+/* Mobile: bottom sheet slides up from the bottom edge. */
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Desktop: centered dialog fades + gently scales in. */
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@theme {
+  --animate-sheet-in: sheet-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-modal-in: modal-in 0.18s ease-out;
+}
