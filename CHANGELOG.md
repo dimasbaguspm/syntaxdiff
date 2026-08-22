@@ -1,24 +1,68 @@
 ## [1.5.20](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.19...syntaxdiff_v1.5.20) (2026-08-22)
 
+### Bug Fixes
+
+- **release:** repair writer-opts + semver docker tags ([#22](https://github.com/dimasbaguspm/syntaxdiff/issues/22))
+
 ## [1.5.19](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.18...syntaxdiff_v1.5.19) (2026-08-22)
+
+### Bug Fixes
+
+- **frontend:** file drop via react-dropzone ([#21](https://github.com/dimasbaguspm/syntaxdiff/issues/21))
 
 ## [1.5.18](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.17...syntaxdiff_v1.5.18) (2026-08-22)
 
+### Bug Fixes
+
+- **frontend:** unconditional window drag guard for file drop ([#20](https://github.com/dimasbaguspm/syntaxdiff/issues/20))
+
 ## [1.5.17](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.16...syntaxdiff_v1.5.17) (2026-08-22)
+
+### Bug Fixes
+
+- **frontend:** window-level drop guard + drop tracking ([#19](https://github.com/dimasbaguspm/syntaxdiff/issues/19))
 
 ## [1.5.16](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.15...syntaxdiff_v1.5.16) (2026-08-22)
 
+### Bug Fixes
+
+- **frontend:** file-drop via native container listeners ([#18](https://github.com/dimasbaguspm/syntaxdiff/issues/18))
+
 ## [1.5.15](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.14...syntaxdiff_v1.5.15) (2026-08-22)
+
+### Bug Fixes
+
+- **frontend:** file-drop on textarea, eye highlight toggle, FAB width ([#17](https://github.com/dimasbaguspm/syntaxdiff/issues/17))
 
 ## [1.5.14](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.13...syntaxdiff_v1.5.14) (2026-08-22)
 
+### Bug Fixes
+
+- **frontend:** file-drop on textarea + diff highlight toggle + FAB tweak ([#16](https://github.com/dimasbaguspm/syntaxdiff/issues/16))
+
 ## [1.5.13](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.12...syntaxdiff_v1.5.13) (2026-08-22)
+
+### Features
+
+- **frontend:** language icon color, diff gap revert, FAB wrap-around ([#15](https://github.com/dimasbaguspm/syntaxdiff/issues/15))
 
 ## [1.5.12](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.11...syntaxdiff_v1.5.12) (2026-08-22)
 
+### Features
+
+- **frontend:** UI polish round 3 — language dim, FAB rounding, diff gap, SearchInput ([#14](https://github.com/dimasbaguspm/syntaxdiff/issues/14))
+
 ## [1.5.11](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.10...syntaxdiff_v1.5.11) (2026-08-22)
 
+### Features
+
+- **frontend:** UI polish — language accent, FAB spacing, changelog layout, nav tracking ([#13](https://github.com/dimasbaguspm/syntaxdiff/issues/13))
+
 ## [1.5.10](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.9...syntaxdiff_v1.5.10) (2026-08-22)
+
+### Features
+
+- **frontend:** mobile UX fixes round 2 (T1–T6) ([#12](https://github.com/dimasbaguspm/syntaxdiff/issues/12))
 
 # Changelog
 
