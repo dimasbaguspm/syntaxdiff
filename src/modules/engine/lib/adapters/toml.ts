@@ -2,6 +2,7 @@ import { parse, stringify } from "smol-toml";
 import { ParseError } from "@/modules/engine/lib/types";
 import type { FormatOptions, FormatResult, LanguageAdapter } from "@/modules/engine/lib/types";
 import { markupFmtToggles } from "./code-format";
+import { TOML_KEY_VALUE, TOML_TABLE, tryParse } from "./shared-detect";
 
 /** Parse + re-serialize WITHOUT key-sort (key order preserved). Throws on
  *  invalid TOML. */
@@ -18,14 +19,10 @@ function tomlCanonical(input: string, _opts: FormatOptions): FormatResult {
 function detectToml(input: string): number {
   const t = input.trimStart();
   if (!t) return 0;
-  // `key = value`, `[table]`, or `[["array.of.tables"]]`
-  if (/^[A-Za-z0-9_-]+(\.[A-Za-z0-9_-]+)*\s*=/m.test(t) || /^\[{1,2}[\w. -]+\]{1,2}/m.test(t)) {
-    try {
-      parse(input);
-      return 1;
-    } catch {
-      return 0.3;
-    }
+  // `key = value`, `[table]`, or `[[array.of.tables]]`
+  if (TOML_KEY_VALUE.test(t) || TOML_TABLE.test(t)) {
+    if (tryParse(input, parse) !== undefined) return 1;
+    return 0.3;
   }
   return 0;
 }

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { trackEvent } from "@/modules/analytics/lib/track";
+import { __drain, __queueLength } from "@/modules/analytics/lib/otel";
 
 function fakeUmami() {
   const track = vi.fn();
@@ -18,6 +19,8 @@ describe("trackEvent", () => {
 
   afterEach(() => {
     delete (window as unknown as { umami?: unknown }).umami;
+    // Clear any enqueued OTLP records so the batch sender stays clean.
+    __drain();
   });
 
   it("calls window.umami.track with the event name", () => {
@@ -52,5 +55,15 @@ describe("trackEvent", () => {
 
   it("is a no-op when no umami tracker is present", () => {
     expect(() => trackEvent("click")).not.toThrow();
+  });
+
+  it("enqueues the event for batched OTLP delivery", () => {
+    fakeUmami();
+    trackEvent("rendered");
+    // The event should be queued (not sent immediately).
+    expect(__queueLength()).toBe(1);
+    const [queued] = __drain();
+    expect(queued.level).toBe("info");
+    expect(queued.body).toBe("event:rendered");
   });
 });
