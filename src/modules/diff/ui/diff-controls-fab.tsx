@@ -1,6 +1,7 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/button";
 import { Tooltip } from "@/components/tooltip";
+import { trackEvent } from "@/modules/analytics/lib/track";
 
 export type DiffControlsFabProps = {
   /** Selected change-group index; null = none selected yet (view at top). */
@@ -23,29 +24,35 @@ export function DiffControlsFab({ groupIdx, changeGroupsLen, goToGroup }: DiffCo
     <div
       role="group"
       aria-label={`Change navigation (${(groupIdx ?? 0) + 1} of ${changeGroupsLen})`}
-      className="fixed right-4 bottom-4 z-30 flex flex-col items-center gap-0.5 rounded-2xl border border-edge bg-surface/90 p-1.5 shadow-[var(--shadow)] backdrop-blur"
+      className="fixed right-4 bottom-20 z-30 flex w-12 flex-col items-stretch gap-1 rounded-2xl border border-edge bg-surface/90 p-1.5 shadow-[var(--shadow)] backdrop-blur"
     >
       <Tooltip label="Previous change">
         <Button
           variant="ghost"
-          onClick={() => goToGroup(-1)}
+          onClick={() => {
+            trackEvent("diff_prev_change");
+            goToGroup(-1);
+          }}
           disabled={(groupIdx ?? 0) === 0}
           aria-label="Previous change"
-          className="size-10 justify-center p-0"
+          className="size-9 justify-center p-0"
         >
           <ChevronUp className="size-4" aria-hidden="true" />
         </Button>
       </Tooltip>
-      <span className="min-w-10 text-center text-xs text-dim tabular-nums" aria-live="polite">
+      <span className="text-center text-xs text-dim tabular-nums" aria-live="polite">
         {(groupIdx ?? 0) + 1} / {changeGroupsLen}
       </span>
       <Tooltip label="Next change">
         <Button
           variant="ghost"
-          onClick={() => goToGroup(1)}
+          onClick={() => {
+            trackEvent("diff_next_change");
+            goToGroup(1);
+          }}
           disabled={(groupIdx ?? 0) >= changeGroupsLen - 1}
           aria-label="Next change"
-          className="size-10 justify-center p-0"
+          className="size-9 justify-center p-0"
         >
           <ChevronDown className="size-4" aria-hidden="true" />
         </Button>
