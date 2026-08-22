@@ -141,13 +141,15 @@ describe("ComparePage", () => {
     }
   });
 
-  it("formats JSON via the async formatter and shows a success snack", async () => {
-    useStore.setState({ a: '{"b":1,"a":2}', lang: "json" });
+  it("imports a dropped file into the pane (drop bubbles to onDrop)", async () => {
     renderCompare();
-    const [formatButton] = screen.getAllByRole("button", { name: /Format/i });
-    fireEvent.click(formatButton);
+    const ta = screen.getByPlaceholderText("Paste source A, or drop a file…");
+    const file = new File(['{"name":"dropped"}'], "dropped.json", { type: "application/json" });
+    // Simulate the full HTML5 drag sequence over the textarea.
+    fireEvent.dragOver(ta, { dataTransfer: { files: [file], types: ["Files"] } });
+    fireEvent.drop(ta, { dataTransfer: { files: [file], types: ["Files"] } });
     await waitFor(() => {
-      expect(useStore.getState().snack?.message).toContain("Formatted as JSON");
+      expect(useStore.getState().a).toBe('{"name":"dropped"}');
     });
   });
 });

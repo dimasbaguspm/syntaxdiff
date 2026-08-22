@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Columns2, FileDiff, Rows3 } from "lucide-react";
+import { ArrowLeft, Columns2, Eye, EyeOff, FileDiff, Rows3 } from "lucide-react";
 import { getAdapter } from "@/modules/engine/lib";
 import { useStore } from "@/core/store";
 import { Icon } from "@/modules/engine/ui/language-icon";
@@ -10,7 +10,6 @@ import { useDiff } from "@/modules/diff/providers/context";
 import { computeChangeGroups } from "@/modules/diff/lib/change-groups";
 import { Button } from "@/components/button";
 import { Tooltip } from "@/components/tooltip";
-import { Switch } from "@/components/switch";
 import { trackEvent } from "@/modules/analytics/lib/track";
 import { Spinner } from "@/components/ui";
 
@@ -95,19 +94,25 @@ export function DiffPageView() {
 
         {changeGroups.length > 0 && (
           <div className="ml-auto flex items-center gap-1">
-            {/* Highlight toggle: enable/disable add/delete coloring in the editor. */}
-            <Tooltip label={highlight ? "Highlight on" : "Highlight off"}>
-              <span className="flex items-center gap-1.5 rounded-lg border border-edge bg-surface-2/50 px-2 py-1">
-                <span className="text-xs text-dim">Highlight</span>
-                <Switch
-                  checked={highlight}
-                  onChange={(v) => {
-                    setHighlight(v);
-                    trackEvent("toggle_highlight", { on: v });
-                  }}
-                  aria-label="Toggle diff highlight"
-                />
-              </span>
+            {/* Highlight toggle: show/hide add/delete coloring (eye open = on). */}
+            <Tooltip label={highlight ? "Hide highlight" : "Show highlight"}>
+              <Button
+                variant={highlight ? "segment" : "ghost"}
+                onClick={() => {
+                  const next = !highlight;
+                  setHighlight(next);
+                  trackEvent("toggle_highlight", { on: next });
+                }}
+                aria-label={highlight ? "Hide diff highlight" : "Show diff highlight"}
+                aria-pressed={highlight}
+                className="p-1.5"
+              >
+                {highlight ? (
+                  <Eye className="size-4" aria-hidden="true" />
+                ) : (
+                  <EyeOff className="size-4" aria-hidden="true" />
+                )}
+              </Button>
             </Tooltip>
             <div className="flex items-center gap-0.5 rounded-lg border border-edge bg-surface-2/50 p-0.5">
               <Tooltip label="Split (side-by-side)">
