@@ -3,14 +3,63 @@ name: CI
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: read
-  packages: write
+
+# Skip the image build/push entirely on PRs; run it on main only after
+# the verify gate passes. On PRs, verify runs standalone.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build-and-push:
+  verify:
+    name: Verify (fmt / lint / types / build / test)
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Format check (oxfmt)
+        run: pnpm exec oxfmt --check src vite.config.ts vitest.config.ts
+
+      - name: Lint (oxlint)
+        run: pnpm exec oxlint --vue-plugin .
+
+      - name: Types (tsc)
+        run: pnpm exec tsc -b --noEmit
+
+      - name: Build (vite)
+        run: pnpm exec vite build
+
+      - name: Test (vitest)
+        run: pnpm exec vitest run
+
+  build-and-push:
+    name: Build and push image
+    needs: verify
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
