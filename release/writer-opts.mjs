@@ -1,41 +1,10 @@
-// Custom writerOpts for @semantic-release/release-notes-generator /
-// @semantic-release/changelog. The bundled `conventionalcommits` preset was
-// emitting header-only CHANGELOG entries (no `### Features`/`### Bug Fixes`)
-// for this repo, leaving every release since 1.5.3 an empty shell. This module
-// forces type→section grouping so future releases always populate bodies.
-export const writerOpts = {
-  transform: (commit, _context) => {
-    const discard = true;
-    const entry = findType(commit.type);
-    if (discard && (entry === undefined || (entry && entry.hidden))) {
-      return undefined;
-    }
-    const type = entry ? entry.section : commit.type;
-    let subject = commit.subject || commit.header || "";
-    if (typeof subject === "string") {
-      subject = subject.replace(/\(#\d+\)(\s*\(#\d+\))*\s*$/g, "").trim();
-    }
-    return {
-      type,
-      scope: commit.scope === "*" ? "" : commit.scope || "",
-      subject,
-      hash: commit.hash,
-      shortHash: typeof commit.hash === "string" ? commit.hash.substring(0, 7) : commit.shortHash,
-      references: commit.references || [],
-      notes: commit.notes || [],
-    };
-  },
-  groupBy: "type",
-  commitGroupsSort: (a, b) => sectionRank(a.title) - sectionRank(b.title),
-  commitsSort: ["scope", "subject"],
-};
-
-const SECTION_ORDER = ["Features", "Bug Fixes", "Performance Improvements", "Reverts", "Code Refactoring", "Documentation", "Tests", "Build System", "Continuous Integration", "Miscellaneous Chores"];
-
-function sectionRank(title) {
-  const i = SECTION_ORDER.indexOf(title);
-  return i === -1 ? SECTION_ORDER.length : i;
-}
+// release/writer-opts.mjs
+// Custom writerOpts for @semantic-release/release-notes-generator +
+// @semantic-release/changelog. Forces type→section grouping so CHANGELOG bodies
+// populate (otherwise releases are header-only with no commit descriptions).
+// Wire in .releaserc.json for BOTH plugins:
+//   ["@semantic-release/release-notes-generator", { "preset": "conventionalcommits", "writerOpts": "./release/writer-opts.mjs" }]
+//   ["@semantic-release/changelog", { "changelogFile": "CHANGELOG.md", "preset": "conventionalcommits", "writerOpts": "./release/writer-opts.mjs" }]
 
 const TYPES = [
   { type: "feat", section: "Features", hidden: false },
@@ -51,7 +20,41 @@ const TYPES = [
   { type: "chore", section: "Miscellaneous Chores", hidden: true },
 ];
 
-function findType(type) {
-  if (!type) return undefined;
-  return TYPES.find((t) => t.type === String(type).toLowerCase());
-}
+const SECTION_ORDER = [
+  "Features", "Bug Fixes", "Performance Improvements", "Reverts",
+  "Code Refactoring", "Documentation", "Tests", "Build System",
+  "Continuous Integration", "Miscellaneous Chores",
+];
+
+const findType = (t) =>
+  TYPES.find((x) => x.type === String(t ?? "").toLowerCase());
+const rank = (title) => {
+  const i = SECTION_ORDER.indexOf(title);
+  return i === -1 ? SECTION_ORDER.length : i;
+};
+
+export const writerOpts = {
+  transform: (commit, _context) => {
+    const entry = findType(commit.type);
+    if (entry === undefined || entry.hidden) return undefined;
+    let subject = commit.subject || commit.header || "";
+    if (typeof subject === "string") {
+      subject = subject.replace(/\(#\d+\)(\s*\(#\d+\))*\s*$/g, "").trim();
+    }
+    return {
+      type: entry.section,
+      scope: commit.scope === "*" ? "" : commit.scope || "",
+      subject,
+      hash: commit.hash,
+      shortHash:
+        typeof commit.hash === "string"
+          ? commit.hash.substring(0, 7)
+          : commit.shortHash,
+      references: commit.references || [],
+      notes: commit.notes || [],
+    };
+  },
+  groupBy: "type",
+  commitGroupsSort: (a, b) => rank(a.title) - rank(b.title),
+  commitsSort: ["scope", "subject"],
+};
