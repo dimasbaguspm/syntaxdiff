@@ -146,6 +146,7 @@ export function Pane({ side, children }: { side: Side; children?: ReactNode }) {
           value={pane.value}
           onChange={pane.onChange}
           placeholder={PLACEHOLDER[side]}
+          onFileDrop={(file) => read(file, "drop")}
         />
       </div>
     </div>
