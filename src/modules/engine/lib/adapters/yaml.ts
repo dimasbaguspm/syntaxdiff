@@ -2,6 +2,7 @@ import { dump, load } from "js-yaml";
 import { ParseError } from "@/modules/engine/lib/types";
 import type { FormatOptions, FormatResult, LanguageAdapter } from "@/modules/engine/lib/types";
 import { markupFmtToggles } from "./code-format";
+import { tryParse, YAML_DOC_MARKER, YAML_LIST, YAML_MAPPING } from "./shared-detect";
 
 /** Parse + re-serialize WITHOUT key-sort (key order preserved). Throws on
  *  invalid YAML. */
@@ -20,16 +21,12 @@ function detectYaml(input: string): number {
   if (!t) return 0;
   // Mapping `key:` or list `- ` (or leading --- document marker)
   if (
-    /^---\s*$/.test(t.split("\n")[0] ?? "") ||
-    /^[\w"'.$@-]+:\s/m.test(input) ||
-    /^-\s+/m.test(input)
+    YAML_DOC_MARKER.test(t.split("\n")[0] ?? "") ||
+    YAML_MAPPING.test(input) ||
+    YAML_LIST.test(input)
   ) {
-    try {
-      load(input);
-      return 1;
-    } catch {
-      return 0.3;
-    }
+    if (tryParse(input, load) !== undefined) return 1;
+    return 0.3;
   }
   return 0;
 }

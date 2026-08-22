@@ -1,10 +1,11 @@
 import type { FormatOptions, FormatResult, LanguageAdapter } from "@/modules/engine/lib/types";
 import { markupFmtToggles } from "./code-format";
+import { looksLikeJsonContainer } from "./shared-detect";
 
 function detectJsonc(input: string): number {
   const t = input.trimStart();
   if (!t) return 0;
-  if (t.startsWith("{") || t.startsWith("[")) {
+  if (looksLikeJsonContainer(input)) {
     // JSONC allows comments / trailing commas; a plain JSON.parse failure is
     // not disqualifying here.
     return 0.7;

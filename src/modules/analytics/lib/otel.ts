@@ -1,5 +1,4 @@
 import { trace } from "@opentelemetry/api";
-import { ANALYTICS } from "@/utils/analytics-config";
 import { APP_VERSION } from "@/utils/version";
 import { maskUrl } from "@/utils/mask";
 import { getSession } from "@/utils/session";
@@ -64,19 +63,33 @@ export function currentTrace(): { traceId: string; spanId: string } | null {
   return tc.traceId ? { traceId: tc.traceId, spanId: tc.spanId } : null;
 }
 
+/* ------------------------------------------------------------------ */
+/* Batched sender                                                     */
+/*                                                                    */
+/* Every event/log enqueues an in-memory record. The queue is flushed */
+/* on a debounce timer OR when it reaches a cap, then sent as ONE      */
+/* batched OTLP payload to `${otelUrl}/v1/logs` (sendBeacon when       */
+/* available, otherwise a single batched fetch). This replaces the     */
+/* previous one-network-request-per-call behaviour.                    */
+/* ------------------------------------------------------------------ */
+
+interface QueuedLog {
+  level: string;
+  body: string;
+  attrs: Record<string, unknown>;
+}
+
+const FLUSH_DEBOUNCE_MS = 1500;
+const BATCH_CAP = 20;
 const TIMEOUT_MS = 10_000;
 const RETRY_DELAY_MS = 500;
 
-async function postOtlpLog(
-  level: string,
-  body: string,
-  attrs: Record<string, unknown>,
-): Promise<void> {
-  const base = ANALYTICS.otelUrl;
-  if (!base) return;
-  const attributes = Object.entries(attrs).map(([k, v]) => ({ key: k, value: valueOf(v) }));
+let logQueue: QueuedLog[] = [];
+let flushTimer: ReturnType<typeof setTimeout> | null = null;
+
+function buildBatchPayload(batch: QueuedLog[]): unknown {
   const tc = traceContext();
-  const payload = {
+  return {
     resourceLogs: [
       {
         resource: {
@@ -91,53 +104,120 @@ async function postOtlpLog(
         scopeLogs: [
           {
             scope: { name: "syntaxdiff" },
-            logRecords: [
-              {
-                ...(tc.traceId ? { traceId: tc.traceId, spanId: tc.spanId } : {}),
-                severityNumber: SEVERITY[level] ?? 9,
-                severityText: level.toUpperCase(),
-                timeUnixNano: String(Date.now() * 1e6),
-                body: { stringValue: body },
-                attributes,
-              },
-            ],
+            logRecords: batch.map((r) => ({
+              ...(tc.traceId ? { traceId: tc.traceId, spanId: tc.spanId } : {}),
+              severityNumber: SEVERITY[r.level] ?? 9,
+              severityText: r.level.toUpperCase(),
+              timeUnixNano: String(Date.now() * 1e6),
+              body: { stringValue: r.body },
+              attributes: Object.entries(r.attrs).map(([k, v]) => ({
+                key: k,
+                value: valueOf(v),
+              })),
+            })),
           },
         ],
       },
     ],
   };
+}
 
-  const send = async (): Promise<boolean> => {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+async function sendOtlpBatch(batch: QueuedLog[]): Promise<boolean> {
+  // Read the collector URL at flush time (not the import-time constant) so it
+  // can be overridden in tests / at runtime via VITE_OTEL_COLLECTOR_URL.
+  const base = import.meta.env.VITE_OTEL_COLLECTOR_URL as string | undefined;
+  if (!base || batch.length === 0) return false;
+  const body = JSON.stringify(buildBatchPayload(batch));
+
+  const sendOne = async (): Promise<boolean> => {
     try {
-      const res = await fetch(`${base}/v1/logs`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        signal: ctrl.signal,
-      });
-      return res.ok;
+      if (typeof globalThis.fetch === "function") {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+        try {
+          const res = await fetch(`${base}/v1/logs`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body,
+            signal: ctrl.signal,
+          });
+          return res.ok;
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+      if (typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
+        return (
+          navigator.sendBeacon(`${base}/v1/logs`, new Blob([body], { type: "application/json" })) ??
+          false
+        );
+      }
     } catch {
       return false;
-    } finally {
-      clearTimeout(timer);
     }
+    return false;
   };
 
-  if (await send()) return;
+  if (await sendOne()) return true;
   await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
-  await send();
+  return sendOne();
+}
+
+/** Flush the queue immediately, sending one batched payload. */
+async function flushNow(): Promise<void> {
+  if (logQueue.length === 0) return;
+  const batch = logQueue;
+  logQueue = [];
+  await sendOtlpBatch(batch);
+}
+
+function scheduleFlush(): void {
+  if (flushTimer) return;
+  flushTimer = setTimeout(() => {
+    flushTimer = null;
+    void flushNow();
+  }, FLUSH_DEBOUNCE_MS);
+}
+
+/** Enqueue a log for batched delivery. Public signature unchanged for callers. */
+export function enqueueOtlpLog(level: string, body: string, attrs: Record<string, unknown>): void {
+  logQueue.push({ level, body, attrs });
+  if (logQueue.length >= BATCH_CAP) {
+    if (flushTimer) {
+      clearTimeout(flushTimer);
+      flushTimer = null;
+    }
+    void flushNow();
+  } else {
+    scheduleFlush();
+  }
+}
+
+/** Test-only hook: flush pending logs synchronously-ish so tests can observe. */
+export function __flush(): Promise<void> {
+  return flushNow();
+}
+
+/** Test-only hook: drain and return the pending queue (for batch assertions). */
+export function __drain(): QueuedLog[] {
+  const q = logQueue;
+  logQueue = [];
+  if (flushTimer) {
+    clearTimeout(flushTimer);
+    flushTimer = null;
+  }
+  return q;
+}
+
+/** Test-only hook: current pending queue length. */
+export function __queueLength(): number {
+  return logQueue.length;
 }
 
 /** Log an error to OTEL with trace/span ids and error details. */
-export async function logError(
-  err: unknown,
-  message: string,
-  attrs?: Record<string, unknown>,
-): Promise<void> {
+export function logError(err: unknown, message: string, attrs?: Record<string, unknown>): void {
   const e = err instanceof Error ? err : new Error(String(err));
-  await postOtlpLog(
+  enqueueOtlpLog(
     "error",
     message,
     context({ errorName: e.name, errorMessage: e.message, stack: e.stack ?? "", ...attrs }),
@@ -146,15 +226,15 @@ export async function logError(
 
 /** Log a warning to OTEL with the active trace/span ids. */
 export function logWarn(message: string, attrs?: Record<string, unknown>): void {
-  void postOtlpLog("warn", message, context(attrs));
+  enqueueOtlpLog("warn", message, context(attrs));
 }
 
 /** Log an informational message to OTEL with the active trace/span ids. */
 export function logInfo(message: string, attrs?: Record<string, unknown>): void {
-  void postOtlpLog("info", message, context(attrs));
+  enqueueOtlpLog("info", message, context(attrs));
 }
 
 /** Log a debug message to OTEL with the active trace/span ids. */
 export function logDebug(message: string, attrs?: Record<string, unknown>): void {
-  void postOtlpLog("debug", message, context(attrs));
+  enqueueOtlpLog("debug", message, context(attrs));
 }

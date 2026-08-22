@@ -5,10 +5,11 @@ import {
   serializeAlignedCsv,
   serializeCsv,
 } from "@/modules/engine/lib/adapters/csv-core";
+import { detectDelimited } from "./shared-detect";
 
 export { parseCsv, serializeCsv, serializeAlignedCsv };
 
-const MIN_CSV_LINES = 2;
+const CSV_DELIMITERS = [",", ";", "\t"];
 
 /** Plain metadata + robust sync canonicalization; the CSV formatter plugin is
  *  wired worker-side only (see `src/core/worker`). */
@@ -18,18 +19,11 @@ export const csvAdapter: LanguageAdapter = {
   fmtParser: "csv",
   fmtOptions: { delimiter: ",", alignColumns: true },
   detect(input: string): number {
-    const text = input.trim();
-    if (!text) return 0;
-
-    const lines = text.split("\n").filter((l) => l.trim() !== "");
-    if (lines.length < MIN_CSV_LINES) return 0;
-
-    // Consistent, multi-column structure is a strong CSV signal; prose or
-    // single-column text won't satisfy both conditions.
-    const columnCounts = new Set(lines.map((l) => l.split(",").length));
-    const firstCount = columnCounts.values().next().value as number | undefined;
-    if (columnCounts.size === 1 && (firstCount ?? 0) > 1) {
-      return 0.7;
+    // A consistent, multi-column structure on ANY supported delimiter is a
+    // strong CSV/TSV signal; prose or single-column text won't satisfy it.
+    for (const delim of CSV_DELIMITERS) {
+      const score = detectDelimited(input, delim);
+      if (score > 0) return score;
     }
     return 0;
   },

@@ -17,7 +17,9 @@ jobs:
 
       - name: Compute version (semver from package.json)
         id: meta
-        run: echo "version=v$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "version=v$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+          echo "semver=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -33,7 +35,7 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.version }}
           build-args: |
-            VITE_APP_VERSION=${{ steps.meta.outputs.version }}
+            VITE_APP_VERSION=${{ steps.meta.outputs.semver }}
             VITE_OTEL_COLLECTOR_URL=https://otel.dimasbaguspm.dev
 
       - name: Build and push image (latest / Nightly)
@@ -43,7 +45,7 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository }}:latest
           build-args: |
-            VITE_APP_VERSION=${{ steps.meta.outputs.version }}
+            VITE_APP_VERSION=${{ steps.meta.outputs.semver }}
             VITE_OTEL_COLLECTOR_URL=https://otel.dimasbaguspm.dev
 
       - name: Trigger deploy webhook

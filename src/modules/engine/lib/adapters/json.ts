@@ -1,6 +1,7 @@
 import { ParseError } from "@/modules/engine/lib/types";
 import type { FormatOptions, FormatResult, LanguageAdapter } from "@/modules/engine/lib/types";
 import { markupFmtToggles } from "./code-format";
+import { looksLikeJsonContainer } from "./shared-detect";
 
 function parse(input: string): unknown {
   try {
@@ -21,7 +22,7 @@ function jsonCanonical(input: string, _opts: FormatOptions): FormatResult {
 function detectJson(input: string): number {
   const t = input.trimStart();
   if (!t) return 0;
-  if (t.startsWith("{") || t.startsWith("[")) {
+  if (looksLikeJsonContainer(input)) {
     try {
       JSON.parse(input);
       return 1;

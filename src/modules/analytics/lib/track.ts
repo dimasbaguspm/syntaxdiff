@@ -6,12 +6,17 @@ import { getBrowserInfo } from "@/utils/browser";
 import { loadUmami } from "@/modules/analytics/lib/load-umami";
 import { trackUmami, umamiVersion } from "@/modules/analytics/lib/umami";
 import { ANALYTICS_PROVIDER } from "@/modules/analytics/providers/provider";
+import { enqueueOtlpLog } from "@/modules/analytics/lib/otel";
 
 export type TrackAttrs = Record<string, unknown>;
 
 /**
  * Consumer-facing event API: `trackEvent("click", { ...attrs })`.
  * Enriches every event with provider/app/environment metadata before dispatch.
+ *
+ * Dispatch is batched: the event is enqueued for the shared OTLP sender (which
+ * flushes on a debounce timer / batch cap) while the Umami tracker is still
+ * notified immediately for real-time dashboards.
  */
 export function trackEvent(name: string, attrs?: TrackAttrs): void {
   const session = getSession();
@@ -31,4 +36,7 @@ export function trackEvent(name: string, attrs?: TrackAttrs): void {
 
   loadUmami(ANALYTICS.umamiWebsiteId);
   trackUmami(name, enriched);
+
+  // Batch the same event into the OTLP pipeline.
+  enqueueOtlpLog("info", `event:${name}`, enriched);
 }
