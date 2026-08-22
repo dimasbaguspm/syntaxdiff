@@ -31,10 +31,10 @@ export function Modal({
         aria-modal="true"
         aria-label={title}
         className={[
-          "relative w-full max-w-lg border border-edge-strong bg-surface shadow-[var(--shadow)]",
-          // mobile bottom sheet
+          "w-full max-w-lg border border-edge-strong bg-surface shadow-[var(--shadow)]",
+          // mobile bottom sheet: fixed to the bottom edge (inset-x-0 bottom-0)
           "fixed inset-x-0 bottom-0 max-h-[90vh] overflow-auto rounded-t-2xl border-b-0 p-5 animate-sheet-in",
-          // desktop centered modal
+          // desktop centered modal: static inside the flex-centered scrim
           "md:inset-auto md:static md:max-h-none md:rounded-xl md:border-b md:p-5 md:animate-modal-in",
         ].join(" ")}
       >
