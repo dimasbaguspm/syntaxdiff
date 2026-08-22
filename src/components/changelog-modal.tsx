@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search } from "lucide-react";
 import changelogRaw from "../../CHANGELOG.md?raw";
 import { Modal } from "@/components/modal";
-import { SelectInput } from "@/components/inputs";
+import { SearchInput, SelectInput } from "@/components/inputs";
 
 interface Section {
   heading: string;
@@ -125,24 +124,18 @@ export function ChangelogModal({ open, onClose }: { open: boolean; onClose: () =
   return (
     <Modal open={open} title="Changelog" onClose={onClose}>
       <div className="flex flex-col gap-2">
-        <label className="relative block min-w-0">
-          <Search
-            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-faint"
-            aria-hidden
-          />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search changelog…"
-            aria-label="Search changelog"
-            className="w-full rounded-lg border border-edge bg-well py-1.5 pl-9 pr-3 text-sm text-ink focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20"
-          />
-        </label>
+        <SearchInput
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search changelog…"
+          aria-label="Search changelog"
+        />
         <div className="flex flex-wrap items-center gap-2">
           <SelectInput
             value={versionFilter}
             onChange={(e) => setVersionFilter(e.target.value)}
             aria-label="Filter by version"
+            className="flex-1 min-w-0"
           >
             <option value="">All versions</option>
             {versions.map((v) => (
@@ -155,6 +148,7 @@ export function ChangelogModal({ open, onClose }: { open: boolean; onClose: () =
             value={sourceFilter}
             onChange={(e) => setSourceFilter(e.target.value)}
             aria-label="Filter by source"
+            className="flex-1 min-w-0"
           >
             <option value="">All sources</option>
             {sources.map((s) => (

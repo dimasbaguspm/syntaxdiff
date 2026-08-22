@@ -61,16 +61,16 @@ export interface IconProps extends React.ImgHTMLAttributes<HTMLImageElement> {
 }
 
 /** Material Symbols icon for a language (auto-detected or explicit).
- * Uses `text-accent` (the same accent as the bottom bar) so the glyph
- * inherits the brand accent color via currentColor. Callers' className
- * (sizing/opacity) is merged on top. */
+ * Uses `text-dim` to match the muted tone of surrounding labels/UI
+ * (consistent across pane/diff/history headers). The glyph inherits the
+ * color via currentColor. Callers' className (sizing/opacity) merges on top. */
 export function Icon({ name, className, ...attrs }: IconProps) {
   return (
     <img
       src={ICONS[name]}
       alt=""
       aria-hidden
-      className={`text-accent ${className ?? ""}`}
+      className={`text-dim ${className ?? ""}`}
       {...attrs}
     />
   );
