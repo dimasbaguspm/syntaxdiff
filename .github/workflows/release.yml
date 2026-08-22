@@ -1,13 +1,19 @@
 name: Release
 
-# semantic-release: creates a versioned GitHub Release (tag syntaxdiff_v<ver>),
-# CHANGELOG + package version bump committed back to the repo on every push to
-# main. Version type is derived from Conventional Commits: fix = patch,
-# feat = patch (minor features are collapsed to patch to keep version creep low),
-# BREAKING = major.
+# Versioned release is now MANUAL: it fires only on a GitHub "release" event
+# (draft + publish a release in the repo UI) or via workflow_dispatch. It no
+# longer auto-runs on push to main, so the protected-branch release push that
+# broke CI is gone. semantic-release analyzes commits since the last tag,
+# bumps the version, writes CHANGELOG.md, and creates the GitHub Release + tag
+# (syntaxdiff_v<ver>) on the current main commit. It does NOT push a version
+# bump back to main (the @semantic-release/git plugin was removed), so there is
+# no protected-branch push to reject.
+#
+# Nightly image builds are handled separately by ci.yml (build-and-push), which
+# runs on every push to main.
 on:
-  push:
-    branches: [main]
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -42,14 +48,6 @@ jobs:
 
       - name: Install
         run: pnpm install --frozen-lockfile
-
-      - name: Configure git for release commit
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Semantic release
         run: pnpm exec semantic-release
