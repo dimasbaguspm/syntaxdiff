@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ChevronDown, ChevronUp, Columns2, FileDiff, Rows3 } from "lucide-react";
+import { ArrowLeft, FileDiff } from "lucide-react";
 import { getAdapter } from "@/modules/engine/lib";
 import { useStore } from "@/core/store";
 import { Icon } from "@/modules/engine/ui/language-icon";
 import { DiffView } from "@/modules/diff/ui/diff-view";
+import { DiffControlsFab } from "@/modules/diff/ui/diff-controls-fab";
 import { useDiff } from "@/modules/diff/providers/context";
 import { computeChangeGroups } from "@/modules/diff/lib/change-groups";
 import { Button } from "@/components/button";
@@ -87,67 +88,6 @@ export function DiffPageView() {
             <span className="text-[var(--tint-rose-fg)]">−{rec.removed}</span>
           </span>
         </span>
-
-        {changeGroups.length > 0 && (
-          <div className="ml-auto flex items-center gap-1">
-            <Tooltip label="Previous change">
-              <Button
-                variant="ghost"
-                onClick={() => goToGroup(-1)}
-                disabled={(groupIdx ?? 0) === 0}
-                aria-label="Previous change"
-                className="size-10 justify-center p-0"
-              >
-                <ChevronUp className="size-4" aria-hidden="true" />
-              </Button>
-            </Tooltip>
-            <span className="min-w-12 text-center text-xs text-dim tabular-nums" aria-live="polite">
-              {(groupIdx ?? 0) + 1} / {changeGroups.length}
-            </span>
-            <Tooltip label="Next change">
-              <Button
-                variant="ghost"
-                onClick={() => goToGroup(1)}
-                disabled={(groupIdx ?? 0) >= changeGroups.length - 1}
-                aria-label="Next change"
-                className="size-10 justify-center p-0"
-              >
-                <ChevronDown className="size-4" aria-hidden="true" />
-              </Button>
-            </Tooltip>
-          </div>
-        )}
-
-        <div className={`flex items-center gap-1 ${changeGroups.length > 0 ? "" : "ml-auto"}`}>
-          <div className="flex items-center gap-0.5 rounded-lg border border-edge bg-surface-2/50 p-0.5">
-            <Tooltip label="Split (side-by-side)">
-              <Button
-                variant="segment"
-                active={mode === "split"}
-                onClick={() => {
-                  setMode("split");
-                  trackEvent("switch_view", { mode: "split" });
-                }}
-                aria-label="Split view"
-              >
-                <Columns2 className="size-4" aria-hidden="true" />
-              </Button>
-            </Tooltip>
-            <Tooltip label="Unified (inline)">
-              <Button
-                variant="segment"
-                active={mode === "unified"}
-                onClick={() => {
-                  setMode("unified");
-                  trackEvent("switch_view", { mode: "unified" });
-                }}
-                aria-label="Unified view"
-              >
-                <Rows3 className="size-4" aria-hidden="true" />
-              </Button>
-            </Tooltip>
-          </div>
-        </div>
       </div>
 
       <div className="flex min-h-0 flex-1">
@@ -161,6 +101,18 @@ export function DiffPageView() {
           navStarts={changeGroups}
         />
       </div>
+
+      {/* Split/unified toggle + change navigation float bottom-right on every
+          viewport size; the header keeps Back, language pill + +/- tally. */}
+      <DiffControlsFab
+        mode={mode}
+        setMode={setMode}
+        groupIdx={groupIdx}
+        changeGroupsLen={changeGroups.length}
+        goToGroup={goToGroup}
+        added={rec.added}
+        removed={rec.removed}
+      />
     </div>
   );
 }
