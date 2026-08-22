@@ -46,6 +46,24 @@ describe("DiffView", () => {
     expect(screen.getAllByText("−").length).toBe(1);
   });
 
+  it("renders a full-height unified gutter wrapper (marker + number column)", () => {
+    const { container } = render(<DiffView lines={LINES} mode="unified" />);
+    // FE#5: the scroll container must carry the .u-scroll stripe wrapper so the
+    // gutter paints full-height (covers the 1.25rem marker + number column).
+    const scroll = container.querySelector(".u-scroll");
+    expect(scroll).not.toBeNull();
+    expect(scroll?.className).toContain("overflow-auto");
+    // Every unified row carries BOTH the pinned +/- marker (1.25rem) and the
+    // number gutter the stripe must span — a structural guard against the
+    // "gutter doesn't reach the bottom" regression.
+    const rows = container.querySelectorAll(".u-row");
+    expect(rows.length).toBe(LINES.length);
+    for (const row of rows) {
+      expect(row.querySelector(".dv-marker")).not.toBeNull();
+      expect(row.querySelector(".dv-gutter")).not.toBeNull();
+    }
+  });
+
   it("renders inline word-level highlight segments inside changed lines", () => {
     const lines: DiffLine[] = [
       {
