@@ -18,6 +18,7 @@ export function Pane({ side, children }: { side: Side; children?: ReactNode }) {
   const { getPane, formatSide, adapter, formatting } = useCompare();
   const pane = getPane(side);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dragDepth = useRef(0);
   const [dragging, setDragging] = useState(false);
 
   const read = (file: File | undefined, method: "drop" | "button") => {
@@ -30,13 +31,24 @@ export function Pane({ side, children }: { side: Side; children?: ReactNode }) {
       className={`relative flex min-h-0 min-w-0 flex-1 flex-col bg-well transition-colors ${
         dragging ? "outline-2 outline-accent/60" : ""
       }`}
-      onDragOver={(e) => {
+      onDragEnter={(e) => {
         e.preventDefault();
+        dragDepth.current += 1;
         setDragging(true);
       }}
-      onDragLeave={() => setDragging(false)}
+      onDragOver={(e) => {
+        e.preventDefault();
+      }}
+      onDragLeave={() => {
+        dragDepth.current -= 1;
+        if (dragDepth.current <= 0) {
+          dragDepth.current = 0;
+          setDragging(false);
+        }
+      }}
       onDrop={(e) => {
         e.preventDefault();
+        dragDepth.current = 0;
         setDragging(false);
         read(e.dataTransfer.files?.[0], "drop");
       }}

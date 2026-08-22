@@ -219,6 +219,7 @@ export function DiffView({
   icon,
   navIndex = null,
   navStarts,
+  highlight = true,
 }: {
   lines: DiffLine[];
   mode: ViewMode;
@@ -230,9 +231,13 @@ export function DiffView({
   navIndex?: number | null;
   /** Start line index of each change group (see computeChangeGroups). */
   navStarts?: readonly number[];
+  /** When false, suppress add/delete coloring (red/green fg + bg). */
+  highlight?: boolean;
 }) {
   return (
-    <div className="diff-view flex min-h-0 min-w-0 flex-1 flex-col bg-well">
+    <div
+      className={`diff-view flex min-h-0 min-w-0 flex-1 flex-col bg-well ${highlight ? "" : "no-highlight"}`}
+    >
       {mode === "split" ? (
         <SplitView
           lines={lines}

@@ -10,6 +10,7 @@ import { useDiff } from "@/modules/diff/providers/context";
 import { computeChangeGroups } from "@/modules/diff/lib/change-groups";
 import { Button } from "@/components/button";
 import { Tooltip } from "@/components/tooltip";
+import { Switch } from "@/components/switch";
 import { trackEvent } from "@/modules/analytics/lib/track";
 import { Spinner } from "@/components/ui";
 
@@ -19,6 +20,8 @@ export function DiffPageView() {
   const navigate = useNavigate();
   const mode = useStore((s) => s.mode);
   const setMode = useStore((s) => s.setMode);
+  const highlight = useStore((s) => s.highlight);
+  const setHighlight = useStore((s) => s.setHighlight);
 
   // Line-by-line change navigation: groups of contiguous changed lines.
   // null = nothing selected yet (view starts at the top, no auto-scroll).
@@ -92,6 +95,20 @@ export function DiffPageView() {
 
         {changeGroups.length > 0 && (
           <div className="ml-auto flex items-center gap-1">
+            {/* Highlight toggle: enable/disable add/delete coloring in the editor. */}
+            <Tooltip label={highlight ? "Highlight on" : "Highlight off"}>
+              <span className="flex items-center gap-1.5 rounded-lg border border-edge bg-surface-2/50 px-2 py-1">
+                <span className="text-xs text-dim">Highlight</span>
+                <Switch
+                  checked={highlight}
+                  onChange={(v) => {
+                    setHighlight(v);
+                    trackEvent("toggle_highlight", { on: v });
+                  }}
+                  aria-label="Toggle diff highlight"
+                />
+              </span>
+            </Tooltip>
             <div className="flex items-center gap-0.5 rounded-lg border border-edge bg-surface-2/50 p-0.5">
               <Tooltip label="Split (side-by-side)">
                 <Button
@@ -133,6 +150,7 @@ export function DiffPageView() {
           icon={rec.lang}
           navIndex={groupIdx}
           navStarts={changeGroups}
+          highlight={highlight}
         />
       </div>
 
