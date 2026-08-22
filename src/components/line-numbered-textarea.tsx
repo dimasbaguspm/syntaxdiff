@@ -5,14 +5,11 @@ export function LineNumberedTextarea({
   onChange,
   placeholder,
   wrap = false,
-  onFileDrop,
 }: {
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   wrap?: boolean;
-  /** Called with the dropped file when a file is released over the textarea. */
-  onFileDrop?: (file: File) => void;
 }) {
   const taRef = useRef<HTMLTextAreaElement>(null);
   const gutterRef = useRef<HTMLDivElement>(null);
@@ -22,16 +19,6 @@ export function LineNumberedTextarea({
     if (gutterRef.current && taRef.current) {
       gutterRef.current.scrollTop = taRef.current.scrollTop;
     }
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLTextAreaElement>) => {
-    // The textarea is the element under the cursor during a drop. Without its
-    // own dragover/drop handlers the browser rejects the file drop (no-drop
-    // cursor) and the parent's onDrop never fires. preventDefault on dragover
-    // makes this a valid drop target; on drop we route the file up.
-    e.preventDefault();
-    const file = e.dataTransfer?.files?.[0];
-    if (file) onFileDrop?.(file);
   };
 
   return (
@@ -54,8 +41,6 @@ export function LineNumberedTextarea({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onScroll={syncScroll}
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={handleDrop}
         placeholder={placeholder}
         spellCheck={false}
         className={`min-h-0 w-full flex-1 resize-none bg-transparent py-4 pr-4 pl-3 font-mono text-xs leading-[1.5] text-ink placeholder-faint focus:outline-none ${

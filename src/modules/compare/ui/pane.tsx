@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
+import { useDropzone } from "react-dropzone";
 import { AlignLeft, CheckCircle2, Loader2, Upload, XCircle } from "lucide-react";
 import { useCompare, type Side } from "@/modules/compare/providers/context";
 import { Icon } from "@/modules/engine/ui/language-icon";
@@ -7,7 +8,7 @@ import { Button } from "@/components/button";
 import { Tooltip } from "@/components/tooltip";
 import { Spinner } from "@/components/ui";
 import { LineNumberedTextarea } from "@/components/line-numbered-textarea";
-import { TextInput, HiddenInput } from "@/components/inputs";
+import { TextInput } from "@/components/inputs";
 
 const PLACEHOLDER: Record<Side, string> = {
   a: "Paste source A, or drop a file…",
@@ -19,69 +20,34 @@ export function Pane({ side, children }: { side: Side; children?: ReactNode }) {
   const { getPane, formatSide, adapter, formatting } = useCompare();
   const pane = getPane(side);
   const inputRef = useRef<HTMLInputElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const dragDepth = useRef(0);
-  const [dragging, setDragging] = useState(false);
 
   const read = (file: File | undefined, method: "drop" | "button") => {
     if (!file) return;
-    // Guarantee the source's zustand state updates for this side on import.
     if (method === "drop") trackEvent("compare_file_drop", { name: file.name, size: file.size });
     else trackEvent("compare_file_upload", { name: file.name, size: file.size });
     pane.onImportFile(file, method);
   };
 
-  // Native drag listeners on the container. React's synthetic drag events are
-  // unreliable for native HTML5 drops on nested children (the browser only
-  // allows a drop when dragover.preventDefault() ran on the element under the
-  // cursor, which synthetic bubbling doesn't guarantee). Native listeners
-  // attached directly to the container make the drop work regardless of which
-  // child the file is released over.
-  const readRef = useRef(read);
-  readRef.current = read;
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const onDragOver = (e: DragEvent) => e.preventDefault();
-    const onDragEnter = (e: DragEvent) => {
-      e.preventDefault();
-      dragDepth.current += 1;
-      setDragging(true);
-    };
-    const onDragLeave = () => {
-      dragDepth.current -= 1;
-      if (dragDepth.current <= 0) {
-        dragDepth.current = 0;
-        setDragging(false);
-      }
-    };
-    const onDrop = (e: DragEvent) => {
-      e.preventDefault();
-      dragDepth.current = 0;
-      setDragging(false);
-      const file = e.dataTransfer?.files?.[0];
-      readRef.current(file, "drop");
-    };
-    el.addEventListener("dragover", onDragOver);
-    el.addEventListener("dragenter", onDragEnter);
-    el.addEventListener("dragleave", onDragLeave);
-    el.addEventListener("drop", onDrop);
-    return () => {
-      el.removeEventListener("dragover", onDragOver);
-      el.removeEventListener("dragenter", onDragEnter);
-      el.removeEventListener("dragleave", onDragLeave);
-      el.removeEventListener("drop", onDrop);
-    };
-  }, []);
+  // react-dropzone owns the HTML5 drag/drop lifecycle on the whole pane root
+  // (it correctly preventDefaults dragover/drop on the root, so a file dropped
+  // anywhere — including over the nested textarea — fires onDrop). noClick so
+  // the explicit Upload button (not the whole pane) opens the file dialog.
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
+    noClick: true,
+    noKeyboard: true,
+    multiple: false,
+    onDrop: (accepted) => read(accepted[0], "drop"),
+  });
 
+  const Root = getRootProps();
   return (
     <div
-      ref={containerRef}
+      {...Root}
       className={`relative flex min-h-0 min-w-0 flex-1 flex-col bg-well transition-colors ${
-        dragging ? "outline-2 outline-accent/60" : ""
+        isDragActive ? "outline-2 outline-accent/60" : ""
       }`}
     >
-      {dragging && (
+      {isDragActive && (
         <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 border-2 border-dashed border-accent/70 bg-accent/10 text-ink">
           <Upload className="size-8 text-accent" aria-hidden />
           <span className="text-sm font-medium">Drop to import into {pane.label}</span>
@@ -108,10 +74,11 @@ export function Pane({ side, children }: { side: Side; children?: ReactNode }) {
           )}
         </span>
         <div className="ml-auto flex items-center gap-0.5">
+          <input {...getInputProps()} ref={inputRef} />
           <Tooltip label="Upload / drop a file">
             <Button
               variant="ghost"
-              onClick={() => inputRef.current?.click()}
+              onClick={() => open()}
               aria-label="Upload a file into this source"
               className="p-1"
             >
@@ -131,22 +98,12 @@ export function Pane({ side, children }: { side: Side; children?: ReactNode }) {
           </Tooltip>
           {children}
         </div>
-        <HiddenInput
-          ref={inputRef}
-          type="file"
-          accept=".csv,.json,.yaml,.yml,.toml,.xml,.sql,.txt,.log,text/plain,text/csv,application/json"
-          onChange={(e) => {
-            read(e.target.files?.[0], "button");
-            e.target.value = "";
-          }}
-        />
       </div>
       <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-well">
         <LineNumberedTextarea
           value={pane.value}
           onChange={pane.onChange}
           placeholder={PLACEHOLDER[side]}
-          onFileDrop={(file) => read(file, "drop")}
         />
       </div>
     </div>
