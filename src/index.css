@@ -139,6 +139,14 @@ body {
      reach the bottom even for short diffs (no bare pane below the rows). */
   min-height: 100%;
 }
+/* On phones the diff shouldn't force a full-viewport min-height — let short
+   diffs size to their content so the page doesn't carry dead empty space. */
+@media (max-width: 767px) {
+  .diff-view .dv-body,
+  .diff-view .u-body {
+    min-height: 0;
+  }
+}
 .dv-row,
 .u-row {
   align-self: stretch;

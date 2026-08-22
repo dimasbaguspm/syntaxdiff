@@ -86,4 +86,40 @@ describe("SplitPanes", () => {
     // Horizontal dragged near the edge clamps at the new 5% lower bound.
     expect(drive("horizontal", 7, 2)).toBe("5%");
   });
+
+  it("entry/compare path (vertical orientation, mobile width) resizes and mounts the touch-none shield", () => {
+    // Regression: the entry page is vertical on desktop but auto-stacks to a
+    // vertical drag on mobile (<768px), where editable <textarea>s otherwise
+    // steal the gesture. The shield must mount and the pane must resize.
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
+      width: 100,
+      height: 200,
+      top: 0,
+      left: 0,
+      bottom: 200,
+      right: 100,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    } as DOMRect);
+    const real = window.innerWidth;
+    Object.defineProperty(window, "innerWidth", { value: 390, configurable: true });
+
+    const { container } = render(
+      <SplitPanes orientation="vertical" left={<div>top</div>} right={<div>bottom</div>} />,
+    );
+    const separator = container.querySelector('[role="separator"]')!;
+    const topPane = container.firstElementChild!.children[0] as HTMLElement;
+
+    fireEvent.pointerDown(separator, { pointerId: 3 });
+    expect(container.querySelector(".fixed.inset-0.touch-none")).not.toBeNull();
+    // Vertical drag on a 390px (mobile) viewport is height-based: 40/200 = 20%.
+    fireEvent.pointerMove(container.firstElementChild!, { pointerId: 3, clientY: 40 });
+    expect(topPane.style.flexBasis).toBe("20%");
+
+    fireEvent.pointerUp(container.firstElementChild!, { pointerId: 3 });
+    expect(container.querySelector(".fixed.inset-0.touch-none")).toBeNull();
+
+    Object.defineProperty(window, "innerWidth", { value: real, configurable: true });
+  });
 });
