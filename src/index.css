@@ -259,6 +259,23 @@ mark {
 .dv-row.empty {
   background: var(--well);
 }
+/* Highlight toggle (off): neutralize add/delete coloring — inline word
+   backgrounds + foreground, the split-view gutter stripe, and the unified
+   +/- marker intent colors — so the editor reads as plain text. */
+.diff-view.no-highlight .inl-del,
+.diff-view.no-highlight .inl-add {
+  background: transparent;
+  color: var(--ink);
+  font-weight: 400;
+}
+.diff-view.no-highlight .dv-row.del .dv-gutter,
+.diff-view.no-highlight .dv-row.add .dv-gutter {
+  box-shadow: none;
+}
+.diff-view.no-highlight .u-row.del .dv-marker,
+.diff-view.no-highlight .u-row.add .dv-marker {
+  color: var(--faint);
+}
 /* Unified view: single column with marker */
 .u-row {
   display: flex;

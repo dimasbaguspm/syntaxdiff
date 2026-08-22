@@ -85,7 +85,13 @@ export function CompareProvider({ children }: { children: ReactNode }) {
         // Same callback as paste/type so content-based auto-detection runs
         // exactly like manual input (no language forcing).
         sides[side].set(text);
-        trackEvent("import_file", { method, ext, lang: adapter.id, bytes: file.size });
+        // Distinct event names per entrypoint so analytics can tell a drag-drop
+        // import from a click-to-upload import.
+        if (method === "drop") {
+          trackEvent("compare_file_drop", { ext, lang: adapter.id, bytes: file.size });
+        } else {
+          trackEvent("compare_file_upload", { ext, lang: adapter.id, bytes: file.size });
+        }
         showSnack(`Imported ${file.name}`, "success");
       })
       .catch((e) => {

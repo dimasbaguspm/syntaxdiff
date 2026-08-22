@@ -24,6 +24,7 @@ interface AppState {
   lang: LangChoice;
   opts: FormatOptions;
   mode: ViewMode;
+  highlight: boolean;
   status: DiffStatus;
   result: DiffResult | null;
   snack: Snack | null;
@@ -34,6 +35,7 @@ interface AppState {
   setLang(l: LangChoice): void;
   setOpt(id: string, val: boolean | string | number): void;
   setMode(m: ViewMode): void;
+  setHighlight(v: boolean): void;
   runStart(): void;
   runSuccess(r: DiffResult): void;
   runError(message: string): void;
@@ -49,6 +51,7 @@ export const useStore = create<AppState>((set) => ({
   lang: "auto",
   opts: {},
   mode: "split",
+  highlight: true,
   status: "idle",
   result: null,
   snack: null,
@@ -59,6 +62,7 @@ export const useStore = create<AppState>((set) => ({
   setLang: (l) => set({ lang: l, ...RESET }),
   setOpt: (id, val) => set((s) => ({ opts: { ...s.opts, [id]: val }, ...RESET })),
   setMode: (m) => set({ mode: m }),
+  setHighlight: (v) => set({ highlight: v }),
   runStart: () => set({ status: "running", snack: null }),
   runSuccess: (r) => set({ status: "done", result: r, snack: null }),
   runError: (message) =>
