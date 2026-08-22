@@ -1,6 +1,14 @@
 ## [1.5.22](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.21...syntaxdiff_v1.5.22) (2026-08-22)
 
+### Features
+
+- **engine:** adapter dedupe + hardened detection, batched telemetry, version display fix ([#24](https://github.com/dimasbaguspm/syntaxdiff/issues/24))
+
 ## [1.5.21](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.20...syntaxdiff_v1.5.21) (2026-08-22)
+
+### Bug Fixes
+
+- **changelog:** default conventionalcommits notes + backfill release bodies ([#23](https://github.com/dimasbaguspm/syntaxdiff/issues/23))
 
 ## [1.5.20](https://github.com/dimasbaguspm/syntaxdiff/compare/syntaxdiff_v1.5.19...syntaxdiff_v1.5.20) (2026-08-22)
 
