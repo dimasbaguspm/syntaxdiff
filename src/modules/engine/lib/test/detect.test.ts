@@ -80,8 +80,11 @@ describe("jsonAdapter", () => {
 });
 
 describe("json5Adapter", () => {
-  it("detects JSON-shaped input at 1 when it parses", () => {
-    expect(json5Adapter.detect('{"a": 1}')).toBe(1);
+  it("scores plain JSON lower so json wins", () => {
+    expect(json5Adapter.detect('{"a": 1}')).toBe(0.4);
+  });
+  it("scores JSON5 hints (single quotes / trailing comma) high", () => {
+    expect(json5Adapter.detect("{'a': 1,}")).toBeGreaterThan(0.8);
   });
   it("returns 0 for prose", () => {
     expect(json5Adapter.detect("just words")).toBe(0);

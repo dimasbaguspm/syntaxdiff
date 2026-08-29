@@ -3,11 +3,14 @@ import { whitespaceCanonicalize } from "./code-format";
 
 function detectGlimmer(input: string): number {
   const t = input.trimStart();
-  if (!t) return 0;
-  if (/\{\{#(if|each|let|with)\b/.test(input)) return 0.8;
-  if (/\{\{!/.test(input)) return 0.6; // hbs comment
-  if (/<[A-Z][\w-]*\s/.test(t)) return 0.4; // capitalized component
-  return 0;
+  if (!t || t.length < 10) return 0;
+  let score = 0;
+  if (/\{\{#(if|each|let|with)\b/.test(input)) score += 0.6;
+  if (/\{\{!/.test(input)) score += 0.2; // hbs comment
+  if (/<[A-Z][\w-]*\s/.test(input)) score += 0.2;
+  // Require at least one Glimmer-specific {{# token.
+  if (!/\{\{#(if|each|let|with)\b/.test(input)) score = Math.min(score, 0.3);
+  return Math.min(0.9, Math.max(0, score));
 }
 
 // Format-disabled: no npm Glimmer/Handlebars-template formatter package exists.

@@ -3,10 +3,16 @@ import { codeFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectAstro(input: string): number {
   const t = input.trimStart();
-  if (!t) return 0;
-  if (/^---\s*$/m.test(t) && /---\s*$/m.test(input)) return 1; // frontmatter fences
-  if (/<\/?[a-zA-Z][\w-]*\s/.test(t)) return 0.5;
-  return 0;
+  if (!t || t.length < 10) return 0;
+  const lines = input.split("\n");
+  const hasFrontmatter =
+    lines[0]?.trim() === "---" && lines.slice(1).some((l) => l.trim() === "---");
+  if (!hasFrontmatter) return 0;
+  // Frontmatter + component markup is a strong Astro signal; frontmatter alone is weaker.
+  let score = 0.5;
+  if (/<[A-Za-z][\w-]*\b/.test(input)) score += 0.3;
+  if (/import\s+[^\n]*\.astro|from\s+["'].*astro/.test(input)) score += 0.2;
+  return Math.min(1, score);
 }
 
 export const astroAdapter: LanguageAdapter = {

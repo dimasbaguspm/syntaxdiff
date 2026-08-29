@@ -3,9 +3,18 @@ import { markupFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectHtml(input: string): number {
   const t = input.trimStart();
-  if (!t) return 0;
-  if (/<(!doctype|html|head|body|div|span|p|a|ul|li|table|script|style)\b/i.test(t)) return 1;
-  if (/<[a-zA-Z][\w-]*(\s[^>]*)?>/.test(input)) return 0.6;
+  if (!t || t.length < 15) return 0;
+  if (/<!doctype\s+html/i.test(t)) return 1;
+  const tagCount = (input.match(/<\/?[a-zA-Z][\w-]*\b[^>]*>/g) ?? []).length;
+  const hasClose = /<\/[a-zA-Z][\w-]*>/.test(input);
+  if (tagCount >= 3 && hasClose) return 0.9;
+  if (tagCount >= 2 && hasClose) return 0.7;
+  if (
+    tagCount >= 1 &&
+    hasClose &&
+    /<(html|head|body|div|span|p|a|ul|li|table|script|style)\b/i.test(t)
+  )
+    return 0.8;
   return 0;
 }
 

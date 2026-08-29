@@ -3,11 +3,13 @@ import { codeFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectAngular(input: string): number {
   const t = input.trimStart();
-  if (!t) return 0;
-  if (/@(Component|NgModule|Injectable|Directive)\s*\(/.test(input)) return 1;
-  if (/\*ng(If|For|Switch)/.test(input)) return 0.7;
-  if (/<[a-z][\w-]*([\s\S]*?)<\/[a-z][\w-]*>/.test(input) && /\[[\w-]+\]=/.test(input)) return 0.6;
-  return 0;
+  if (!t || t.length < 15) return 0;
+  let score = 0;
+  if (/@(Component|NgModule|Injectable|Directive)\s*\(/.test(input)) score += 0.7;
+  if (/\*ng(If|For|Switch|Class|Style)/.test(input)) score += 0.3;
+  if (/\[[\w-]+\]\s*=/.test(input) && /<[a-z][\w-]*[\s\S]*?>/.test(input)) score += 0.2;
+  if (score === 0) return 0;
+  return Math.min(1, score);
 }
 
 export const angularAdapter: LanguageAdapter = {

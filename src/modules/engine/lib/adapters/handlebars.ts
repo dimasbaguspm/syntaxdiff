@@ -3,9 +3,14 @@ import { markupFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectHandlebars(input: string): number {
   const t = input.trimStart();
-  if (!t) return 0;
-  if (/\{\{[#/!>]?\s*\w/.test(input)) return 0.9;
-  if (/<\/?[a-zA-Z][\w-]*(\s[^>]*)?>/.test(t)) return 0.5; // mixed with HTML
+  if (!t || t.length < 10) return 0;
+  const openCount = (input.match(/\{\{/g) ?? []).length;
+  const closeCount = (input.match(/\}\}/g) ?? []).length;
+  if (openCount === 0 || closeCount === 0) return 0;
+  // Penalize Glimmer/go-template specific block syntax so they outrank.
+  if (/\{\{#(if|each|let|with)\b/.test(input)) return 0.4;
+  if (/\{\{(?:if|range|with|block|define)\b/.test(input)) return 0.3;
+  if (/\{\{[#/!>]?\s*\w+/.test(input)) return 0.9;
   return 0;
 }
 

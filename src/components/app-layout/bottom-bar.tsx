@@ -13,8 +13,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { GithubIcon } from "./github-icon";
 import { Button } from "@/components/button";
-import { HelpModal } from "@/components/help-modal";
-import { ChangelogModal } from "@/components/changelog-modal";
 import { useTheme } from "@/hooks/use-theme";
 import { useGithubStars } from "@/hooks/use-github-stars";
 import { listDiffs } from "@/core/db";
@@ -24,6 +22,7 @@ import { SITE_HOST, SITE_NAME, SITE_URL } from "@/utils/site";
 import { DropdownMenu } from "@/components/dropdown-menu";
 import { Tooltip } from "@/components/tooltip";
 import { drawerHref } from "@/components/app-layout/hooks/use-drawer-query";
+import { modalHref } from "@/components/app-layout/hooks/use-modal-query";
 
 const GITHUB_URL = "https://github.com/dimasbaguspm/syntaxdiff";
 const FEEDBACK_URL = "https://github.com/dimasbaguspm/syntaxdiff/issues";
@@ -33,8 +32,6 @@ export function BottomBar() {
   const { theme, toggle } = useTheme();
   const stars = useGithubStars();
   const [count, setCount] = useState(0);
-  const [helpOpen, setHelpOpen] = useState(false);
-  const [changelogOpen, setChangelogOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -60,7 +57,7 @@ export function BottomBar() {
               variant="ghost"
               onClick={() => {
                 trackEvent("changelog_open");
-                setChangelogOpen(true);
+                navigate(modalHref("changelog"));
               }}
               aria-label="Changelog"
               className="p-1.5"
@@ -74,7 +71,7 @@ export function BottomBar() {
               variant="ghost"
               onClick={() => {
                 trackEvent("help_open");
-                setHelpOpen(true);
+                navigate(modalHref("help"));
               }}
               aria-label="Help"
               className="p-1.5"
@@ -190,8 +187,6 @@ export function BottomBar() {
           </div>
         </div>
       </div>
-      <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
-      <ChangelogModal open={changelogOpen} onClose={() => setChangelogOpen(false)} />
     </footer>
   );
 }

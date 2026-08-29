@@ -3,10 +3,15 @@ import { markupFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectPug(input: string): number {
   const t = input.trimStart();
-  if (!t) return 0;
-  // Indentation-driven: a tag/class/id token at column 0, no closing braces.
-  if (/^[a-z0-9.#][\w.#-]*(\s+[\w-]+=[^\n]*)?$/m.test(t) && !/[{};]/.test(t)) return 0.7;
-  if (/^\s*\w[\w-]*\.\s/m.test(t)) return 0.5;
+  if (!t || t.length < 10) return 0;
+  if (/[{};]/.test(input) || /<\/?[a-zA-Z]/.test(input)) return 0;
+  const lines = input.split("\n").filter((l) => l.trim() !== "");
+  if (lines.length < 2) return 0;
+  let indented = 0;
+  for (const l of lines) if (/^\s{2,}\S/.test(l)) indented++;
+  const tagLike = lines.filter((l) => /^[a-z][\w-]*(\s+[\w-]+=[^\n]*)?$/.test(l.trim())).length;
+  if (indented >= 1 && tagLike >= 2) return 0.85;
+  if (tagLike >= 2) return 0.5;
   return 0;
 }
 
