@@ -26,12 +26,20 @@ export function ModalHost() {
   if (!modal) return null;
 
   const inner =
-    modal === "help" ? <HelpModal open onClose={close} bare /> : <ChangelogModal open onClose={close} bare />;
+    modal === "help" ? (
+      <HelpModal open onClose={close} bare />
+    ) : (
+      <ChangelogModal open onClose={close} bare />
+    );
 
   // Route-driven: ?modal=help|changelog — separate from ?drawerId and ?sheet.
   // Mobile renders BottomSheet, desktop renders Modal — no overlapping scrims.
   const node = isMobile ? (
-    <BottomSheet open title={modal === "help" ? "How to use SyntaxDiff" : "Changelog"} onClose={close}>
+    <BottomSheet
+      open
+      title={modal === "help" ? "How to use SyntaxDiff" : "Changelog"}
+      onClose={close}
+    >
       {inner}
     </BottomSheet>
   ) : (

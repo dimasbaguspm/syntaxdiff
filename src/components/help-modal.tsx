@@ -21,14 +21,7 @@ export function HelpContent() {
   );
 }
 
-export function HelpModal({
-  open,
-  bare,
-}: {
-  open: boolean;
-  onClose: () => void;
-  bare?: boolean;
-}) {
+export function HelpModal({ open, bare }: { open: boolean; onClose: () => void; bare?: boolean }) {
   if (bare) return <HelpContent />;
   if (!open) return null;
   return <HelpContent />;

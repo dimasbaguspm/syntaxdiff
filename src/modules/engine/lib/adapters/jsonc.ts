@@ -7,9 +7,14 @@ function detectJsonc(input: string): number {
   if (!t || t.length < 2) return 0;
   if (!looksLikeJsonContainer(input)) return 0;
   const hasComment = /\/\/|^\s*\/\*/m.test(input) || /\/\*/.test(input);
-  const hasTrailingComma = /,\s*[\]\}]/.test(input);
+  const hasTrailingComma = /,\s*[\]}]/.test(input);
   if (hasComment || hasTrailingComma) return 0.9;
-  try { JSON.parse(input); return 0.3; } catch { return 0.6; }
+  try {
+    JSON.parse(input);
+    return 0.3;
+  } catch {
+    return 0.6;
+  }
 }
 
 /** Lenient canonicalization: trim only (comments/trailing commas allowed). */

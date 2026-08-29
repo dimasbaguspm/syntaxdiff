@@ -9,7 +9,12 @@ function detectHtml(input: string): number {
   const hasClose = /<\/[a-zA-Z][\w-]*>/.test(input);
   if (tagCount >= 3 && hasClose) return 0.9;
   if (tagCount >= 2 && hasClose) return 0.7;
-  if (tagCount >= 1 && hasClose && /<(html|head|body|div|span|p|a|ul|li|table|script|style)\b/i.test(t)) return 0.8;
+  if (
+    tagCount >= 1 &&
+    hasClose &&
+    /<(html|head|body|div|span|p|a|ul|li|table|script|style)\b/i.test(t)
+  )
+    return 0.8;
   return 0;
 }
 

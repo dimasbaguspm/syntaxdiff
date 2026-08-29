@@ -122,51 +122,51 @@ function ChangelogContent({ open }: { open: boolean }) {
 
   return (
     <div className="flex flex-col gap-2">
-        <SearchInput
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search changelog…"
-          aria-label="Search changelog"
-        />
-        <div className="flex flex-wrap items-center gap-2">
-          <SelectInput
-            value={versionFilter}
-            onChange={(e) => setVersionFilter(e.target.value)}
-            aria-label="Filter by version"
-            className="flex-1 min-w-0"
-          >
-            <option value="">All versions</option>
-            {versions.map((v) => (
-              <option key={v} value={v}>
-                v{v}
-              </option>
-            ))}
-          </SelectInput>
-          <SelectInput
-            value={sourceFilter}
-            onChange={(e) => setSourceFilter(e.target.value)}
-            aria-label="Filter by source"
-            className="flex-1 min-w-0"
-          >
-            <option value="">All sources</option>
-            {sources.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </SelectInput>
-        </div>
-        <p className="text-xs text-faint">
-          {matches} match{matches === 1 ? "" : "es"}
-        </p>
-        <div className="max-h-[60vh] overflow-auto rounded-lg border border-edge bg-well p-4">
-          {html ? (
-            <div ref={bodyRef} className="md-body" />
-          ) : (
-            <p className="text-sm text-dim">No matching changelog entries.</p>
-          )}
-        </div>
+      <SearchInput
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search changelog…"
+        aria-label="Search changelog"
+      />
+      <div className="flex flex-wrap items-center gap-2">
+        <SelectInput
+          value={versionFilter}
+          onChange={(e) => setVersionFilter(e.target.value)}
+          aria-label="Filter by version"
+          className="flex-1 min-w-0"
+        >
+          <option value="">All versions</option>
+          {versions.map((v) => (
+            <option key={v} value={v}>
+              v{v}
+            </option>
+          ))}
+        </SelectInput>
+        <SelectInput
+          value={sourceFilter}
+          onChange={(e) => setSourceFilter(e.target.value)}
+          aria-label="Filter by source"
+          className="flex-1 min-w-0"
+        >
+          <option value="">All sources</option>
+          {sources.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
+        </SelectInput>
       </div>
+      <p className="text-xs text-faint">
+        {matches} match{matches === 1 ? "" : "es"}
+      </p>
+      <div className="max-h-[60vh] overflow-auto rounded-lg border border-edge bg-well p-4">
+        {html ? (
+          <div ref={bodyRef} className="md-body" />
+        ) : (
+          <p className="text-sm text-dim">No matching changelog entries.</p>
+        )}
+      </div>
+    </div>
   );
 }
 
