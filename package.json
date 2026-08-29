@@ -23,7 +23,8 @@
     "fmt:check": "oxfmt --check src vite.config.ts vitest.config.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "release": "echo \"release via GitHub Releases — tag syntaxdiff_v<ver>\""
+    "release": "echo \"release via GitHub Releases — tag syntaxdiff_v<ver>\"",
+    "prepare": "husky"
   },
   "dependencies": {
     "@material-symbols/svg-400": "0.46.0",
@@ -76,6 +77,7 @@
     "@vitejs/plugin-react": "6.0.5",
     "fake-indexeddb": "6.2.5",
     "happy-dom": "20.11.6",
+    "husky": "^9.1.7",
     "jsdom": "30.0.1",
     "oxfmt": "0.63.0",
     "oxlint": "1.78.0",

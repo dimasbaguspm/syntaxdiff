@@ -1,0 +1,3 @@
+pnpm exec oxfmt --check src vite.config.ts vitest.config.ts
+pnpm exec oxlint --vue-plugin .
+pnpm exec tsc -b --noEmit
