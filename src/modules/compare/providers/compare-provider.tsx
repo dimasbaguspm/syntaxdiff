@@ -1,5 +1,10 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  sheetHref,
+  useCloseSheet,
+  useSheetQuery,
+} from "@/components/app-layout/hooks/use-sheet-query";
 import { adapters, applyOptsDefaults, autoDetect, getAdapter } from "@/modules/engine/lib";
 import type { LanguageId } from "@/modules/engine/lib/types";
 import { useStore } from "@/core/store";
@@ -39,7 +44,9 @@ export function CompareProvider({ children }: { children: ReactNode }) {
   const runError = useStore((s) => s.runError);
   const showSnack = useStore((s) => s.showSnack);
 
-  const [optionsOpen, setOptionsOpen] = useState(false);
+  const sheet = useSheetQuery();
+  const closeSheet = useCloseSheet();
+  const optionsOpen = sheet === "options";
   const [formatting, setFormatting] = useState<Record<Side, boolean>>({ a: false, b: false });
   const [validating, setValidating] = useState<Record<Side, boolean>>({ a: false, b: false });
 
@@ -192,10 +199,10 @@ export function CompareProvider({ children }: { children: ReactNode }) {
       trackEvent("change_language", { lang: l });
     },
     openOptions: () => {
-      setOptionsOpen(true);
+      navigate(sheetHref("options"));
       trackEvent("open_options");
     },
-    closeOptions: () => setOptionsOpen(false),
+    closeOptions: () => closeSheet(),
     compare: onCompare,
     validateSide: validate,
     formatSide: formatPane,

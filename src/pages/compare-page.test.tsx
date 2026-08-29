@@ -104,7 +104,7 @@ describe("ComparePage", () => {
     useStore.setState({ a: '{"x":1}', b: '{"x":2}', lang: "json" });
     renderCompare();
     fireEvent.click(screen.getByRole("button", { name: /Options/i }));
-    expect(screen.getByText("Options — JSON")).toBeInTheDocument();
+    expect(screen.getByText("Options - JSON")).toBeInTheDocument();
     expect(screen.getAllByRole("switch").length).toBeGreaterThan(0);
   });
 
