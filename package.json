@@ -4,7 +4,7 @@
   "version": "1.5.25",
   "packageManager": "pnpm@10.34.5",
   "type": "module",
-  "description": "Privacy-first, client-side syntax-aware diff tool (JSON, YAML, SQL, TOML, XML). Diffs structure, not bytes.",
+  "description": "Privacy-first, client-side syntax-aware diff for 36 languages. Diffs structure, not bytes. Nothing leaves your machine.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dimasbaguspm/syntaxdiff.git"
