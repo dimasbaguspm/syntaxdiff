@@ -77,10 +77,10 @@ export function SplitPanes({
     : "fixed inset-0 z-20 cursor-row-resize touch-none select-none md:cursor-col-resize";
 
   const dividerBase =
-    "relative z-10 flex shrink-0 touch-none select-none items-center justify-center border border-edge bg-surface-2 text-faint transition-colors hover:bg-surface hover:text-dim hover:border-edge-strong active:bg-surface active:text-ink";
+    "relative z-10 flex shrink-0 touch-none select-none items-center justify-center border border-edge bg-well text-faint transition-colors hover:bg-surface-2 hover:text-dim hover:border-edge-strong active:bg-surface active:text-ink";
   const dividerClassName = isVertical
-    ? `${dividerBase} h-7 w-full cursor-row-resize rounded-md`
-    : `${dividerBase} h-7 w-full cursor-row-resize rounded-md md:h-auto md:w-7 md:cursor-col-resize md:rounded-md`;
+    ? `${dividerBase} h-7 w-full cursor-row-resize`
+    : `${dividerBase} h-7 w-full cursor-row-resize md:h-auto md:w-5 md:cursor-col-resize`;
 
   return (
     <div
@@ -114,7 +114,7 @@ export function SplitPanes({
         onPointerDown={onPointerDown}
         className={dividerClassName}
       >
-        <span className="flex items-center justify-center rounded-sm bg-surface px-0.5 py-1 shadow-sm md:px-1 md:py-0.5">
+        <span className="flex items-center justify-center bg-well px-0.5 py-1 md:px-0.5 md:py-1">
           {isVertical ? (
             <GripHorizontal className="size-4" aria-hidden />
           ) : (
