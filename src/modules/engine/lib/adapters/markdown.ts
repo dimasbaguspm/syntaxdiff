@@ -3,11 +3,18 @@ import { markupFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectMarkdown(input: string): number {
   const t = input.trimStart();
-  if (!t) return 0;
-  if (/^#{1,6}\s/m.test(t)) return 0.7;
-  if (/^\s*[-*]\s+/m.test(t) || /^\s*\d+\.\s+/m.test(t)) return 0.5;
-  if (/\[[^\]]+\]\([^)]+\)/.test(t)) return 0.4;
-  if (/[*_]{1,3}[^*]+[*_]{1,3}/.test(t)) return 0.3;
+  if (!t || t.length < 10) return 0;
+  let signals = 0;
+  if (/^#{1,6}\s+\S/m.test(input)) signals++;
+  if (/^\s*[-*+]\s+\S/m.test(input)) signals++;
+  if (/^\s*\d+\.\s+\S/m.test(input)) signals++;
+  if (/\[[^\]]+\]\([^)]+\)/.test(input)) signals++;
+  if (/```\w*\n[\s\S]*?```/.test(input)) signals++;
+  if (/^>\s+\S/m.test(input)) signals++;
+  // Single weak inline emphasis is noisy — require at least 2 signals.
+  if (signals >= 3) return 0.9;
+  if (signals === 2) return 0.65;
+  if (signals === 1) return 0.25;
   return 0;
 }
 

@@ -1,5 +1,3 @@
-import { Modal } from "@/components/modal";
-
 const STEPS = [
   "Paste Source A and Source B into the two panes.",
   "Pick a language (or Auto) and set options like sort keys or a SQL dialect.",
@@ -8,19 +6,30 @@ const STEPS = [
   "Past diffs are saved to local history (bottom left) for search and reuse.",
 ];
 
-export function HelpModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function HelpContent() {
   return (
-    <Modal open={open} title="How to use SyntaxDiff" onClose={onClose}>
-      <ol className="flex flex-col gap-3">
-        {STEPS.map((step, i) => (
-          <li key={i} className="flex gap-3 text-sm text-ink">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/15 text-xs font-semibold text-accent">
-              {i + 1}
-            </span>
-            <span className="pt-0.5">{step}</span>
-          </li>
-        ))}
-      </ol>
-    </Modal>
+    <ol className="flex flex-col gap-3">
+      {STEPS.map((step, i) => (
+        <li key={i} className="flex gap-3 text-sm text-ink">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/15 text-xs font-semibold text-accent">
+            {i + 1}
+          </span>
+          <span className="pt-0.5">{step}</span>
+        </li>
+      ))}
+    </ol>
   );
+}
+
+export function HelpModal({
+  open,
+  bare,
+}: {
+  open: boolean;
+  onClose: () => void;
+  bare?: boolean;
+}) {
+  if (bare) return <HelpContent />;
+  if (!open) return null;
+  return <HelpContent />;
 }

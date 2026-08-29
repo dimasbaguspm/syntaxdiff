@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { BottomBar } from "@/components/app-layout/bottom-bar";
 import { DrawerHost, type DrawerRegistry } from "@/components/app-layout/drawer-host";
+import { ModalHost } from "@/components/app-layout/modal-host";
 
 /**
  * Top-level layout shell: routes in <main>, the persistent BottomBar footer, and
@@ -19,6 +20,7 @@ export function AppShell({
       <main className="flex min-h-0 w-full flex-1 flex-col overflow-hidden">{children}</main>
       <BottomBar />
       <DrawerHost registry={drawerRegistry} />
+      <ModalHost />
     </div>
   );
 }

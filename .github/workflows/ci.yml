@@ -5,12 +5,12 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  release:
+    types: [published]
 
 permissions:
   contents: read
 
-# Skip the image build/push entirely on PRs; run it on main only after
-# the verify gate passes. On PRs, verify runs standalone.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
@@ -20,85 +20,71 @@ jobs:
     name: Verify (fmt / lint / types / build / test)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 10.34.5
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec oxfmt --check src vite.config.ts vitest.config.ts
+      - run: pnpm exec oxlint --vue-plugin .
+      - run: pnpm exec tsc -b --noEmit
+      - run: pnpm exec vite build
+      - run: pnpm exec vitest run
 
-      - name: Install
-        run: pnpm install --frozen-lockfile
-
-      - name: Format check (oxfmt)
-        run: pnpm exec oxfmt --check src vite.config.ts vitest.config.ts
-
-      - name: Lint (oxlint)
-        run: pnpm exec oxlint --vue-plugin .
-
-      - name: Types (tsc)
-        run: pnpm exec tsc -b --noEmit
-
-      - name: Build (vite)
-        run: pnpm exec vite build
-
-      - name: Test (vitest)
-        run: pnpm exec vitest run
-
-  build-and-push:
+  build:
     name: Build and push image
     needs: verify
-    if: github.event_name == 'push'
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Compute version (semver from package.json)
-        id: meta
+      - id: meta
         run: |
-          echo "version=v$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
-          echo "semver=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+            echo "version=${TAG#syntaxdiff_v}" >> "$GITHUB_OUTPUT"
+            echo "tags=ghcr.io/${{ github.repository }}:${TAG},ghcr.io/${{ github.repository }}:${TAG#syntaxdiff_v},ghcr.io/${{ github.repository }}:latest" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=Nightly" >> "$GITHUB_OUTPUT"
+            echo "tags=ghcr.io/${{ github.repository }}:latest" >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+      - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push image (<version>)
-        uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.version }}
+          tags: ${{ steps.meta.outputs.tags }}
           build-args: |
-            VITE_APP_VERSION=${{ steps.meta.outputs.semver }}
+            VITE_APP_VERSION=${{ steps.meta.outputs.version }}
             VITE_OTEL_COLLECTOR_URL=https://otel.dimasbaguspm.dev
 
-      - name: Build and push image (latest / Nightly)
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/${{ github.repository }}:latest
-          build-args: |
-            VITE_APP_VERSION=${{ steps.meta.outputs.semver }}
-            VITE_OTEL_COLLECTOR_URL=https://otel.dimasbaguspm.dev
-
-      - name: Trigger deploy webhook
-        env:
+  deploy:
+    name: Deploy webhook
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - env:
           DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
-        if: env.DEPLOY_WEBHOOK_URL != ''
-        run: curl -fsS -X POST "$DEPLOY_WEBHOOK_URL"
+        run: |
+          if [ -z "$DEPLOY_WEBHOOK_URL" ]; then
+            echo "No DEPLOY_WEBHOOK_URL — skipping"
+            exit 0
+          fi
+          curl -fsS -X POST "$DEPLOY_WEBHOOK_URL"

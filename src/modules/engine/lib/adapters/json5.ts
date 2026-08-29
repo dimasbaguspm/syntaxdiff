@@ -5,16 +5,16 @@ import { looksLikeJsonContainer } from "./shared-detect";
 
 function detectJson5(input: string): number {
   const t = input.trimStart();
-  if (!t) return 0;
-  if (looksLikeJsonContainer(input)) {
-    try {
-      JSON.parse(input);
-      return 1;
-    } catch {
-      return 0.6;
-    }
-  }
-  return 0;
+  if (!t || t.length < 2) return 0;
+  if (!looksLikeJsonContainer(input)) return 0;
+  try { JSON.parse(input); return 0.4; } catch {}
+  // JSON5 hints: single quotes, trailing commas, unquoted keys, comments
+  let hints = 0;
+  if (/'[^']*'\s*:/.test(input)) hints++;
+  if (/\/\/|^\s*\/\*/m.test(input)) hints++;
+  if (/,\s*[\]\}]/.test(input)) hints++;
+  if (/\b[a-zA-Z_]\w*\s*:/.test(input) && !/"\w+"\s*:/.test(input)) hints++;
+  return hints >= 1 ? 0.9 : 0.5;
 }
 
 /** Parse + re-serialize (2-space). Throws `ParseError` on invalid input. */

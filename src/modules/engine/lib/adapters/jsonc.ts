@@ -4,13 +4,12 @@ import { looksLikeJsonContainer } from "./shared-detect";
 
 function detectJsonc(input: string): number {
   const t = input.trimStart();
-  if (!t) return 0;
-  if (looksLikeJsonContainer(input)) {
-    // JSONC allows comments / trailing commas; a plain JSON.parse failure is
-    // not disqualifying here.
-    return 0.7;
-  }
-  return 0;
+  if (!t || t.length < 2) return 0;
+  if (!looksLikeJsonContainer(input)) return 0;
+  const hasComment = /\/\/|^\s*\/\*/m.test(input) || /\/\*/.test(input);
+  const hasTrailingComma = /,\s*[\]\}]/.test(input);
+  if (hasComment || hasTrailingComma) return 0.9;
+  try { JSON.parse(input); return 0.3; } catch { return 0.6; }
 }
 
 /** Lenient canonicalization: trim only (comments/trailing commas allowed). */

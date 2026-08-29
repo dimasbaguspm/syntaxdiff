@@ -83,25 +83,26 @@ describe("BottomBar", () => {
     expect(await screen.findByText("12")).toBeInTheDocument();
   });
 
-  it("opens the Help modal with numbered steps", () => {
+  it("navigates to ?modal=help when Help is clicked", () => {
     render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={["/"]}>
         <BottomBar />
+        <LocationDisplay />
       </MemoryRouter>,
     );
     fireEvent.click(screen.getByRole("button", { name: "Help" }));
-    expect(screen.getByText("How to use SyntaxDiff")).toBeInTheDocument();
-    expect(screen.getByText("Paste Source A and Source B into the two panes.")).toBeInTheDocument();
+    expect(screen.getByTestId("location").textContent).toContain("modal=help");
   });
 
-  it("opens the Changelog modal from the bottom bar", () => {
+  it("navigates to ?modal=changelog when Changelog is clicked", () => {
     render(
-      <MemoryRouter>
+      <MemoryRouter initialEntries={["/"]}>
         <BottomBar />
+        <LocationDisplay />
       </MemoryRouter>,
     );
     fireEvent.click(screen.getByRole("button", { name: "Changelog" }));
-    expect(screen.getAllByText("Changelog").length).toBeGreaterThan(0);
+    expect(screen.getByTestId("location").textContent).toContain("modal=changelog");
   });
 
   it("shows the app version badge", () => {

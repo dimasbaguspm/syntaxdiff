@@ -3,10 +3,13 @@ import { markupFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectGherkin(input: string): number {
   const t = input.trimStart();
-  if (!t) return 0;
+  if (!t || t.length < 10) return 0;
   if (/^\s*Feature\s*:/m.test(t)) return 1;
-  if (/^\s*(Scenario|Scenario Outline|Given|When|Then|And|But)\s/.test(t)) return 0.8;
-  return 0;
+  let score = 0;
+  if (/^\s*Scenario( Outline)?:/m.test(input)) score += 0.5;
+  if (/^\s*(Given|When|Then|And|But)\b/m.test(input)) score += 0.4;
+  if (score === 0) return 0;
+  return Math.min(0.9, score);
 }
 
 export const gherkinAdapter: LanguageAdapter = {

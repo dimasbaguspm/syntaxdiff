@@ -3,10 +3,13 @@ import { markupFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectLess(input: string): number {
   const t = input.trimStart();
-  if (!t) return 0;
-  if (/@[\w-]+\s*:\s*[^;]+;/.test(t)) return 0.8; // less variables
-  if (/^[.#]?[\w-]+\s*\{[^}]*\}/m.test(t)) return 0.5;
-  return 0;
+  if (!t || t.length < 10) return 0;
+  let score = 0;
+  if (/@[\w-]+\s*:\s*[^;]+;/.test(input)) score += 0.6; // @var: value;
+  if (/\{[^{}]*:[^;{}]+;[^{}]*\}/.test(input)) score += 0.3;
+  // Penalize SCSS-only syntax to let SCSS outrank.
+  if (/\$[\w-]+\s*:/.test(input)) score -= 0.4;
+  return Math.min(1, Math.max(0, score));
 }
 
 export const lessAdapter: LanguageAdapter = {

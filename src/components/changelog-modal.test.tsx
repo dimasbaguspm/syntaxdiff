@@ -5,9 +5,9 @@ import { ChangelogModal } from "@/components/changelog-modal";
 afterEach(() => cleanup());
 
 describe("ChangelogModal", () => {
-  it("renders the changelog title", () => {
+  it("renders the changelog content", () => {
     render(<ChangelogModal open onClose={() => {}} />);
-    expect(screen.getAllByText("Changelog").length).toBeGreaterThan(0);
+    expect(screen.getByLabelText("Search changelog")).toBeInTheDocument();
   });
 
   it("shows content when opened from a closed state", () => {

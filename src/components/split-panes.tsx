@@ -1,3 +1,4 @@
+import { GripHorizontal, GripVertical } from "lucide-react";
 import { useRef, useState, type ReactNode } from "react";
 
 export type Orientation = "horizontal" | "vertical";
@@ -66,26 +67,20 @@ export function SplitPanes({
     flexShrink: 0,
   });
 
-  // Layout + divider styling per orientation.
   const isVertical = orientation === "vertical";
   const containerClassName = isVertical
     ? "flex min-h-0 flex-1 flex-col"
     : "flex min-h-0 flex-1 flex-col md:flex-row";
-  // A vertical split is resized up/down, so the separator is a horizontal bar.
-  // Mobile touch target is enlarged (h-7 = 28px) so it's easy to grab; desktop
-  // stays the slim 8px divider with a column cursor.
-  const dividerClassName = isVertical
-    ? "relative z-10 flex h-7 w-full shrink-0 cursor-row-resize touch-none select-none items-center justify-center bg-edge transition-colors hover:bg-edge-strong"
-    : "relative z-10 flex h-7 shrink-0 cursor-row-resize touch-none select-none items-center justify-center bg-edge transition-colors hover:bg-edge-strong md:h-2 md:w-2 md:cursor-col-resize";
-  const dividerHandleClassName = isVertical
-    ? "h-0.5 w-10 rounded-full bg-edge-strong"
-    : "h-0.5 w-10 rounded-full bg-edge-strong md:h-10 md:w-0.5";
-  // aria-orientation describes the divider's axis: a horizontal bar that moves
-  // up/down is "horizontal"; a vertical bar that moves left/right is "vertical".
   const ariaOrientation = isVertical ? "horizontal" : "vertical";
   const shieldClassName = isVertical
     ? "fixed inset-0 z-20 cursor-row-resize touch-none select-none"
     : "fixed inset-0 z-20 cursor-row-resize touch-none select-none md:cursor-col-resize";
+
+  const dividerBase =
+    "relative z-10 flex shrink-0 touch-none select-none items-center justify-center border border-edge bg-surface-2 text-faint transition-colors hover:bg-surface hover:text-dim hover:border-edge-strong active:bg-surface active:text-ink";
+  const dividerClassName = isVertical
+    ? `${dividerBase} h-7 w-full cursor-row-resize rounded-md`
+    : `${dividerBase} h-7 w-full cursor-row-resize rounded-md md:h-auto md:w-7 md:cursor-col-resize md:rounded-md`;
 
   return (
     <div
@@ -115,10 +110,20 @@ export function SplitPanes({
       <div
         role="separator"
         aria-orientation={ariaOrientation}
+        aria-label="Resize panels"
         onPointerDown={onPointerDown}
         className={dividerClassName}
       >
-        <span className={dividerHandleClassName} aria-hidden />
+        <span className="flex items-center justify-center rounded-sm bg-surface px-0.5 py-1 shadow-sm md:px-1 md:py-0.5">
+          {isVertical ? (
+            <GripHorizontal className="size-4" aria-hidden />
+          ) : (
+            <>
+              <GripVertical className="hidden size-4 md:block" aria-hidden />
+              <GripHorizontal className="size-4 md:hidden" aria-hidden />
+            </>
+          )}
+        </span>
       </div>
       <div className="flex min-h-0 min-w-0 flex-col" style={pane(`${(1 - ratio) * 100}%`)}>
         {right}

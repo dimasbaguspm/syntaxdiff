@@ -3,15 +3,13 @@ import { markupFmtToggles, whitespaceCanonicalize } from "./code-format";
 
 function detectGraphql(input: string): number {
   const t = input.trimStart();
-  if (!t) return 0;
-  if (
-    /^\s*(type|interface|enum|input|scalar|union|schema|query|mutation|subscription)\s+[\w]+/.test(
-      t,
-    )
-  )
-    return 1;
-  if (/^\{/m.test(t) && /\b(query|mutation|fragment)\b/.test(input)) return 0.6;
-  return 0;
+  if (!t || t.length < 15) return 0;
+  let score = 0;
+  if (/^(type|interface|enum|input|scalar|union|schema)\s+\w+/m.test(t)) score += 0.6;
+  if (/\b(query|mutation|subscription|fragment)\s+\w*/.test(input)) score += 0.3;
+  if (/\{[\s\S]*:[\s\S]*\}/.test(input) && score > 0) score += 0.2;
+  if (score === 0) return 0;
+  return Math.min(1, score);
 }
 
 export const graphqlAdapter: LanguageAdapter = {

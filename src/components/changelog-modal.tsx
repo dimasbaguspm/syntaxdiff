@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import changelogRaw from "../../CHANGELOG.md?raw";
-import { Modal } from "@/components/modal";
 import { SearchInput, SelectInput } from "@/components/inputs";
 
 interface Section {
@@ -80,7 +79,7 @@ function highlightInDom(root: HTMLElement, query: string) {
   }
 }
 
-export function ChangelogModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+function ChangelogContent({ open }: { open: boolean }) {
   const [query, setQuery] = useState("");
   const [versionFilter, setVersionFilter] = useState("");
   const [sourceFilter, setSourceFilter] = useState("");
@@ -122,8 +121,7 @@ export function ChangelogModal({ open, onClose }: { open: boolean; onClose: () =
   }, [html, query, open]);
 
   return (
-    <Modal open={open} title="Changelog" onClose={onClose}>
-      <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2">
         <SearchInput
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -169,6 +167,18 @@ export function ChangelogModal({ open, onClose }: { open: boolean; onClose: () =
           )}
         </div>
       </div>
-    </Modal>
   );
+}
+
+export function ChangelogModal({
+  open,
+  bare,
+}: {
+  open: boolean;
+  onClose: () => void;
+  bare?: boolean;
+}) {
+  if (bare) return <ChangelogContent open={open} />;
+  if (!open) return null;
+  return <ChangelogContent open={open} />;
 }
