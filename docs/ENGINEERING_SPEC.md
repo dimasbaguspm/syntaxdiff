@@ -1,8 +1,8 @@
-# SyntaxDiff — Engineering Specification
+# SyntaxDiff - Engineering Specification
 
 ## 1. Purpose
 
-SyntaxDiff is a privacy-first, client-side syntax-aware diff. Two snippets go in, a structured diff comes out — formatting noise and key reorder are invisible, real value changes and array order are visible. Everything runs in the browser; no content leaves the machine.
+SyntaxDiff is a privacy-first, client-side syntax-aware diff. Two snippets go in, a structured diff comes out. Formatting noise and key reorder are invisible, real value changes and array order are visible. Everything runs in the browser; no content leaves the machine.
 
 The product exists to answer one question quickly: did the structure change? Paste, compare, and trust the result without worrying about whitespace, ordering, or leaking data.
 
@@ -14,7 +14,7 @@ At the same time, sharing snippets to a server for diffing creates privacy risk,
 
 ## 3. Solution
 
-Parse each input, canonicalize it to a stable form, then diff the canonical text. Canonicalization is language-specific — JSON re-serializes, SQL formats and uppercases keywords, CSV normalizes and optionally aligns — but the pipeline is uniform:
+Parse each input, canonicalize it to a stable form, then diff the canonical text. Canonicalization is language-specific. JSON re-serializes, SQL formats and uppercases keywords, CSV normalizes and optionally aligns, but the pipeline is uniform:
 
 ```
 parse → canonicalize → line diff → render
@@ -24,25 +24,25 @@ Array order is always preserved; only object keys and formatting are normalized.
 
 ## 4. Approaches
 
-- **Detect then canonicalize** — Heuristics pick the language per adapter (confidence 0–1, fallback to plain text); the adapter then applies its own format. No shared parser; each language owns its rules.
-- **Worker-first with sync fallback** — The main thread only holds the pure, synchronous `format()`. The heavy Prettier-based `formatAsync()` lives exclusively in the worker bundle, keeping the main bundle small and the fallback safe for tests.
-- **Route-driven overlays** — Drawers, modals and sheets are opened via URL query params (`?drawerId=`, `?modal=`, `?sheet=`), making them deep-linkable and preventing stacked scrims.
-- **Local-first persistence** — History lives in IndexedDB (Dexie), not a backend. PWA precaches the app and the worker chunk for offline use.
-- **Fail-safe by default** — If a formatter throws, fall back to the robust canonical text. Never block a diff because of formatting.
+- **Detect then canonicalize**: Heuristics pick the language per adapter (confidence 0-1, fallback to plain text); the adapter then applies its own format. No shared parser; each language owns its rules.
+- **Worker-first with sync fallback**: The main thread only holds the pure, synchronous `format()`. The heavy Prettier-based `formatAsync()` lives exclusively in the worker bundle, keeping the main bundle small and the fallback safe for tests.
+- **Route-driven overlays**: Drawers, modals and sheets are opened via URL query params (`?drawerId=`, `?modal=`, `?sheet=`), making them deep-linkable and preventing stacked scrims.
+- **Local-first persistence**: History lives in IndexedDB (Dexie), not a backend. PWA precaches the app and the worker chunk for offline use.
+- **Fail-safe by default**: If a formatter throws, fall back to the robust canonical text. Never block a diff because of formatting.
 
 Supported languages (36 adapters): JSON/JSON5/JSONC, YAML/YML, TOML, XML, CSV, SQL, JS/TS, Go, PHP, HTML/CSS/Less/SCSS, Markdown/MDX, Vue/Angular/Svelte/Astro, GraphQL, Gherkin, Handlebars/Pug/Go-template/Glimmer, Nginx/Sh, plus plain text fallback. Formatter-disabled languages (Ruby, Rust, Kotlin, Java, Glimmer) use whitespace-only canonicalization.
 
-Not supported: Nix/Protobuf (needs WASM/binary schema), cloud sync/accounts, URL-share of content, WASM in MVP, and inline Monaco editing — all deferred to preserve privacy and scope.
+Not supported: Nix/Protobuf (needs WASM/binary schema), cloud sync/accounts, URL-share of content, WASM in MVP, and inline Monaco editing. All are deferred to preserve privacy and scope.
 
 ## 5. Architecture
 
 ```mermaid
 flowchart TB
-  UI[UI — React + Zustand + Router] --> Engine[Engine — adapters + canonical + diff]
-  Engine --> Worker[Worker — Prettier + plugins]
-  UI --> History[(History — Dexie)]
-  UI --> PWA[PWA — Workbox]
-  UI --> Telemetry[Telemetry — OTEL/Umami]
+  UI[UI: React + Zustand + Router] --> Engine[Engine: adapters + canonical + diff]
+  Engine --> Worker[Worker: Prettier + plugins]
+  UI --> History[(History: Dexie)]
+  UI --> PWA[PWA: Workbox]
+  UI --> Telemetry[Telemetry: OTEL/Umami]
 ```
 
 The UI owns state and routing; the engine owns language knowledge; the worker owns heavy formatting.
@@ -53,7 +53,7 @@ The UI owns state and routing; the engine owns language knowledge; the worker ow
 
 ```mermaid
 flowchart LR
-  Main[Main thread — sync format] -->|worker available| Worker[Worker — async format]
+  Main[Main thread: sync format] -->|worker available| Worker[Worker: async format]
   Worker --> Diff[Canonical diff]
   Main -->|no worker| Diff
 ```
@@ -124,6 +124,6 @@ verify → build → deploy
 ### Versioning
 
 - Every push to `main` publishes `ghcr.io/<repo>:latest`.
-- Publishing a GitHub Release publishes the same image with the release tag — no separate release workflow, no auto version bump in code.
+- Publishing a GitHub Release publishes the same image with the release tag: no separate release workflow, no auto version bump in code.
 - `CHANGELOG.md` is curated by hand; the previous auto-generation via semantic-release was removed.
 
